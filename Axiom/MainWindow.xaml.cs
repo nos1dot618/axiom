@@ -1,14 +1,23 @@
-﻿using System.Windows;
+﻿using System.IO;
+using System.Text.Json;
+using System.Windows;
+using System.Windows.Input;
 using Axiom.Lsp;
+using ICSharpCode.AvalonEdit.CodeCompletion;
 
 namespace Axiom;
 
 public partial class MainWindow
 {
+    private const string ServerPath = "../../../../node_modules/.bin/pyright-langserver.cmd";
+
     private readonly LspClient _lspClient = new();
     private bool _lspStarted;
 
-    private const string ServerPath = "../../../../node_modules/.bin/pyright-langserver.cmd";
+    // AvalonEdit
+    private CompletionWindow? _completionWindow;
+    private int _documentVersion = 1;
+    private string _currentFileUri = "file:///C:/Users/nosferatu/Downloads/test.py";
 
     public MainWindow()
     {
@@ -19,6 +28,9 @@ public partial class MainWindow
 
         Loaded += OnLoadedAsync;
         Closed += OnClosedAsync;
+        // Editor.TextArea.TextEntered += OnTextEntered;
+        Editor.TextArea.TextEntering += OnTextEntering;
+        Editor.TextChanged += OnEditorTextChanged;
     }
 
     private async void OnLoadedAsync(object sender, RoutedEventArgs e)
@@ -26,9 +38,10 @@ public partial class MainWindow
         try
         {
             await _lspClient.StartAsync(ServerPath, "--stdio");
-            // rootUri is null, can be replaced with the root path of the project.
-            await _lspClient.InitializeAsync();
+            await _lspClient.InitializeAsync(new Uri(@"C:\Users\nosferatu\Downloads").AbsoluteUri);
             _lspStarted = true;
+
+            await OpenFileAsync(@"C:\Users\nosferatu\Downloads\test.py");
         }
         catch (Exception ex)
         {
@@ -53,7 +66,76 @@ public partial class MainWindow
         }
     }
 
-    private void HandleException(Exception ex)
+    private async void OnTextEntered(object sender, TextCompositionEventArgs e)
+    {
+        if (!_lspStarted) return;
+
+        if (char.IsLetterOrDigit(e.Text[0]) || e.Text == ".")
+        {
+            await RequestCompletionAsync();
+        }
+    }
+
+    private async void OnTextEntering(object sender, TextCompositionEventArgs e)
+    {
+        if (_completionWindow == null) return;
+
+        if (e.Text.Length > 0 && char.IsLetterOrDigit(e.Text[0]))
+        {
+            _completionWindow.CompletionList.RequestInsertion(e);
+        }
+    }
+
+    private async Task RequestCompletionAsync()
+    {
+        var caret = Editor.TextArea.Caret;
+
+        var result = await _lspClient.SendRequestAsync(LspClient.Method.TextCompletion, new
+        {
+            textDocument = new
+            {
+                uri = _currentFileUri
+            },
+            position = new
+            {
+                line = caret.Line - 1,
+                character = caret.Column - 1
+            }
+        });
+
+        if (result.ValueKind == JsonValueKind.Null) return;
+
+        JsonElement items;
+        if (result.ValueKind == JsonValueKind.Object && result.TryGetProperty("items", out var itemsEx))
+            items = itemsEx;
+        else if (result.ValueKind == JsonValueKind.Array) items = result;
+        else return;
+
+        RenderCompletions(items);
+    }
+
+    private void RenderCompletions(JsonElement items)
+    {
+        _completionWindow?.Close();
+
+        _completionWindow = new CompletionWindow(Editor.TextArea);
+        var data = _completionWindow.CompletionList.CompletionData;
+
+        foreach (var item in items.EnumerateArray())
+        {
+            var label = item.GetProperty("label").GetString() ?? "";
+            var insertText = item.TryGetProperty("insertText", out var insertTextEx)
+                ? insertTextEx.GetString()
+                : label;
+
+            data.Add(new LspCompletionData(label, insertText ?? label));
+        }
+
+        _completionWindow.Show();
+        _completionWindow.Closed += (_, __) => _completionWindow = null;
+    }
+
+    private static void HandleException(Exception ex)
     {
         MessageBox.Show($"Failed to start LSP:\n{ex.Message}");
     }
@@ -66,5 +148,31 @@ public partial class MainWindow
         Editor.Options.HighlightCurrentLine = true;
         Editor.Options.AllowScrollBelowDocument = false;
         Editor.Options.ShowSpaces = false;
+    }
+
+    private async Task OpenFileAsync(string filePath)
+    {
+        Editor.Text = await File.ReadAllTextAsync(filePath);
+        _currentFileUri = new Uri(filePath).AbsoluteUri;
+        _documentVersion = 1;
+
+        if (!_lspStarted) return;
+        await _lspClient.SendDidOpen(_currentFileUri, "python", _documentVersion, Editor.Text);
+    }
+
+    private async void OnEditorTextChanged(object? sender, EventArgs e)
+    {
+        try
+        {
+            if (!_lspStarted) return;
+            _documentVersion++;
+
+            await _lspClient.SendDidChange(_currentFileUri, _documentVersion, Editor.Text);
+            await RequestCompletionAsync();
+        }
+        catch (Exception ex)
+        {
+            HandleException(ex);
+        }
     }
 }

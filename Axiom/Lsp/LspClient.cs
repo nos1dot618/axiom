@@ -8,6 +8,13 @@ namespace Axiom.Lsp;
 
 public sealed class LspClient : IDisposable
 {
+    public static class Method
+    {
+        public const string TextCompletion = "textDocument/completion";
+        public const string DidOpen = "textDocument/didOpen";
+        public const string DidChange = "textDocument/didChange";
+    }
+
     public bool IsRunning => _process is { HasExited: false };
 
     private Process? _process;
@@ -23,6 +30,10 @@ public sealed class LspClient : IDisposable
         PropertyNamingPolicy = null,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
     };
+
+    private readonly string _logFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "lsp.log");
+    private readonly object _logLock = new();
+
 
     public Task StartAsync(string serverCommand, string arguments)
     {
@@ -55,13 +66,34 @@ public sealed class LspClient : IDisposable
         {
             processId = Environment.ProcessId,
             rootUri,
-            capabilities = new { }
+            workspaceFolders = (rootUri == null)
+                ? null
+                : new[]
+                {
+                    new
+                    {
+                        uri = rootUri,
+                        name = "workspace"
+                    }
+                },
+            capabilities = new
+            {
+                textDocument = new
+                {
+                    synchronization = new
+                    {
+                        didSave = false,
+                        willSave = false,
+                        willSaveWaitUntil = false,
+                        dynamicRegistration = false
+                    }
+                }
+            }
         });
 
         await SendNotificationAsync("initialized", new { });
 
-        Console.WriteLine("LSP initialized:");
-        Console.WriteLine(response);
+        Log("SERVER -> CLIENT", $"initialized:\n{response}");
     }
 
     public async Task ShutdownAsync()
@@ -137,6 +169,8 @@ public sealed class LspClient : IDisposable
         var header = $"Content-Length: {bytes.Length}\r\n\r\n";
         var headerBytes = Encoding.ASCII.GetBytes(header);
 
+        Log("CLIENT -> SERVER", jsonString);
+
         await _stdin.WriteAsync(headerBytes);
         await _stdin.WriteAsync(bytes);
         await _stdin.FlushAsync();
@@ -197,6 +231,8 @@ public sealed class LspClient : IDisposable
                     taskCompletionSource.SetResult(result);
                 else if (message.TryGetProperty("error", out var error))
                     taskCompletionSource.SetException(new Exception(error.GetString()));
+
+                Log("SERVER -> CLIENT", message.ToString());
             }
 
             return;
@@ -204,11 +240,10 @@ public sealed class LspClient : IDisposable
 
         // Handle notification.
         // ReSharper disable once InvertIf
-        if (message.TryGetProperty("method", out var methodProperty) &&
-            methodProperty.ValueKind == JsonValueKind.String)
+        if (message.TryGetProperty("method", out var methodProperty))
         {
             var method = methodProperty.GetString();
-            Console.WriteLine($"LSP Notification: {method}");
+            Log("SERVER -> CLIENT", $"notification: message={message}");
         }
     }
 
@@ -221,7 +256,7 @@ public sealed class LspClient : IDisposable
             var line = await _process.StandardError.ReadLineAsync();
             if (!string.IsNullOrWhiteSpace(line))
             {
-                Console.WriteLine($"LSP Error: {line}");
+                Log("SERVER -> CLIENT", $"error={line}");
             }
         }
     }
@@ -232,5 +267,41 @@ public sealed class LspClient : IDisposable
         _process?.Dispose();
         _stdin?.Dispose();
         _stdout?.Dispose();
+    }
+
+    public async Task SendDidOpen(string fileUri, string languageId, int documentVersion, string text)
+    {
+        await SendNotificationAsync(Method.DidOpen, new
+        {
+            textDocument = new
+            {
+                uri = fileUri,
+                languageId,
+                version = documentVersion,
+                text
+            }
+        });
+    }
+
+    public async Task SendDidChange(string fileUri, int documentVersion, string text)
+    {
+        await SendNotificationAsync(Method.DidChange, new
+        {
+            textDocument = new
+            {
+                uri = fileUri,
+                version = documentVersion
+            },
+            contentChanges = new[] { new { text } }
+        });
+    }
+
+    private void Log(string direction, string message)
+    {
+        var logLine = $"[{DateTime.Now:HH:mm:ss.fff}] {direction}\n{message}\n\n";
+        lock (_logLock)
+        {
+            File.AppendAllText(_logFilePath, logLine);
+        }
     }
 }
