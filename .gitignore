@@ -1,5 +1,13 @@
 bin/
 obj/
+.idea/
 /packages/
 riderModule.iml
 /_ReSharper.Caches/
+
+**.sln.DotSettings.user
+
+node_modules/
+# Only used for testing as of now
+package.json
+package-lock.json
