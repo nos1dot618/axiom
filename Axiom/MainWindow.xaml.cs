@@ -3,9 +3,12 @@ using Axiom.Lsp;
 
 namespace Axiom;
 
-public partial class MainWindow : Window
+public partial class MainWindow
 {
-    private LspClient _lspClient;
+    private readonly LspClient _lspClient = new();
+    private bool _lspStarted;
+
+    private const string ServerPath = "../../../../node_modules/.bin/pyright-langserver.cmd";
 
     public MainWindow()
     {
@@ -14,22 +17,45 @@ public partial class MainWindow : Window
         Editor.Text = "";
         SetEditorOptions();
 
-        _lspClient = new LspClient();
-
-        Loaded += async (_, __) =>
-        {
-            await _lspClient.StartAsync(
-                "../../../../node_modules/.bin/pyright-langserver.cmd",
-                "--stdio"
-            );
-            await _lspClient.InitializeAsync();
-        };
+        Loaded += OnLoadedAsync;
+        Closed += OnClosedAsync;
     }
 
-    protected override async void OnClosed(EventArgs e)
+    private async void OnLoadedAsync(object sender, RoutedEventArgs e)
     {
-        await _lspClient.ShutdownAsync();
-        base.OnClosed(e);
+        try
+        {
+            await _lspClient.StartAsync(ServerPath, "--stdio");
+            // rootUri is null, can be replaced with the root path of the project.
+            await _lspClient.InitializeAsync();
+            _lspStarted = true;
+        }
+        catch (Exception ex)
+        {
+            HandleException(ex);
+        }
+    }
+
+    private async void OnClosedAsync(object? sender, EventArgs e)
+    {
+        try
+        {
+            if (_lspStarted)
+            {
+                await _lspClient.ShutdownAsync();
+            }
+
+            _lspClient.Dispose();
+        }
+        catch (Exception ex)
+        {
+            HandleException(ex);
+        }
+    }
+
+    private void HandleException(Exception ex)
+    {
+        MessageBox.Show($"Failed to start LSP:\n{ex.Message}");
     }
 
     private void SetEditorOptions()
