@@ -35,7 +35,6 @@ public sealed class LspClient : IDisposable
     private readonly string _logFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "lsp.log");
     private readonly object _logLock = new();
 
-
     public Task StartAsync(string serverCommand, string arguments)
     {
         _process = new Process
@@ -284,7 +283,7 @@ public sealed class LspClient : IDisposable
         });
     }
 
-    public async Task SendDidChange(string fileUri, int documentVersion, string text)
+    public async Task SendDidChangeFullDocumentSync(string fileUri, int documentVersion, string text)
     {
         await SendNotificationAsync(Method.DidChange, new
         {
@@ -297,14 +296,36 @@ public sealed class LspClient : IDisposable
         });
     }
 
+    public async Task SendDidChange(string fileUri, int documentVersion, int startLine, int startCharacter, int endLine,
+        int endCharacter, string newText)
+    {
+        await SendNotificationAsync(Method.DidChange, new
+        {
+            textDocument = new
+            {
+                uri = fileUri,
+                version = documentVersion
+            },
+            contentChanges = new[]
+            {
+                new
+                {
+                    range = new
+                    {
+                        start = new { line = startLine, character = startCharacter },
+                        end = new { line = endLine, character = endCharacter }
+                    },
+                    text = newText
+                }
+            }
+        });
+    }
+
     public Task SendDidSave(string uri)
     {
         return SendNotificationAsync(Method.DidSave, new
         {
-            textDocument = new
-            {
-                uri
-            }
+            textDocument = new { uri }
         });
     }
 

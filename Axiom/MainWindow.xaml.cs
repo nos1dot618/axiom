@@ -3,8 +3,9 @@ using System.Text.Json;
 using System.Windows;
 using System.Windows.Input;
 using Axiom.Lsp;
-using Microsoft.Win32;
 using ICSharpCode.AvalonEdit.CodeCompletion;
+using ICSharpCode.AvalonEdit.Document;
+using Microsoft.Win32;
 
 namespace Axiom;
 
@@ -20,6 +21,9 @@ public partial class MainWindow
     private int _documentVersion = 1;
     private string _currentFileUri = "file:///C:/Users/nosferatu/Downloads/test.py";
 
+    // Suppress on document change callback during loading the document.
+    private bool _suppressChanges;
+
     public MainWindow()
     {
         InitializeComponent();
@@ -32,7 +36,8 @@ public partial class MainWindow
         Closed += OnClosedAsync;
         // Editor.TextArea.TextEntered += OnTextEntered;
         Editor.TextArea.TextEntering += OnTextEntering;
-        Editor.TextChanged += OnEditorTextChanged;
+        // Editor.TextChanged += OnEditorTextChanged;
+        Editor.Document.Changed += OnDocumentChanged;
     }
 
     private async void OnLoadedAsync(object sender, RoutedEventArgs e)
@@ -154,9 +159,11 @@ public partial class MainWindow
 
     private async Task OpenFileAsync(string filePath)
     {
+        _suppressChanges = true;
         Editor.Text = await File.ReadAllTextAsync(filePath);
         _currentFileUri = new Uri(filePath).AbsoluteUri;
         _documentVersion = 1;
+        _suppressChanges = false;
 
         if (!_lspStarted) return;
         await _lspClient.SendDidOpen(_currentFileUri, "python", _documentVersion, Editor.Text);
@@ -169,7 +176,7 @@ public partial class MainWindow
             if (!_lspStarted) return;
             _documentVersion++;
 
-            await _lspClient.SendDidChange(_currentFileUri, _documentVersion, Editor.Text);
+            await _lspClient.SendDidChangeFullDocumentSync(_currentFileUri, _documentVersion, Editor.Text);
             await RequestCompletionAsync();
         }
         catch (Exception ex)
@@ -209,6 +216,30 @@ public partial class MainWindow
             await File.WriteAllTextAsync(filePath, Editor.Text);
 
             if (_lspStarted) await _lspClient.SendDidSave(_currentFileUri);
+        }
+        catch (Exception ex)
+        {
+            HandleException(ex);
+        }
+    }
+
+    private async void OnDocumentChanged(object? sender, DocumentChangeEventArgs e)
+    {
+        try
+        {
+            if (!_lspStarted || _suppressChanges) return;
+
+            _documentVersion++;
+
+            var document = Editor.Document;
+            var startLocation = document.GetLocation(e.Offset);
+            var endLocation = document.GetLocation(e.Offset + e.RemovalLength);
+
+            await _lspClient.SendDidChange(_currentFileUri, _documentVersion, startLocation.Line - 1,
+                startLocation.Column - 1, endLocation.Line - 1, endLocation.Column - 1,
+                e.InsertedText.Text ?? string.Empty);
+
+            await RequestCompletionAsync();
         }
         catch (Exception ex)
         {
