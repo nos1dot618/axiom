@@ -73,16 +73,6 @@ public partial class MainWindow
         }
     }
 
-    private async void OnTextEntered(object sender, TextCompositionEventArgs e)
-    {
-        if (!_lspStarted) return;
-
-        if (char.IsLetterOrDigit(e.Text[0]) || e.Text == ".")
-        {
-            await RequestCompletionAsync();
-        }
-    }
-
     private async void OnTextEntering(object sender, TextCompositionEventArgs e)
     {
         if (_completionWindow == null) return;
@@ -167,22 +157,6 @@ public partial class MainWindow
 
         if (!_lspStarted) return;
         await _lspClient.SendDidOpen(_currentFileUri, "python", _documentVersion, Editor.Text);
-    }
-
-    private async void OnEditorTextChanged(object? sender, EventArgs e)
-    {
-        try
-        {
-            if (!_lspStarted) return;
-            _documentVersion++;
-
-            await _lspClient.SendDidChangeFullDocumentSync(_currentFileUri, _documentVersion, Editor.Text);
-            await RequestCompletionAsync();
-        }
-        catch (Exception ex)
-        {
-            HandleException(ex);
-        }
     }
 
     private async void OnOpenExecuted(object sender, ExecutedRoutedEventArgs e)
