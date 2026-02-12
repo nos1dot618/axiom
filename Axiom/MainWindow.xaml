@@ -4,7 +4,6 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
-        xmlns:local="clr-namespace:Axiom"
         mc:Ignorable="d"
         Width="1000"
         Height="700"
@@ -13,12 +12,60 @@
         WindowStartupLocation="CenterScreen">
     <DockPanel>
 
-        <!-- Toolbar placeholder -->
-        <Border Height="32"
-                Background="#3C3F41"
-                DockPanel.Dock="Top" />
+        <!-- Native WPF Menu -->
+        <Menu DockPanel.Dock="Top">
 
-        <!-- Editor -->
+            <MenuItem Header="_File">
+                <MenuItem Header="_New" Click="NewFile_Click" />
+                <MenuItem Header="_Open..." Click="NewFile_Click" />
+                <MenuItem Header="_Save" Click="NewFile_Click" />
+                <MenuItem Header="Save _As..." Click="NewFile_Click" />
+                <Separator />
+                <MenuItem Header="E_xit" Click="NewFile_Click" />
+            </MenuItem>
+
+            <MenuItem Header="_Edit">
+                <MenuItem Header="_Undo" Click="NewFile_Click" />
+                <MenuItem Header="_Redo" Click="NewFile_Click" />
+                <Separator />
+                <MenuItem Header="Cu_t" Click="NewFile_Click" />
+                <MenuItem Header="_Copy" Click="NewFile_Click" />
+                <MenuItem Header="_Paste" Click="NewFile_Click" />
+                <Separator />
+                <MenuItem Header="Select _All" Click="NewFile_Click" />
+            </MenuItem>
+
+            <MenuItem Header="_View">
+                <MenuItem Header="Toggle _Line Numbers"
+                          IsCheckable="True"
+                          IsChecked="True"
+                          Click="NewFile_Click" />
+            </MenuItem>
+
+            <MenuItem Header="_Run">
+                <MenuItem Header="_Run File (F5)" Click="NewFile_Click" />
+                <Separator />
+                <MenuItem Header="Language">
+                    <MenuItem Header="Python"
+                              IsCheckable="True"
+                              IsChecked="True"
+                              Click="NewFile_Click" />
+                    <MenuItem Header="C#"
+                              IsCheckable="True"
+                              Click="NewFile_Click" />
+                    <MenuItem Header="JavaScript"
+                              IsCheckable="True"
+                              Click="NewFile_Click" />
+                </MenuItem>
+            </MenuItem>
+
+            <MenuItem Header="_Help">
+                <MenuItem Header="_About" Click="NewFile_Click" />
+            </MenuItem>
+
+        </Menu>
+
+        <!-- Avalon Editor -->
         <avalonEdit:TextEditor
             x:Name="Editor"
             Background="#2B2B2B"
@@ -26,5 +73,7 @@
             FontFamily="Consolas"
             FontSize="14"
             ShowLineNumbers="True" />
+
     </DockPanel>
+
 </Window>
