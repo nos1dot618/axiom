@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Text.Json;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using Axiom.Lsp;
 using ICSharpCode.AvalonEdit.CodeCompletion;
@@ -145,6 +146,8 @@ public partial class MainWindow
         Editor.Options.HighlightCurrentLine = true;
         Editor.Options.AllowScrollBelowDocument = false;
         Editor.Options.ShowSpaces = false;
+        Editor.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
+        Editor.HorizontalScrollBarVisibility = ScrollBarVisibility.Hidden;
     }
 
     private async Task OpenFileAsync(string filePath)
