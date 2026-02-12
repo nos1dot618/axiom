@@ -13,6 +13,7 @@ public sealed class LspClient : IDisposable
         public const string TextCompletion = "textDocument/completion";
         public const string DidOpen = "textDocument/didOpen";
         public const string DidChange = "textDocument/didChange";
+        public const string DidSave = "textDocument/didSave";
     }
 
     public bool IsRunning => _process is { HasExited: false };
@@ -82,7 +83,7 @@ public sealed class LspClient : IDisposable
                 {
                     synchronization = new
                     {
-                        didSave = false,
+                        didSave = true,
                         willSave = false,
                         willSaveWaitUntil = false,
                         dynamicRegistration = false
@@ -293,6 +294,17 @@ public sealed class LspClient : IDisposable
                 version = documentVersion
             },
             contentChanges = new[] { new { text } }
+        });
+    }
+
+    public Task SendDidSave(string uri)
+    {
+        return SendNotificationAsync(Method.DidSave, new
+        {
+            textDocument = new
+            {
+                uri
+            }
         });
     }
 

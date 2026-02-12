@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Windows;
 using System.Windows.Input;
 using Axiom.Lsp;
+using Microsoft.Win32;
 using ICSharpCode.AvalonEdit.CodeCompletion;
 
 namespace Axiom;
@@ -25,6 +26,7 @@ public partial class MainWindow
 
         Editor.Text = "";
         SetEditorOptions();
+        SetKeybindings();
 
         Loaded += OnLoadedAsync;
         Closed += OnClosedAsync;
@@ -174,5 +176,52 @@ public partial class MainWindow
         {
             HandleException(ex);
         }
+    }
+
+    private async void OnOpenExecuted(object sender, ExecutedRoutedEventArgs e)
+    {
+        try
+        {
+            var dialog = new OpenFileDialog
+            {
+                Filter = "Python Files (*.py)|*.py|All Files (*.*)|*.*"
+            };
+
+            // TODO: Save file if any changes before switching to a different file.
+            if (dialog.ShowDialog() == true)
+            {
+                await OpenFileAsync(dialog.FileName);
+            }
+        }
+        catch (Exception ex)
+        {
+            HandleException(ex);
+        }
+    }
+
+    private async void OnSaveExecuted(object sender, ExecutedRoutedEventArgs e)
+    {
+        try
+        {
+            if (string.IsNullOrEmpty(_currentFileUri)) return;
+
+            var filePath = new Uri(_currentFileUri).LocalPath;
+            await File.WriteAllTextAsync(filePath, Editor.Text);
+
+            if (_lspStarted) await _lspClient.SendDidSave(_currentFileUri);
+        }
+        catch (Exception ex)
+        {
+            HandleException(ex);
+        }
+    }
+
+    private void SetKeybindings()
+    {
+        CommandBindings.Add(new CommandBinding(ApplicationCommands.Open, OnOpenExecuted));
+        CommandBindings.Add(new CommandBinding(ApplicationCommands.Save, OnSaveExecuted));
+
+        InputBindings.Add(new KeyBinding(ApplicationCommands.Open, new KeyGesture(Key.O, ModifierKeys.Control)));
+        InputBindings.Add(new KeyBinding(ApplicationCommands.Save, new KeyGesture(Key.S, ModifierKeys.Control)));
     }
 }
