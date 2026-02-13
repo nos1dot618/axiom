@@ -1,7 +1,6 @@
 ﻿using System.Text.Json;
 using Axiom.Completion;
 using Axiom.Documents;
-using Axiom.Lsp.Models;
 using Axiom.Lsp.Transport;
 
 namespace Axiom.Lsp.Protocol;
@@ -66,7 +65,7 @@ public sealed class LspProtocolClient(JsonRpcLspClient transport)
         });
     }
 
-    public Task DidChangeAsync(DocumentMetadata documentMetadata, LspDocumentChangeDto changeDto)
+    public Task DidChangeAsync(DocumentMetadata documentMetadata, DocumentChangeDto changeDto)
     {
         return transport.SendNotificationAsync(LspMethod.Notification.DidChange, new
         {
@@ -99,7 +98,7 @@ public sealed class LspProtocolClient(JsonRpcLspClient transport)
     }
 
     public async Task<IReadOnlyList<CompletionItem>> RequestCompletionItems(DocumentMetadata documentMetadata,
-        LspDocumentPosition position)
+        DocumentPosition position)
     {
         var result = await transport.SendRequestAsync(LspMethod.Request.TextCompletion, new
         {

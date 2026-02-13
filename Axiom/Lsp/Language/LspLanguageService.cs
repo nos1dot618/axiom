@@ -1,6 +1,5 @@
 ﻿using Axiom.Completion;
 using Axiom.Documents;
-using Axiom.Lsp.Models;
 using Axiom.Lsp.Protocol;
 using Axiom.Lsp.Transport;
 
@@ -37,7 +36,7 @@ public sealed class LspLanguageService : IAsyncDisposable
         return documentMetadata;
     }
 
-    public async Task ChangeDocumentAsync(DocumentMetadata documentMetadata, LspDocumentChangeDto changeDto)
+    public async Task ChangeDocumentAsync(DocumentMetadata documentMetadata, DocumentChangeDto changeDto)
     {
         documentMetadata.IncrementVersion();
 
@@ -50,7 +49,7 @@ public sealed class LspLanguageService : IAsyncDisposable
     }
 
     public Task<IReadOnlyList<CompletionItem>> GetCompletionsAsync(DocumentMetadata documentMetadata,
-        LspDocumentPosition position)
+        DocumentPosition position)
     {
         return _client.RequestCompletionItems(documentMetadata, position);
     }
