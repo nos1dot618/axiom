@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
-using Axiom.Core.Completion;
-using Axiom.Lsp.Documents;
+using Axiom.Completion;
+using Axiom.Documents;
 using Axiom.Lsp.Models;
 using Axiom.Lsp.Transport;
 
@@ -52,7 +52,7 @@ public sealed class LspProtocolClient(JsonRpcLspClient transport)
         return new LspCapabilities();
     }
 
-    public Task DidOpenAsync(LspDocumentMetadata documentMetadata, string text)
+    public Task DidOpenAsync(DocumentMetadata documentMetadata, string text)
     {
         return transport.SendNotificationAsync(LspMethod.Notification.DidOpen, new
         {
@@ -66,7 +66,7 @@ public sealed class LspProtocolClient(JsonRpcLspClient transport)
         });
     }
 
-    public Task DidChangeAsync(LspDocumentMetadata documentMetadata, LspDocumentChangeDto changeDto)
+    public Task DidChangeAsync(DocumentMetadata documentMetadata, LspDocumentChangeDto changeDto)
     {
         return transport.SendNotificationAsync(LspMethod.Notification.DidChange, new
         {
@@ -90,7 +90,7 @@ public sealed class LspProtocolClient(JsonRpcLspClient transport)
         });
     }
 
-    public Task DidSaveAsync(LspDocumentMetadata documentMetadata)
+    public Task DidSaveAsync(DocumentMetadata documentMetadata)
     {
         return transport.SendNotificationAsync(LspMethod.Notification.DidSave, new
         {
@@ -98,7 +98,7 @@ public sealed class LspProtocolClient(JsonRpcLspClient transport)
         });
     }
 
-    public async Task<IReadOnlyList<CompletionItem>> RequestCompletionItems(LspDocumentMetadata documentMetadata,
+    public async Task<IReadOnlyList<CompletionItem>> RequestCompletionItems(DocumentMetadata documentMetadata,
         LspDocumentPosition position)
     {
         var result = await transport.SendRequestAsync(LspMethod.Request.TextCompletion, new

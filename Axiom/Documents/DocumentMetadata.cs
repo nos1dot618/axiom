@@ -1,6 +1,6 @@
-﻿namespace Axiom.Lsp.Documents;
+﻿namespace Axiom.Documents;
 
-public sealed class LspDocumentMetadata(string uri, string languageId)
+public sealed class DocumentMetadata(string uri, string languageId)
 {
     public string Uri { get; } = uri;
     public string LanguageId { get; } = languageId;

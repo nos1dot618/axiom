@@ -3,7 +3,7 @@ using ICSharpCode.AvalonEdit.CodeCompletion;
 using ICSharpCode.AvalonEdit.Document;
 using ICSharpCode.AvalonEdit.Editing;
 
-namespace Axiom.Core.Completion;
+namespace Axiom.Completion;
 
 public sealed class CompletionItem(string text, string insertText) : ICompletionData
 {

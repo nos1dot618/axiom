@@ -2,8 +2,8 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using Axiom.Core.Completion;
-using Axiom.Lsp.Documents;
+using Axiom.Completion;
+using Axiom.Documents;
 using Axiom.Lsp.Language;
 using Axiom.Lsp.Models;
 using ICSharpCode.AvalonEdit.CodeCompletion;
@@ -18,7 +18,7 @@ public partial class MainWindow
 
     // AvalonEdit
     private CompletionWindow? _completionWindow;
-    private LspDocumentMetadata? _documentMetadata;
+    private DocumentMetadata? _documentMetadata;
 
     // Suppress on document change callback during loading the document.
     private bool _suppressChanges;

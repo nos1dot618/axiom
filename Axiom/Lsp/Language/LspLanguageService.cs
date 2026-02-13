@@ -1,5 +1,5 @@
-﻿using Axiom.Core.Completion;
-using Axiom.Lsp.Documents;
+﻿using Axiom.Completion;
+using Axiom.Documents;
 using Axiom.Lsp.Models;
 using Axiom.Lsp.Protocol;
 using Axiom.Lsp.Transport;
@@ -28,28 +28,28 @@ public sealed class LspLanguageService : IAsyncDisposable
         _capabilities = await _client.InitializeAsync();
     }
 
-    public async Task<LspDocumentMetadata> OpenDocumentAsync(string filePath, string languageId, string text)
+    public async Task<DocumentMetadata> OpenDocumentAsync(string filePath, string languageId, string text)
     {
         var uri = new Uri(filePath).AbsoluteUri;
-        var documentMetadata = new LspDocumentMetadata(uri, languageId);
+        var documentMetadata = new DocumentMetadata(uri, languageId);
 
         await _client.DidOpenAsync(documentMetadata, text);
         return documentMetadata;
     }
 
-    public async Task ChangeDocumentAsync(LspDocumentMetadata documentMetadata, LspDocumentChangeDto changeDto)
+    public async Task ChangeDocumentAsync(DocumentMetadata documentMetadata, LspDocumentChangeDto changeDto)
     {
         documentMetadata.IncrementVersion();
 
         await _client.DidChangeAsync(documentMetadata, changeDto);
     }
 
-    public async Task SaveDocumentAsync(LspDocumentMetadata documentMetadata)
+    public async Task SaveDocumentAsync(DocumentMetadata documentMetadata)
     {
         await _client.DidSaveAsync(documentMetadata);
     }
 
-    public Task<IReadOnlyList<CompletionItem>> GetCompletionsAsync(LspDocumentMetadata documentMetadata,
+    public Task<IReadOnlyList<CompletionItem>> GetCompletionsAsync(DocumentMetadata documentMetadata,
         LspDocumentPosition position)
     {
         return _client.RequestCompletionItems(documentMetadata, position);

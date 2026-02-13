@@ -1,8 +1,8 @@
 ﻿using System.Text.Json;
 
-namespace Axiom.Core.Completion;
+namespace Axiom.Completion;
 
-public class CompletionItemMapper
+public static class CompletionItemMapper
 {
     public static IReadOnlyList<CompletionItem> Map(JsonElement result)
     {
