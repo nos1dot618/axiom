@@ -1,0 +1,26 @@
+﻿using System.IO;
+using Axiom.Common;
+
+namespace Axiom.Diagnostics;
+
+public sealed class Logger(ModuleType module, LogLevel minimumLogLevel)
+{
+    private readonly object _lock = new();
+    private static readonly string LogFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "app.log");
+
+    public void Debug(string message) => Log(LogLevel.Debug, message);
+    public void Info(string message) => Log(LogLevel.Info, message);
+    public void Warning(string message) => Log(LogLevel.Warning, message);
+    public void Error(string message) => Log(LogLevel.Error, message);
+
+    private void Log(LogLevel level, string message)
+    {
+        if (level < minimumLogLevel) return;
+
+        lock (_lock)
+        {
+            var logLine = $"{DateTime.Now:HH:mm:ss.fff}: [{level}] {module}: {message}";
+            File.AppendAllText(LogFilePath, logLine);
+        }
+    }
+}

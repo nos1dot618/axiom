@@ -1,9 +1,11 @@
 ﻿using System.IO;
-using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using Axiom.Lsp;
+using Axiom.Core.Completion;
+using Axiom.Lsp.Documents;
+using Axiom.Lsp.Language;
+using Axiom.Lsp.Models;
 using ICSharpCode.AvalonEdit.CodeCompletion;
 using ICSharpCode.AvalonEdit.Document;
 using Microsoft.Win32;
@@ -12,15 +14,12 @@ namespace Axiom;
 
 public partial class MainWindow
 {
-    private const string ServerPath = "../../../../node_modules/.bin/pyright-langserver.cmd";
-
-    private readonly LspClient _lspClient = new();
+    private readonly LspLanguageService _lspService;
     private bool _lspStarted;
 
     // AvalonEdit
     private CompletionWindow? _completionWindow;
-    private int _documentVersion = 1;
-    private string _currentFileUri = "file:///C:/Users/nosferatu/Downloads/test.py";
+    private LspDocumentMetadata? _documentMetadata;
 
     // Suppress on document change callback during loading the document.
     private bool _suppressChanges;
@@ -28,6 +27,11 @@ public partial class MainWindow
     public MainWindow()
     {
         InitializeComponent();
+
+        LspServerConfiguration lspConfiguration = new("python", "../../../../node_modules/.bin/pyright-langserver.cmd",
+            "--stdio",
+            @"C:\Users\nosferatu\Downloads");
+        _lspService = new LspLanguageService(lspConfiguration);
 
         Editor.Text = "";
         SetEditorOptions();
@@ -45,8 +49,7 @@ public partial class MainWindow
     {
         try
         {
-            await _lspClient.StartAsync(ServerPath, "--stdio");
-            await _lspClient.InitializeAsync(new Uri(@"C:\Users\nosferatu\Downloads").AbsoluteUri);
+            await _lspService.InitializeAsync();
             _lspStarted = true;
 
             await OpenFileAsync(@"C:\Users\nosferatu\Downloads\test.py");
@@ -61,12 +64,7 @@ public partial class MainWindow
     {
         try
         {
-            if (_lspStarted)
-            {
-                await _lspClient.ShutdownAsync();
-            }
-
-            _lspClient.Dispose();
+            await _lspService.DisposeAsync();
         }
         catch (Exception ex)
         {
@@ -74,7 +72,7 @@ public partial class MainWindow
         }
     }
 
-    private async void OnTextEntering(object sender, TextCompositionEventArgs e)
+    private void OnTextEntering(object sender, TextCompositionEventArgs e)
     {
         if (_completionWindow == null) return;
 
@@ -86,51 +84,30 @@ public partial class MainWindow
 
     private async Task RequestCompletionAsync()
     {
+        if (_documentMetadata == null) return;
+
         var caret = Editor.TextArea.Caret;
+        LspDocumentPosition position = new(caret.Line - 1, caret.Column - 1);
 
-        var result = await _lspClient.SendRequestAsync(LspClient.Method.TextCompletion, new
-        {
-            textDocument = new
-            {
-                uri = _currentFileUri
-            },
-            position = new
-            {
-                line = caret.Line - 1,
-                character = caret.Column - 1
-            }
-        });
+        var completionItems = await _lspService.GetCompletionsAsync(_documentMetadata, position);
 
-        if (result.ValueKind == JsonValueKind.Null) return;
-
-        JsonElement items;
-        if (result.ValueKind == JsonValueKind.Object && result.TryGetProperty("items", out var itemsEx))
-            items = itemsEx;
-        else if (result.ValueKind == JsonValueKind.Array) items = result;
-        else return;
-
-        RenderCompletions(items);
+        RenderCompletions(completionItems);
     }
 
-    private void RenderCompletions(JsonElement items)
+    private void RenderCompletions(IReadOnlyList<CompletionItem> completionItems)
     {
         _completionWindow?.Close();
 
         _completionWindow = new CompletionWindow(Editor.TextArea);
         var data = _completionWindow.CompletionList.CompletionData;
 
-        foreach (var item in items.EnumerateArray())
+        foreach (var completionItem in completionItems)
         {
-            var label = item.GetProperty("label").GetString() ?? "";
-            var insertText = item.TryGetProperty("insertText", out var insertTextEx)
-                ? insertTextEx.GetString()
-                : label;
-
-            data.Add(new LspCompletionData(label, insertText ?? label));
+            data.Add(completionItem);
         }
 
         _completionWindow.Show();
-        _completionWindow.Closed += (_, __) => _completionWindow = null;
+        _completionWindow.Closed += (_, _) => _completionWindow = null;
     }
 
     private static void HandleException(Exception ex)
@@ -154,12 +131,10 @@ public partial class MainWindow
     {
         _suppressChanges = true;
         Editor.Text = await File.ReadAllTextAsync(filePath);
-        _currentFileUri = new Uri(filePath).AbsoluteUri;
-        _documentVersion = 1;
         _suppressChanges = false;
 
         if (!_lspStarted) return;
-        await _lspClient.SendDidOpen(_currentFileUri, "python", _documentVersion, Editor.Text);
+        _documentMetadata = await _lspService.OpenDocumentAsync(filePath, "python", Editor.Text);
     }
 
     private async void OnOpenExecuted(object sender, ExecutedRoutedEventArgs e)
@@ -187,12 +162,12 @@ public partial class MainWindow
     {
         try
         {
-            if (string.IsNullOrEmpty(_currentFileUri)) return;
+            if (_documentMetadata == null || string.IsNullOrEmpty(_documentMetadata.Uri)) return;
 
-            var filePath = new Uri(_currentFileUri).LocalPath;
+            var filePath = new Uri(_documentMetadata.Uri).LocalPath;
             await File.WriteAllTextAsync(filePath, Editor.Text);
 
-            if (_lspStarted) await _lspClient.SendDidSave(_currentFileUri);
+            if (_lspStarted) await _lspService.SaveDocumentAsync(_documentMetadata);
         }
         catch (Exception ex)
         {
@@ -204,18 +179,14 @@ public partial class MainWindow
     {
         try
         {
-            if (!_lspStarted || _suppressChanges) return;
-
-            _documentVersion++;
+            if (_documentMetadata == null || !_lspStarted || _suppressChanges) return;
 
             var document = Editor.Document;
-            var startLocation = document.GetLocation(e.Offset);
-            var endLocation = document.GetLocation(e.Offset + e.RemovalLength);
+            var startPosition = new LspDocumentPosition(document.GetLocation(e.Offset));
+            var endPosition = new LspDocumentPosition(document.GetLocation(e.Offset + e.RemovalLength));
+            var changeDto = new LspDocumentChangeDto(startPosition, endPosition, e.InsertedText.Text ?? string.Empty);
 
-            await _lspClient.SendDidChange(_currentFileUri, _documentVersion, startLocation.Line - 1,
-                startLocation.Column - 1, endLocation.Line - 1, endLocation.Column - 1,
-                e.InsertedText.Text ?? string.Empty);
-
+            await _lspService.ChangeDocumentAsync(_documentMetadata, changeDto);
             await RequestCompletionAsync();
         }
         catch (Exception ex)
