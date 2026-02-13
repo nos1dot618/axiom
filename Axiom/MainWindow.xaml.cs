@@ -14,8 +14,7 @@ namespace Axiom;
 
 public partial class MainWindow
 {
-    private readonly LspLanguageService _lspService;
-    private bool _lspStarted;
+    private readonly LspLanguageService? _lspService;
 
     // AvalonEdit
     private CompletionWindow? _completionWindow;
@@ -49,8 +48,7 @@ public partial class MainWindow
     {
         try
         {
-            await _lspService.InitializeAsync();
-            _lspStarted = true;
+            if (_lspService != null) await _lspService.InitializeAsync();
 
             await OpenFileAsync(@"C:\Users\nosferatu\Downloads\test.py");
         }
@@ -64,7 +62,7 @@ public partial class MainWindow
     {
         try
         {
-            await _lspService.DisposeAsync();
+            if (_lspService != null) await _lspService.DisposeAsync();
         }
         catch (Exception ex)
         {
@@ -89,7 +87,7 @@ public partial class MainWindow
         var caret = Editor.TextArea.Caret;
         LspDocumentPosition position = new(caret.Line - 1, caret.Column - 1);
 
-        var completionItems = await _lspService.GetCompletionsAsync(_documentMetadata, position);
+        var completionItems = await _lspService!.GetCompletionsAsync(_documentMetadata, position);
 
         RenderCompletions(completionItems);
     }
@@ -133,8 +131,8 @@ public partial class MainWindow
         Editor.Text = await File.ReadAllTextAsync(filePath);
         _suppressChanges = false;
 
-        if (!_lspStarted) return;
-        _documentMetadata = await _lspService.OpenDocumentAsync(filePath, "python", Editor.Text);
+        if (_lspService != null)
+            _documentMetadata = await _lspService.OpenDocumentAsync(filePath, "python", Editor.Text);
     }
 
     private async void OnOpenExecuted(object sender, ExecutedRoutedEventArgs e)
@@ -167,7 +165,7 @@ public partial class MainWindow
             var filePath = new Uri(_documentMetadata.Uri).LocalPath;
             await File.WriteAllTextAsync(filePath, Editor.Text);
 
-            if (_lspStarted) await _lspService.SaveDocumentAsync(_documentMetadata);
+            if (_lspService != null) await _lspService.SaveDocumentAsync(_documentMetadata);
         }
         catch (Exception ex)
         {
@@ -179,14 +177,14 @@ public partial class MainWindow
     {
         try
         {
-            if (_documentMetadata == null || !_lspStarted || _suppressChanges) return;
+            if (_documentMetadata == null || _suppressChanges) return;
 
             var document = Editor.Document;
             var startPosition = new LspDocumentPosition(document.GetLocation(e.Offset));
             var endPosition = new LspDocumentPosition(document.GetLocation(e.Offset + e.RemovalLength));
             var changeDto = new LspDocumentChangeDto(startPosition, endPosition, e.InsertedText.Text ?? string.Empty);
 
-            await _lspService.ChangeDocumentAsync(_documentMetadata, changeDto);
+            if (_lspService != null) await _lspService.ChangeDocumentAsync(_documentMetadata, changeDto);
             await RequestCompletionAsync();
         }
         catch (Exception ex)
