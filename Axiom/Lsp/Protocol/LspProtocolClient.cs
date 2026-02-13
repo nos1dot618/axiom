@@ -9,13 +9,15 @@ public sealed class LspProtocolClient(JsonRpcLspClient transport)
 {
     public async Task<LspCapabilities> InitializeAsync()
     {
+        var rootUri = new Uri(transport.Configuration.RootPath).AbsoluteUri;
+
         var result = await transport.SendRequestAsync(LspMethod.Request.Initialize, new
         {
             processId = Environment.ProcessId,
-            rootUri = transport.Configuration.RootPath,
+            rootUri,
             workspaceFolders = new[]
             {
-                new { uri = transport.Configuration.RootPath, name = "workspace" }
+                new { uri = rootUri, name = "workspace" }
             },
             capabilities = new
             {
@@ -27,6 +29,11 @@ public sealed class LspProtocolClient(JsonRpcLspClient transport)
                         willSave = false,
                         willSaveWaitUntil = false,
                         dynamicRegistration = false
+                    },
+                    completion = new
+                    {
+                        dynamicRegistration = false,
+                        completionItem = new { snippetSupport = true }
                     }
                 }
             }
@@ -34,21 +41,7 @@ public sealed class LspProtocolClient(JsonRpcLspClient transport)
 
         await transport.SendNotificationAsync(LspMethod.Notification.Initialized);
 
-        if (result.TryGetProperty("capabilities", out var capabilitiesObject))
-        {
-            return new LspCapabilities
-            {
-                SupportsCompletion = capabilitiesObject.TryGetProperty("completionProvider", out _),
-                SupportsHover = capabilitiesObject.TryGetProperty("hoverProvider", out _),
-                SupportsFormatting = capabilitiesObject.TryGetProperty("documentFormattingProvider", out _),
-                SupportsIncrementalSync =
-                    capabilitiesObject.TryGetProperty("textDocumentSync", out var sync) &&
-                    sync.ValueKind == JsonValueKind.Number &&
-                    sync.GetInt32() == 2
-            };
-        }
-
-        return new LspCapabilities();
+        return new LspCapabilities(result);
     }
 
     public Task DidOpenAsync(DocumentMetadata documentMetadata, string text)
@@ -98,12 +91,13 @@ public sealed class LspProtocolClient(JsonRpcLspClient transport)
     }
 
     public async Task<IReadOnlyList<CompletionItem>> RequestCompletionItems(DocumentMetadata documentMetadata,
-        DocumentPosition position)
+        DocumentPosition position, CompletionContextDto contextDto)
     {
         var result = await transport.SendRequestAsync(LspMethod.Request.TextCompletion, new
         {
             textDocument = new { uri = documentMetadata.Uri },
-            position = position.ToDto()
+            position = position.ToDto(),
+            context = contextDto.ToDto()
         });
 
         return CompletionItemMapper.Map(result);

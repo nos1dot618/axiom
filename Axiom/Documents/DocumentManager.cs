@@ -26,8 +26,10 @@ public sealed class DocumentManager(TextEditor textEditor)
     public DocumentChangeDto CreateChange(DocumentChangeEventArgs e)
     {
         var document = textEditor.Document;
-        var startPosition = new DocumentPosition(document.GetLocation(e.Offset));
-        var endPosition = new DocumentPosition(document.GetLocation(e.Offset + e.RemovalLength));
+        var startOffset = Math.Clamp(e.Offset, 0, document.TextLength);
+        var endOffset = Math.Clamp(e.Offset + e.RemovalLength, 0, document.TextLength);
+        var startPosition = new DocumentPosition(document.GetLocation(startOffset));
+        var endPosition = new DocumentPosition(document.GetLocation(endOffset));
 
         return new DocumentChangeDto(startPosition, endPosition, e.InsertedText.Text ?? string.Empty);
     }

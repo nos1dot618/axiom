@@ -10,8 +10,8 @@ public sealed class LspLanguageService : IAsyncDisposable
     private readonly LspServerConfiguration _configuration;
     private readonly JsonRpcLspClient _transport;
     private readonly LspProtocolClient _client;
-    private LspCapabilities? _capabilities;
 
+    public LspCapabilities Capabilities { get; private set; } = new();
     public string LanguageId => _configuration.LanguageId;
 
     public LspLanguageService(LspServerConfiguration configuration)
@@ -24,7 +24,7 @@ public sealed class LspLanguageService : IAsyncDisposable
     public async Task InitializeAsync()
     {
         await _transport.StartAsync();
-        _capabilities = await _client.InitializeAsync();
+        Capabilities = await _client.InitializeAsync();
     }
 
     public async Task<DocumentMetadata> OpenDocumentAsync(string filePath, string languageId, string text)
@@ -49,9 +49,9 @@ public sealed class LspLanguageService : IAsyncDisposable
     }
 
     public Task<IReadOnlyList<CompletionItem>> GetCompletionsAsync(DocumentMetadata documentMetadata,
-        DocumentPosition position)
+        DocumentPosition position, CompletionContextDto contextDto)
     {
-        return _client.RequestCompletionItems(documentMetadata, position);
+        return _client.RequestCompletionItems(documentMetadata, position, contextDto);
     }
 
     public async ValueTask DisposeAsync()

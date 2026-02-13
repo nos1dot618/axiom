@@ -19,7 +19,7 @@ public sealed class Logger(ModuleType module, LogLevel minimumLogLevel)
 
         lock (_lock)
         {
-            var logLine = $"{DateTime.Now:HH:mm:ss.fff}: [{level}] {module}: {message}";
+            var logLine = $"{DateTime.Now:HH:mm:ss.fff}: [{level}] {module}: {message}\n";
             File.AppendAllText(LogFilePath, logLine);
         }
     }

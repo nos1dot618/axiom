@@ -13,7 +13,7 @@ namespace Axiom;
 public partial class MainWindow
 {
     private readonly LspLanguageService? _lspService;
-    private readonly CompletionController _completionController;
+    private CompletionController? _completionController;
     private readonly DocumentManager _documentManager;
 
     private DocumentMetadata? _documentMetadata;
@@ -24,13 +24,12 @@ public partial class MainWindow
 
         LspServerConfiguration lspConfiguration = new(
             languageId: "python",
-            command: "../../../../node_modules/.bin/pyright-langserver.cmd",
+            command: @"../../../../node_modules/.bin/pyright-langserver.cmd",
             arguments: "--stdio",
             rootPath: @"C:\Users\nosferatu\Downloads"
         );
 
         _lspService = new LspLanguageService(lspConfiguration);
-        _completionController = new CompletionController(Editor.TextArea);
         _documentManager = new DocumentManager(Editor);
 
         EditorConfigurator.Configure(Editor);
@@ -47,7 +46,16 @@ public partial class MainWindow
     {
         try
         {
-            if (_lspService != null) await _lspService.InitializeAsync();
+            if (_lspService != null)
+            {
+                await _lspService.InitializeAsync();
+
+                _completionController = new CompletionController(
+                    Editor.TextArea,
+                    _lspService!.Capabilities.CompletionTriggerCharacters,
+                    CompletionProvider
+                );
+            }
 
             await OpenFileAsync(@"C:\Users\nosferatu\Downloads\test.py");
         }
@@ -69,19 +77,20 @@ public partial class MainWindow
         }
     }
 
-    private async Task RequestCompletionAsync()
+    private async Task<IReadOnlyList<CompletionItem>> CompletionProvider(string? triggerCharacter)
     {
-        if (_documentMetadata == null) return;
+        if (_documentMetadata == null && _lspService == null) return [];
 
         var caret = Editor.TextArea.Caret;
         DocumentPosition position = new(caret.Line - 1, caret.Column - 1);
 
-        var completionItems = await _lspService!.GetCompletionsAsync(_documentMetadata, position);
-        _completionController.Show(completionItems);
+        var contextDto = new CompletionContextDto(triggerCharacter);
+        return await _lspService!.GetCompletionsAsync(_documentMetadata!, position, contextDto);
     }
 
-    private static void HandleException(Exception ex)
+    public static void HandleException(Exception ex)
     {
+        Console.Write(ex.StackTrace);
         MessageBox.Show($"Failed to start LSP:\n{ex.Message}");
     }
 
@@ -139,7 +148,6 @@ public partial class MainWindow
             var changeDto = _documentManager.CreateChange(e);
 
             if (_lspService != null) await _lspService.ChangeDocumentAsync(_documentMetadata, changeDto);
-            await RequestCompletionAsync();
         }
         catch (Exception ex)
         {

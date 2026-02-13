@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Text.Json;
@@ -16,9 +17,10 @@ public sealed class JsonRpcLspClient : IAsyncDisposable
     private Stream? _stdout;
 
     private int _requestId;
-    private readonly Dictionary<int, TaskCompletionSource<JsonElement>> _pendingRequests = new();
+    private readonly ConcurrentDictionary<int, TaskCompletionSource<JsonElement>> _pendingRequests = new();
     private readonly CancellationTokenSource _cancellationTokenSource = new();
     private readonly Logger _logger = new(ModuleType.Lsp, LogLevel.Debug);
+    private bool IsRunning => _process is { HasExited: false };
 
     private readonly JsonSerializerOptions _jsonSerializerOptions = new()
     {
@@ -26,7 +28,6 @@ public sealed class JsonRpcLspClient : IAsyncDisposable
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
     };
 
-    public bool IsRunning => _process is { HasExited: false };
     public LspServerConfiguration Configuration { get; }
 
     // ReSharper disable once ConvertToPrimaryConstructor
@@ -64,8 +65,7 @@ public sealed class JsonRpcLspClient : IAsyncDisposable
     {
         var requestId = Interlocked.Increment(ref _requestId);
         var tcs = new TaskCompletionSource<JsonElement>(TaskCreationOptions.RunContinuationsAsynchronously);
-
-        _pendingRequests.Add(requestId, tcs);
+        _pendingRequests[requestId] = tcs;
 
         await SendAsync(new
         {
@@ -113,42 +113,58 @@ public sealed class JsonRpcLspClient : IAsyncDisposable
 
     private async Task ListenLoopAsync()
     {
-        var streamReader = new StreamReader(_stdout!, Encoding.UTF8);
-
         while (!_cancellationTokenSource.IsCancellationRequested)
         {
-            var document = await ReadMessageAsync(streamReader);
+            var document = await ReadMessageAsync(_stdout!);
             if (document == null) continue;
+
             HandleMessage(document.Value);
         }
     }
 
-    private static async Task<JsonElement?> ReadMessageAsync(StreamReader streamReader)
-    {
-        string? line;
-        var contentLength = 0;
 
-        while (!string.IsNullOrEmpty(line = await streamReader.ReadLineAsync()))
+    private static async Task<JsonElement?> ReadMessageAsync(Stream stream)
+    {
+        var headerBuffer = new List<byte>();
+        var temp = new byte[1];
+
+        while (true)
         {
-            if (!line.StartsWith("Content-Length:", StringComparison.OrdinalIgnoreCase)) continue;
-            var value = line["Content-Length:".Length..].Trim();
-            contentLength = int.Parse(value);
+            var read = await stream.ReadAsync(temp.AsMemory(0, 1));
+            if (read == 0) return null;
+
+            headerBuffer.Add(temp[0]);
+
+            // Check for \r\n\r\n
+            if (headerBuffer.Count >= 4 &&
+                headerBuffer[^4] == '\r' &&
+                headerBuffer[^3] == '\n' &&
+                headerBuffer[^2] == '\r' &&
+                headerBuffer[^1] == '\n') break;
         }
 
-        if (contentLength == 0) return null;
+        var headerText = Encoding.ASCII.GetString(headerBuffer.ToArray());
 
-        var buffer = new char[contentLength];
+        var contentLengthLine = headerText
+            .Split("\r\n", StringSplitOptions.RemoveEmptyEntries)
+            .FirstOrDefault(h => h.StartsWith("Content-Length:", StringComparison.OrdinalIgnoreCase));
+
+        if (contentLengthLine == null) return null;
+
+        var contentLength = int.Parse(contentLengthLine["Content-Length:".Length..].Trim());
+        var bodyBuffer = new byte[contentLength];
         var totalRead = 0;
 
         while (totalRead < contentLength)
         {
-            var read = await streamReader.ReadAsync(buffer, totalRead, contentLength - totalRead);
-            if (read == 0) break;
+            var read = await stream.ReadAsync(bodyBuffer.AsMemory(totalRead, contentLength - totalRead));
+            if (read == 0) throw new EndOfStreamException("Unexpected end of LSP stream.");
+
             totalRead += read;
         }
 
-        var message = new string(buffer, 0, totalRead);
-        return JsonSerializer.Deserialize<JsonElement>(message);
+        var json = Encoding.UTF8.GetString(bodyBuffer);
+        return JsonSerializer.Deserialize<JsonElement>(json);
     }
 
     private void HandleMessage(JsonElement message)
@@ -158,7 +174,7 @@ public sealed class JsonRpcLspClient : IAsyncDisposable
         {
             var id = idProperty.GetInt32();
 
-            if (!_pendingRequests.Remove(id, out var taskCompletionSource)) return;
+            if (!_pendingRequests.TryRemove(id, out var taskCompletionSource)) return;
 
             if (message.TryGetProperty("result", out var result)) taskCompletionSource.SetResult(result);
             else if (message.TryGetProperty("error", out var error))
