@@ -13,7 +13,7 @@ public sealed class CompletionController
     /// <summary>
     /// Delay in milliseconds before making request for completions.
     /// </summary>
-    private const int CompletionRequestDelay = 150;
+    private const int CompletionRequestDelay = 250;
 
     private readonly TextArea _textArea;
     private readonly HashSet<string> _triggerCharacters;

@@ -81,9 +81,7 @@ public partial class MainWindow
     {
         if (_documentMetadata == null && _lspService == null) return [];
 
-        var caret = Editor.TextArea.Caret;
-        DocumentPosition position = new(caret.Line - 1, caret.Column - 1);
-
+        DocumentPosition position = new(Editor.TextArea.Caret);
         var contextDto = new CompletionContextDto(triggerCharacter);
         return await _lspService!.GetCompletionsAsync(_documentMetadata!, position, contextDto);
     }
