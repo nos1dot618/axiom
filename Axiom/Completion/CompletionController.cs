@@ -19,6 +19,7 @@ public sealed class CompletionController
     private readonly Func<string?, Task<IReadOnlyList<CompletionItem>>> _completionProvider;
 
     private CompletionWindow? _completionWindow;
+    private CancellationTokenSource? _cts;
 
     public CompletionController(TextArea textArea, IReadOnlyList<string> triggerCharacters,
         Func<string?, Task<IReadOnlyList<CompletionItem>>> completionProvider)
@@ -35,7 +36,11 @@ public sealed class CompletionController
     private void Show(IReadOnlyList<CompletionItem> completionItems)
     {
         if (completionItems.Count == 0)
+        {
+            _completionWindow?.Close();
+            _completionWindow = null;
             return;
+        }
 
         if (_completionWindow == null)
         {
@@ -47,7 +52,6 @@ public sealed class CompletionController
             StyleCompletionWindow();
 
             _completionWindow.Closed += (_, _) => _completionWindow = null;
-
             _completionWindow.Show();
         }
 
@@ -97,10 +101,18 @@ public sealed class CompletionController
             var isTrigger = e.Text.Length > 0 && _triggerCharacters.Contains(e.Text);
             if (!isTrigger && _completionWindow == null) return;
 
-            await Task.Delay(CompletionRequestDelay);
+            if (_cts != null) await _cts.CancelAsync();
+            _cts = new CancellationTokenSource();
+            var token = _cts.Token;
 
+            await Task.Delay(CompletionRequestDelay, token);
             var completionItems = await _completionProvider(e.Text);
-            Show(completionItems);
+
+            if (!token.IsCancellationRequested) Show(completionItems);
+        }
+        catch (TaskCanceledException)
+        {
+            // expected
         }
         catch (Exception ex)
         {
