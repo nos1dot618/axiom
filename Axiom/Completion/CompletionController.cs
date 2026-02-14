@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using Axiom.UI;
@@ -124,17 +125,69 @@ public sealed class CompletionController
     {
         if (_completionWindow == null) return;
 
+        // Window
         _completionWindow.WindowStyle = WindowStyle.None;
-        _completionWindow.ResizeMode = ResizeMode.CanResizeWithGrip;
-        _completionWindow.BorderThickness = new Thickness(0);
-        _completionWindow.Background = new SolidColorBrush(Color.FromRgb(40, 40, 40));
+        _completionWindow.ResizeMode = ResizeMode.NoResize;
+        _completionWindow.BorderThickness = new Thickness(1);
+        _completionWindow.BorderBrush = new SolidColorBrush(Color.FromRgb(90, 90, 95));
 
-        _completionWindow.CompletionList.Background = Brushes.Transparent;
-        _completionWindow.CompletionList.Foreground = Brushes.White;
+        _completionWindow.AllowsTransparency = false;
 
-        _completionWindow.CompletionList.ListBox.Background = new SolidColorBrush(Color.FromRgb(80, 80, 40));
+        _completionWindow.Padding = new Thickness(0);
+
+        _completionWindow.SizeToContent = SizeToContent.WidthAndHeight;
+
+        var listBox = _completionWindow.CompletionList.ListBox;
+
+        listBox.BorderThickness = new Thickness(0);
+
+        var popupBackground = new SolidColorBrush(Color.FromRgb(50, 50, 52)); // lighter than editor
+        var popupBorder = new SolidColorBrush(Color.FromRgb(80, 80, 85));
+
+        _completionWindow.Background = popupBackground;
+        _completionWindow.BorderBrush = popupBorder;
+
+        listBox.Background = popupBackground;
+
+        listBox.ItemContainerStyle = CreateItemContainerStyle();
+
+        listBox.SetValue(ScrollViewer.VerticalScrollBarVisibilityProperty, ScrollBarVisibility.Hidden);
+        listBox.SetValue(ScrollViewer.HorizontalScrollBarVisibilityProperty, ScrollBarVisibility.Hidden);
 
         _completionWindow.FontFamily = Stylesheet.FontFamily;
         _completionWindow.FontSize = Stylesheet.FontSize;
+    }
+
+    private Style CreateItemContainerStyle()
+    {
+        var style = new Style(typeof(ListBoxItem));
+
+        style.Setters.Add(new Setter(Control.PaddingProperty, new Thickness(10, 5, 10, 5)));
+        style.Setters.Add(new Setter(Control.BackgroundProperty, Brushes.Transparent));
+        style.Setters.Add(new Setter(Control.ForegroundProperty, Brushes.White));
+        style.Setters.Add(new Setter(Control.HorizontalContentAlignmentProperty, HorizontalAlignment.Stretch));
+
+        // Hover
+        var hoverTrigger = new Trigger
+        {
+            Property = UIElement.IsMouseOverProperty,
+            Value = true
+        };
+        hoverTrigger.Setters.Add(new Setter(Control.BackgroundProperty,
+            new SolidColorBrush(Color.FromRgb(50, 50, 52))));
+        style.Triggers.Add(hoverTrigger);
+
+        // Selected
+        var selectedTrigger = new Trigger
+        {
+            Property = ListBoxItem.IsSelectedProperty,
+            Value = true
+        };
+        selectedTrigger.Setters.Add(new Setter(Control.BackgroundProperty,
+            new SolidColorBrush(Color.FromRgb(0, 122, 204))));
+        selectedTrigger.Setters.Add(new Setter(Control.ForegroundProperty, Brushes.White));
+        style.Triggers.Add(selectedTrigger);
+
+        return style;
     }
 }
