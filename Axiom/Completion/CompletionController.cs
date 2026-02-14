@@ -1,4 +1,7 @@
-﻿using System.Windows.Input;
+﻿using System.Windows;
+using System.Windows.Input;
+using System.Windows.Media;
+using Axiom.UI;
 using ICSharpCode.AvalonEdit.CodeCompletion;
 using ICSharpCode.AvalonEdit.Editing;
 
@@ -36,7 +39,13 @@ public sealed class CompletionController
 
         if (_completionWindow == null)
         {
-            _completionWindow = new CompletionWindow(_textArea) { StartOffset = GetCompletionStartOffset() };
+            _completionWindow = new CompletionWindow(_textArea)
+            {
+                StartOffset = GetCompletionStartOffset()
+            };
+
+            StyleCompletionWindow();
+
             _completionWindow.Closed += (_, _) => _completionWindow = null;
 
             _completionWindow.Show();
@@ -97,5 +106,23 @@ public sealed class CompletionController
         {
             MainWindow.HandleException(ex);
         }
+    }
+
+    private void StyleCompletionWindow()
+    {
+        if (_completionWindow == null) return;
+
+        _completionWindow.WindowStyle = WindowStyle.None;
+        _completionWindow.ResizeMode = ResizeMode.CanResizeWithGrip;
+        _completionWindow.BorderThickness = new Thickness(0);
+        _completionWindow.Background = new SolidColorBrush(Color.FromRgb(40, 40, 40));
+
+        _completionWindow.CompletionList.Background = Brushes.Transparent;
+        _completionWindow.CompletionList.Foreground = Brushes.White;
+
+        _completionWindow.CompletionList.ListBox.Background = new SolidColorBrush(Color.FromRgb(80, 80, 40));
+
+        _completionWindow.FontFamily = Stylesheet.FontFamily;
+        _completionWindow.FontSize = Stylesheet.FontSize;
     }
 }

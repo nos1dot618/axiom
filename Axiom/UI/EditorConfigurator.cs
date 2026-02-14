@@ -1,5 +1,6 @@
 ﻿using System.Windows.Controls;
 using ICSharpCode.AvalonEdit;
+using ICSharpCode.AvalonEdit.Highlighting;
 
 namespace Axiom.UI;
 
@@ -14,7 +15,13 @@ public static class EditorConfigurator
         textEditor.Options.AllowScrollBelowDocument = false;
         textEditor.Options.ShowSpaces = false;
 
+        // Font must be present inside Fonts.SystemFontFamilies
+        textEditor.FontFamily = Stylesheet.FontFamily;
+        textEditor.FontSize = Stylesheet.FontSize;
+
         textEditor.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
         textEditor.HorizontalScrollBarVisibility = ScrollBarVisibility.Hidden;
+
+        textEditor.SyntaxHighlighting = HighlightingManager.Instance.GetDefinition("Python");
     }
 }
