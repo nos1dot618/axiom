@@ -33,11 +33,7 @@ public sealed class CompletionController
     private void OnTextEntering(object sender, TextCompositionEventArgs e)
     {
         if (_completionWindow == null || e.Text.Length <= 0 || char.IsLetterOrDigit(e.Text[0])) return;
-
-        // TODO: Make a set of characters, upon encountering: we must request for new completions,
-        //       instead of appending into the current completion buffer.
-        if (_triggerCharacters.Contains(e.Text) || e.Text[0] == ' ') _completionWindow.Close();
-
+        if (_triggerCharacters.Contains(e.Text)) _completionWindow.Close();
         _completionWindow?.CompletionList.RequestInsertion(e);
     }
 
