@@ -6,6 +6,7 @@ riderModule.iml
 /_ReSharper.Caches/
 
 **.sln.DotSettings.user
+**.csproj.DotSettings.user
 
 node_modules/
 # Only used for testing as of now
