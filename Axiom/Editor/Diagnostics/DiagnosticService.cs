@@ -23,7 +23,12 @@ public sealed class DiagnosticService
 
     public void Update(IEnumerable<Diagnostic> diagnostics)
     {
-        // Remove old diagnostics
+        if (!_editor.Dispatcher.CheckAccess())
+        {
+            _editor.Dispatcher.BeginInvoke(() => Update(diagnostics));
+            return;
+        }
+
         _markerService.RemoveAll(_ => true);
 
         foreach (var diagnostic in diagnostics)
@@ -40,6 +45,7 @@ public sealed class DiagnosticService
             marker.Tag = diagnostic;
         }
     }
+
 
     public void Clear()
     {

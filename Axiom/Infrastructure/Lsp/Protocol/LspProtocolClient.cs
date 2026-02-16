@@ -1,13 +1,19 @@
 ﻿using Axiom.Core.Completion;
+using Axiom.Core.Diagnostics;
 using Axiom.Core.Documents;
+using Axiom.Editor.Diagnostics;
 using Axiom.Infrastructure.Lsp.Transport;
 
 namespace Axiom.Infrastructure.Lsp.Protocol;
 
-public sealed class LspProtocolClient(JsonRpcLspClient transport)
+// TODO: Instead of passing diagnostic service. Make some kind of document specific service getter for example:
+//       ThreadContext.getDiagnosticService();
+public sealed class LspProtocolClient(JsonRpcLspClient transport, DiagnosticService diagnosticService)
 {
     public async Task<LspCapabilities> InitializeAsync()
     {
+        Initialize();
+
         var rootUri = new Uri(transport.Configuration.RootPath).AbsoluteUri;
 
         var result = await transport.SendRequestAsync(LspMethod.Request.Initialize, new
@@ -100,5 +106,14 @@ public sealed class LspProtocolClient(JsonRpcLspClient transport)
         });
 
         return CompletionItemMapper.Map(result);
+    }
+
+    private void Initialize()
+    {
+        transport.RegisterNotificationHandler(LspMethod.Notification.Diagnostics, async result =>
+        {
+            var diagnostics = DiagnosticMapper.Map(result);
+            diagnosticService.Update(diagnostics);
+        });
     }
 }

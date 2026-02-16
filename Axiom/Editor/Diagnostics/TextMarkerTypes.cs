@@ -27,6 +27,9 @@ public enum TextMarkerTypes
     /// </summary>
     DottedUnderline = 0x004,
 
+    UnderlineTypes = TextMarkerTypes.SquigglyUnderline | TextMarkerTypes.NormalUnderline |
+                     TextMarkerTypes.DottedUnderline,
+
     /// <summary>
     /// Horizontal line in the scroll bar.
     /// </summary>

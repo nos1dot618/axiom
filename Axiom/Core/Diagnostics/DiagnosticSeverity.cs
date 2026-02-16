@@ -7,3 +7,11 @@ public enum DiagnosticSeverity
     Info = 3,
     Hint = 4
 }
+
+public static class DiagnosticSeverityExtensions
+{
+    public static DiagnosticSeverity? ToDiagnosticSeverity(this int value)
+    {
+        return Enum.IsDefined(typeof(DiagnosticSeverity), value) ? (DiagnosticSeverity)value : null;
+    }
+}

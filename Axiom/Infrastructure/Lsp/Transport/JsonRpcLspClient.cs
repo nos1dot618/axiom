@@ -18,6 +18,7 @@ public sealed class JsonRpcLspClient : IAsyncDisposable
 
     private int _requestId;
     private readonly ConcurrentDictionary<int, TaskCompletionSource<JsonElement>> _pendingRequests = new();
+    private readonly ConcurrentDictionary<string, List<Func<JsonElement, Task>>> _notificationHandlers = new();
     private readonly CancellationTokenSource _cancellationTokenSource = new();
     private readonly Logger _logger = new(ModuleType.Lsp, LogLevel.Debug);
     private bool IsRunning => _process is { HasExited: false };
@@ -95,6 +96,19 @@ public sealed class JsonRpcLspClient : IAsyncDisposable
             method,
             @params
         });
+    }
+
+    public void RegisterNotificationHandler(string method, Func<JsonElement, Task> handler)
+    {
+        _notificationHandlers.AddOrUpdate(method, _ => [handler],
+            (_, list) =>
+            {
+                lock (list)
+                {
+                    list.Add(handler);
+                    return list;
+                }
+            });
     }
 
     private async Task SendAsync(object payload)
@@ -185,8 +199,20 @@ public sealed class JsonRpcLspClient : IAsyncDisposable
         }
 
         // Handle notification.
-        if (!message.TryGetProperty("method", out _)) return;
+        if (!message.TryGetProperty("method", out var methodProperty)) return;
         _logger.Debug($"Server: message={message}");
+
+        var method = methodProperty.GetString();
+        if (method == null) return;
+
+        if (!_notificationHandlers.TryGetValue(method, out var handlers)) return;
+
+        JsonElement @params = default;
+        if (message.TryGetProperty("params", out var paramsProperty)) @params = paramsProperty;
+        foreach (var handler in handlers)
+        {
+            _ = Task.Run(() => handler(@params));
+        }
     }
 
     private async Task ReadStderrAsync()

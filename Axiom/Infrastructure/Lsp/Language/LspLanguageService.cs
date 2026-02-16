@@ -1,5 +1,6 @@
 ﻿using Axiom.Core.Completion;
 using Axiom.Core.Documents;
+using Axiom.Editor.Diagnostics;
 using Axiom.Infrastructure.Lsp.Protocol;
 using Axiom.Infrastructure.Lsp.Transport;
 
@@ -14,11 +15,11 @@ public sealed class LspLanguageService : IAsyncDisposable
     public LspCapabilities Capabilities { get; private set; } = new();
     public string LanguageId => _configuration.LanguageId;
 
-    public LspLanguageService(LspServerConfiguration configuration)
+    public LspLanguageService(LspServerConfiguration configuration, DiagnosticService diagnosticService)
     {
         _configuration = configuration;
         _transport = new JsonRpcLspClient(configuration);
-        _client = new LspProtocolClient(_transport);
+        _client = new LspProtocolClient(_transport, diagnosticService);
     }
 
     public async Task InitializeAsync()

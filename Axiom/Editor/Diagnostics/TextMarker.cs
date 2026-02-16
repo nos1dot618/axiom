@@ -33,11 +33,9 @@ internal sealed class TextMarker : TextSegment, ITextMarker
         get => _backgroundColor;
         set
         {
-            if (_backgroundColor != value)
-            {
-                _backgroundColor = value;
-                Redraw();
-            }
+            if (_backgroundColor == value) return;
+            _backgroundColor = value;
+            Redraw();
         }
     }
 
@@ -48,11 +46,9 @@ internal sealed class TextMarker : TextSegment, ITextMarker
         get => _foregroundColor;
         set
         {
-            if (_foregroundColor != value)
-            {
-                _foregroundColor = value;
-                Redraw();
-            }
+            if (_foregroundColor == value) return;
+            _foregroundColor = value;
+            Redraw();
         }
     }
 
@@ -63,11 +59,9 @@ internal sealed class TextMarker : TextSegment, ITextMarker
         get => _fontWeight;
         set
         {
-            if (_fontWeight != value)
-            {
-                _fontWeight = value;
-                Redraw();
-            }
+            if (_fontWeight == value) return;
+            _fontWeight = value;
+            Redraw();
         }
     }
 
@@ -78,11 +72,9 @@ internal sealed class TextMarker : TextSegment, ITextMarker
         get => _fontStyle;
         set
         {
-            if (_fontStyle != value)
-            {
-                _fontStyle = value;
-                Redraw();
-            }
+            if (_fontStyle == value) return;
+            _fontStyle = value;
+            Redraw();
         }
     }
 
@@ -93,11 +85,9 @@ internal sealed class TextMarker : TextSegment, ITextMarker
         get => _markerTypes;
         set
         {
-            if (_markerTypes != value)
-            {
-                _markerTypes = value;
-                Redraw();
-            }
+            if (_markerTypes == value) return;
+            _markerTypes = value;
+            Redraw();
         }
     }
 
@@ -108,14 +98,13 @@ internal sealed class TextMarker : TextSegment, ITextMarker
         get => _markerColor;
         set
         {
-            if (_markerColor != value)
-            {
-                _markerColor = value;
-                Redraw();
-            }
+            if (_markerColor == value) return;
+            _markerColor = value;
+            Redraw();
         }
     }
 
     public object? Tag { get; set; }
+
     public object? ToolTip { get; set; }
 }
