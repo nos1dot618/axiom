@@ -17,5 +17,7 @@ public static class LspMethod
         public const string DidOpen = "textDocument/didOpen";
         public const string DidChange = "textDocument/didChange";
         public const string DidSave = "textDocument/didSave";
+
+        public const string Diagnostics = "textDocument/publishDiagnostics";
     }
 }

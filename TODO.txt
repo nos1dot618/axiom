@@ -1,4 +1,8 @@
 ﻿- Verify Lsp response is jsonrpc=2.0.
 - Support both full and incremental text document sync.
 - Display diagnostics.
+- Better syntax highlighting.
+- Multiple language support.
+- Integrated terminal.
+- Run support.
 - Better WPF theming: <https://github.com/AngryCarrot789/WPFDarkTheme>.
