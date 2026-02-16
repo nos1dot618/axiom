@@ -146,6 +146,13 @@ public partial class MainWindow
     {
         try
         {
+            // Close tooltip if exists.
+            if (Editor.ToolTip != null)
+            {
+                ((System.Windows.Controls.ToolTip)Editor.ToolTip).IsOpen = false;
+                Editor.ToolTip = null;
+            }
+
             if (_documentMetadata == null || _documentManager.SuppressChanges) return;
 
             var changeDto = _documentManager.CreateChange(e);
