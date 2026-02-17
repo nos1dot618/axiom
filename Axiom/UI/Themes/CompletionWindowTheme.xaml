@@ -2,40 +2,62 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <!-- Completion Window Style -->
+    <!-- Completion Window -->
     <Style x:Key="AxiomCompletionWindowStyle" TargetType="Window">
         <Setter Property="WindowStyle" Value="None" />
         <Setter Property="ResizeMode" Value="NoResize" />
         <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="BorderBrush" Value="#505055" />
-        <Setter Property="Background" Value="#323234" />
+        <Setter Property="BorderBrush" Value="#404045" />
+        <Setter Property="Background" Value="#2B2B2D" />
         <Setter Property="Padding" Value="0" />
         <Setter Property="SizeToContent" Value="WidthAndHeight" />
     </Style>
 
-    <!-- Completion ListBox Style -->
+    <!-- Completion List -->
     <Style x:Key="AxiomCompletionListStyle" TargetType="ListBox">
         <Setter Property="BorderThickness" Value="0" />
-        <Setter Property="Background" Value="#323234" />
+        <Setter Property="Background" Value="#2B2B2D" />
         <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Hidden" />
         <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Hidden" />
     </Style>
 
-    <!-- Completion Item Style -->
+    <!-- Completion Item -->
     <Style x:Key="AxiomCompletionItemStyle" TargetType="ListBoxItem">
-        <Setter Property="Padding" Value="10,5" />
+        <Setter Property="Padding" Value="8,4" />
+        <Setter Property="Margin" Value="0,1" />
         <Setter Property="Background" Value="Transparent" />
-        <Setter Property="Foreground" Value="White" />
+        <Setter Property="Foreground" Value="#DCDCDC" />
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-        <Style.Triggers>
-            <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Background" Value="#323234" />
-            </Trigger>
-            <Trigger Property="IsSelected" Value="True">
-                <Setter Property="Background" Value="#007ACC" />
-                <Setter Property="Foreground" Value="White" />
-            </Trigger>
-        </Style.Triggers>
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ListBoxItem">
+                    <Border Background="{TemplateBinding Background}">
+                        <Grid>
+                            <!-- subtle left guide -->
+                            <Border Width="2" Background="Transparent" HorizontalAlignment="Left" />
+                            <ContentPresenter Margin="8,2,6,2" VerticalAlignment="Center" />
+                        </Grid>
+                    </Border>
+
+                    <ControlTemplate.Triggers>
+                        <!-- Hover -->
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="#323235" />
+                        </Trigger>
+
+                        <!-- Selected -->
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter Property="Background" Value="#1F4F7A" />
+                            <Setter Property="Foreground" Value="White" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+
     </Style>
 
 </ResourceDictionary>
