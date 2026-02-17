@@ -1,0 +1,36 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Diagnostic Tooltip Style -->
+    <Style x:Key="AxiomDiagnosticToolTipStyle" TargetType="ToolTip">
+        <Setter Property="Background" Value="#252526" />
+        <Setter Property="BorderBrush" Value="#505055" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Padding" Value="8" />
+        <Setter Property="Foreground" Value="#E6E6E6" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="OverridesDefaultStyle" Value="True" />
+
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToolTip">
+                    <Border
+                        Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}">
+
+                        <Grid>
+                            <!-- Subtle left accent line -->
+                            <Border Width="3" Background="{TemplateBinding Tag}" HorizontalAlignment="Left" />
+                            <ContentPresenter Margin="10,6,8,6" />
+                        </Grid>
+
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+</ResourceDictionary>

@@ -113,22 +113,17 @@ public sealed class DiagnosticService
 
         if (marker != null && !string.IsNullOrWhiteSpace((string)marker.ToolTip!))
         {
-            // TODO: Move the styling to a .xaml file.
-            // TODO: Make the style to look different from the completion window.
             _editor.ToolTip = new ToolTip
             {
+                Style = (Style)Application.Current.Resources["AxiomDiagnosticToolTipStyle"]!,
+                Tag = new SolidColorBrush(marker.MarkerColor),
                 Content = new TextBlock
                 {
                     Text = marker.ToolTip.ToString(),
                     TextWrapping = TextWrapping.Wrap,
                     MaxWidth = 500,
-                    FontFamily = Stylesheet.FontFamily,
-                    Padding = new Thickness(0)
+                    FontFamily = Stylesheet.FontFamily
                 },
-                Background = new SolidColorBrush(Color.FromRgb(0x32, 0x32, 0x34)),
-                BorderBrush = new SolidColorBrush(Color.FromRgb(0x50, 0x50, 0x55)),
-                Foreground = Brushes.White,
-                BorderThickness = new Thickness(1),
                 PlacementTarget = _editor.TextArea,
                 Placement = System.Windows.Controls.Primitives.PlacementMode.Mouse,
                 StaysOpen = false,

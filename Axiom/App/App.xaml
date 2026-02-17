@@ -5,6 +5,7 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/UI/Themes/CompletionWindowTheme.xaml" />
+                <ResourceDictionary Source="/UI/Themes/DiagnosticTooltipTheme.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>
