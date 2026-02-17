@@ -4,6 +4,7 @@ using System.Windows.Input;
 using Axiom.Core.Completion;
 using Axiom.Core.Documents;
 using Axiom.Editor;
+using Axiom.Infrastructure.Logging;
 using Axiom.Infrastructure.Lsp.Language;
 using Axiom.UI.Editor;
 using ICSharpCode.AvalonEdit.Document;
@@ -51,8 +52,7 @@ public partial class MainWindow
             {
                 await _lspService.InitializeAsync();
 
-                // ReSharper disable once ObjectCreationAsStatement
-                new CompletionController(
+                _ = new CompletionController(
                     Editor.TextArea,
                     _lspService!.Capabilities.CompletionTriggerCharacters,
                     CompletionProvider
@@ -63,7 +63,7 @@ public partial class MainWindow
         }
         catch (Exception ex)
         {
-            HandleException(ex);
+            ErrorHandler.HandleException(ex);
         }
     }
 
@@ -72,11 +72,11 @@ public partial class MainWindow
         try
         {
             if (_lspService != null) await _lspService.DisposeAsync();
-            _documentManager.CloseFile();
+            DocumentManager.CloseFile();
         }
         catch (Exception ex)
         {
-            HandleException(ex);
+            ErrorHandler.HandleException(ex);
         }
     }
 
@@ -87,13 +87,6 @@ public partial class MainWindow
         DocumentPosition position = new(Editor.TextArea.Caret);
         var contextDto = new CompletionContextDto(triggerCharacter);
         return await _lspService!.GetCompletionsAsync(_documentMetadata!, position, contextDto);
-    }
-
-    // TODO: Must be moved to common namespace.
-    public static void HandleException(Exception ex)
-    {
-        Console.Write(ex.StackTrace);
-        MessageBox.Show($"Failed to start LSP:\n{ex.Message}");
     }
 
     private async Task OpenFileAsync(string filePath)
@@ -120,7 +113,7 @@ public partial class MainWindow
         }
         catch (Exception ex)
         {
-            HandleException(ex);
+            ErrorHandler.HandleException(ex);
         }
     }
 
@@ -137,7 +130,7 @@ public partial class MainWindow
         }
         catch (Exception ex)
         {
-            HandleException(ex);
+            ErrorHandler.HandleException(ex);
         }
     }
 
@@ -160,7 +153,7 @@ public partial class MainWindow
         }
         catch (Exception ex)
         {
-            HandleException(ex);
+            ErrorHandler.HandleException(ex);
         }
     }
 

@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Input;
-using Axiom.App;
+using Axiom.Infrastructure.Logging;
 using Axiom.UI.Themes;
 using ICSharpCode.AvalonEdit.CodeCompletion;
 using ICSharpCode.AvalonEdit.Editing;
@@ -61,7 +61,7 @@ public sealed class CompletionController
         }
         catch (Exception ex)
         {
-            MainWindow.HandleException(ex);
+            ErrorHandler.HandleException(ex);
         }
     }
 

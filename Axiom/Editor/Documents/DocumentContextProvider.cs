@@ -3,7 +3,8 @@ using Axiom.Editor.Diagnostics;
 
 namespace Axiom.Editor.Documents;
 
-public sealed class DocumentContextProvider
+// TODO: Improve this ContextProvider.
+public static class DocumentContextProvider
 {
     private static string? _currentDocumentUri;
     private static readonly ConcurrentDictionary<string, DocumentContext> Documents = new();
@@ -21,7 +22,7 @@ public sealed class DocumentContextProvider
     {
         if (_currentDocumentUri is null) throw new KeyNotFoundException($"Document not found: {_currentDocumentUri}");
 
-        var context = new DocumentContext(_currentDocumentUri, new DiagnosticService(EditorContext.GetEditor()));
+        var context = new DocumentContext(_currentDocumentUri, new DiagnosticService(EditorContext.GetEditor()!));
 
         if (!Documents.TryAdd(_currentDocumentUri, context))
             throw new InvalidOperationException($"Document already exists: {_currentDocumentUri}");

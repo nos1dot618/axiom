@@ -22,7 +22,7 @@ public sealed class DocumentManager(TextEditor textEditor)
         return text;
     }
 
-    public void CloseFile()
+    public static void CloseFile()
     {
         DocumentContextProvider.Close();
     }
