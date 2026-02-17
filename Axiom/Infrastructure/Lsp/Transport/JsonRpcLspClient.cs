@@ -7,6 +7,7 @@ using System.Text.Json.Serialization;
 using Axiom.Common;
 using Axiom.Infrastructure.Logging;
 using Axiom.Infrastructure.Lsp.Language;
+using Axiom.Infrastructure.Lsp.Protocol;
 
 namespace Axiom.Infrastructure.Lsp.Transport;
 

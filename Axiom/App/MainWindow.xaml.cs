@@ -3,7 +3,7 @@ using System.Windows;
 using System.Windows.Input;
 using Axiom.Core.Completion;
 using Axiom.Core.Documents;
-using Axiom.Editor.Diagnostics;
+using Axiom.Editor;
 using Axiom.Infrastructure.Lsp.Language;
 using Axiom.UI.Editor;
 using ICSharpCode.AvalonEdit.Document;
@@ -29,14 +29,12 @@ public partial class MainWindow
             rootPath: @"C:\Users\nosferatu\Downloads"
         );
 
-        var diagnosticService = new DiagnosticService(Editor);
-
-        _lspService = new LspLanguageService(lspConfiguration, diagnosticService);
+        _lspService = new LspLanguageService(lspConfiguration);
         _documentManager = new DocumentManager(Editor);
-        // ReSharper disable once ObjectCreationAsStatement
 
         EditorConfigurator.Configure(Editor);
         SetKeybindings();
+        EditorContext.SetEditor(Editor);
 
         Editor.Text = "";
 

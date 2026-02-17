@@ -3,7 +3,7 @@ using Axiom.Core.Documents;
 
 namespace Axiom.Core.Diagnostics;
 
-public class DiagnosticMapper
+public static class DiagnosticMapper
 {
     // TODO: The logic of this class is very similar to CompletionItemMapper,
     //       the logic can be combined through an interface maybe.

@@ -1,6 +1,6 @@
 ﻿using Axiom.Core.Completion;
 using Axiom.Core.Documents;
-using Axiom.Editor.Diagnostics;
+using Axiom.Infrastructure.Lsp.Dispatching;
 using Axiom.Infrastructure.Lsp.Protocol;
 using Axiom.Infrastructure.Lsp.Transport;
 
@@ -15,11 +15,13 @@ public sealed class LspLanguageService : IAsyncDisposable
     public LspCapabilities Capabilities { get; private set; } = new();
     public string LanguageId => _configuration.LanguageId;
 
-    public LspLanguageService(LspServerConfiguration configuration, DiagnosticService diagnosticService)
+    public LspLanguageService(LspServerConfiguration configuration)
     {
         _configuration = configuration;
         _transport = new JsonRpcLspClient(configuration);
-        _client = new LspProtocolClient(_transport, diagnosticService);
+        _client = new LspProtocolClient(_transport);
+
+        RegisterHandlers();
     }
 
     public async Task InitializeAsync()
@@ -59,4 +61,12 @@ public sealed class LspLanguageService : IAsyncDisposable
     {
         await _transport.DisposeAsync();
     }
+
+    private void RegisterHandlers()
+    {
+        RegisterNotificationHandler(new DiagnosticsNotificationHandler());
+    }
+
+    private void RegisterNotificationHandler(ILspNotificationHandler handler) =>
+        _transport.RegisterNotificationHandler(handler.Method, payload => handler.HandleAsync(payload));
 }

@@ -1,4 +1,4 @@
-﻿namespace Axiom.Infrastructure.Lsp.Transport;
+﻿namespace Axiom.Infrastructure.Lsp.Protocol;
 
 public static class LspMethod
 {

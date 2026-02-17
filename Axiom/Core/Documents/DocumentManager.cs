@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using Axiom.Editor.Documents;
 using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.Document;
 
@@ -15,7 +16,15 @@ public sealed class DocumentManager(TextEditor textEditor)
         textEditor.Text = text;
         SuppressChanges = false;
 
+        DocumentContextProvider.SetCurrentDocument(new Uri(filePath).AbsoluteUri);
+        DocumentContextProvider.Create();
+
         return text;
+    }
+
+    public void CloseFile()
+    {
+        DocumentContextProvider.Close();
     }
 
     public async Task SaveFileAsync(string filePath)
