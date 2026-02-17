@@ -1,4 +1,6 @@
-﻿using Axiom.Core.Completion;
+﻿using System.Diagnostics.CodeAnalysis;
+using Axiom.Core;
+using Axiom.Core.Completion;
 using Axiom.Core.Documents;
 using Axiom.Infrastructure.Lsp.Transport;
 
@@ -6,6 +8,9 @@ namespace Axiom.Infrastructure.Lsp.Protocol;
 
 public sealed class LspProtocolClient(JsonRpcLspClient transport)
 {
+    [SuppressMessage("Performance", "CA1859:Use concrete types when possible for improved performance")]
+    private readonly IServiceMapper<CompletionItem> _mapper = new CompletionItemMapper();
+
     public async Task<LspCapabilities> InitializeAsync()
     {
         var rootUri = new Uri(transport.Configuration.RootPath).AbsoluteUri;
@@ -89,6 +94,7 @@ public sealed class LspProtocolClient(JsonRpcLspClient transport)
         });
     }
 
+    // TODO: Create LspRequestMethodHandler similar to LspNotificationHandler.
     public async Task<IReadOnlyList<CompletionItem>> RequestCompletionItems(DocumentMetadata documentMetadata,
         DocumentPosition position, CompletionContextDto contextDto)
     {
@@ -99,6 +105,6 @@ public sealed class LspProtocolClient(JsonRpcLspClient transport)
             context = contextDto.ToDto()
         });
 
-        return CompletionItemMapper.Map(result);
+        return _mapper.Map(result);
     }
 }

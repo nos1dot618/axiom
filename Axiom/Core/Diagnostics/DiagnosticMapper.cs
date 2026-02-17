@@ -3,32 +3,11 @@ using Axiom.Core.Documents;
 
 namespace Axiom.Core.Diagnostics;
 
-public static class DiagnosticMapper
+public sealed class DiagnosticMapper : IServiceMapper<Diagnostic>
 {
-    // TODO: The logic of this class is very similar to CompletionItemMapper,
-    //       the logic can be combined through an interface maybe.
-    public static IReadOnlyList<Diagnostic> Map(JsonElement result)
-    {
-        var itemsElement = ExtractItems(result);
-        var diagnostics = new List<Diagnostic>();
+    public string ResultSetName => "diagnostics";
 
-        if (itemsElement.ValueKind != JsonValueKind.Array) return diagnostics;
-
-        diagnostics.AddRange(itemsElement.EnumerateArray().Select(MapSingle));
-        return diagnostics;
-    }
-
-    private static JsonElement ExtractItems(JsonElement result)
-    {
-        return result.ValueKind switch
-        {
-            JsonValueKind.Array => result,
-            JsonValueKind.Object when result.TryGetProperty("diagnostics", out var items) => items,
-            _ => default
-        };
-    }
-
-    private static Diagnostic MapSingle(JsonElement item)
+    public Diagnostic MapSingle(JsonElement item)
     {
         var range = item.GetProperty("range");
         var start = range.GetProperty("start");
