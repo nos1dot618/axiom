@@ -72,6 +72,7 @@ public partial class MainWindow
         try
         {
             if (_lspService != null) await _lspService.DisposeAsync();
+            _documentManager.CloseFile();
         }
         catch (Exception ex)
         {
