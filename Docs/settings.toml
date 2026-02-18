@@ -1,0 +1,12 @@
+﻿config_version = 1
+[editor]
+font_family = "Consolas"
+font_size = 24
+convert_tabs_to_spaces = true
+indentation_size = 4
+enable_hyperlinks = false
+highlight_current_line = true
+allow_scroll_below_document = false
+show_spaces = false
+vertical_scroll_bar_visibility = false
+horizontal_scroll_bar_visibility = false

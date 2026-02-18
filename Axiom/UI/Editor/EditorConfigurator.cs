@@ -12,20 +12,24 @@ public static class EditorConfigurator
     {
         var settings = ServiceFactory.SettingsService.CurrentSettings;
 
-        textEditor.Options.ConvertTabsToSpaces = true;
-        textEditor.Options.IndentationSize = 4;
-        textEditor.Options.EnableHyperlinks = false;
-        textEditor.Options.HighlightCurrentLine = true;
-        textEditor.Options.AllowScrollBelowDocument = false;
-        textEditor.Options.ShowSpaces = false;
+        textEditor.Options.ConvertTabsToSpaces = settings.Editor.ConvertTabsToSpaces;
+        textEditor.Options.IndentationSize = settings.Editor.IndentationSize;
+        textEditor.Options.EnableHyperlinks = settings.Editor.EnableHyperlinks;
+        textEditor.Options.HighlightCurrentLine = settings.Editor.HighlightCurrentLine;
+        textEditor.Options.AllowScrollBelowDocument = settings.Editor.AllowScrollBelowDocument;
+        textEditor.Options.ShowSpaces = settings.Editor.ShowSpaces;
 
         // Font must be present inside Fonts.SystemFontFamilies
         textEditor.FontFamily = new FontFamily(settings.Editor.FontFamily);
         textEditor.FontSize = settings.Editor.FontSize;
 
-        textEditor.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
-        textEditor.HorizontalScrollBarVisibility = ScrollBarVisibility.Hidden;
+        textEditor.VerticalScrollBarVisibility = ParseScrollBarVisibility(settings.Editor.VerticalScrollBarVisibility);
+        textEditor.HorizontalScrollBarVisibility =
+            ParseScrollBarVisibility(settings.Editor.HorizontalScrollBarVisibility);
 
         textEditor.SyntaxHighlighting = HighlightingManager.Instance.GetDefinition("Python");
     }
+
+    private static ScrollBarVisibility ParseScrollBarVisibility(bool visible) =>
+        visible ? ScrollBarVisibility.Visible : ScrollBarVisibility.Hidden;
 }
