@@ -7,12 +7,7 @@ public sealed class CompletionContextDto(string? triggerCharacter)
 
     public object ToDto()
     {
-        if (TriggerCharacter == null)
-            return new
-            {
-                triggerKind = TriggerKind
-            };
-
+        if (TriggerCharacter == null) return new { triggerKind = TriggerKind };
         return new
         {
             triggerKind = TriggerKind,

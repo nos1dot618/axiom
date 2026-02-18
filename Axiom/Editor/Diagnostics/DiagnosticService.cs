@@ -26,7 +26,7 @@ public sealed class DiagnosticService
 
         editor.TextArea.TextView.MouseHover += OnTextViewMouseHover;
         editor.TextArea.TextView.MouseHoverStopped += OnTextViewMouseHoverStopped;
-        editor.ToolTipOpening += (sender, args) => { Console.WriteLine("tooltip opening"); };
+        editor.ToolTipOpening += (_, _) => { Console.WriteLine("tooltip opening"); };
     }
 
     public void Update(IEnumerable<Diagnostic> diagnostics)

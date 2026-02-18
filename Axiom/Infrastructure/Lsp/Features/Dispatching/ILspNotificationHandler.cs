@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 
-namespace Axiom.Infrastructure.Lsp.Dispatching;
+namespace Axiom.Infrastructure.Lsp.Features.Dispatching;
 
 public interface ILspNotificationHandler
 {

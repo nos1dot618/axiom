@@ -1,9 +1,9 @@
 ﻿using System.IO;
-using Axiom.Editor.Documents;
+using Axiom.Core.Documents;
 using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.Document;
 
-namespace Axiom.Core.Documents;
+namespace Axiom.Editor.Documents;
 
 public sealed class DocumentManager(TextEditor textEditor)
 {

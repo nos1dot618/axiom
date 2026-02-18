@@ -1,16 +1,16 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
-using Axiom.Core;
 using Axiom.Core.Diagnostics;
 using Axiom.Editor.Documents;
+using Axiom.Infrastructure.Lsp.Features.Mapping;
 using Axiom.Infrastructure.Lsp.Protocol;
 
-namespace Axiom.Infrastructure.Lsp.Dispatching;
+namespace Axiom.Infrastructure.Lsp.Features.Dispatching;
 
 public sealed class DiagnosticsNotificationHandler : ILspNotificationHandler
 {
     [SuppressMessage("Performance", "CA1859:Use concrete types when possible for improved performance")]
-    private readonly IServiceMapper<Diagnostic> _mapper = new DiagnosticMapper();
+    private readonly IFeatureMapper<Diagnostic> _mapper = new DiagnosticMapper();
 
     public string Method => LspMethod.Notification.Diagnostics;
 

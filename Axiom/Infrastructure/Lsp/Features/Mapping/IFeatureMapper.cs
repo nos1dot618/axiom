@@ -1,8 +1,8 @@
 ﻿using System.Text.Json;
 
-namespace Axiom.Core;
+namespace Axiom.Infrastructure.Lsp.Features.Mapping;
 
-public interface IServiceMapper<out T>
+public interface IFeatureMapper<out T>
 {
     public string ResultSetName { get; }
 

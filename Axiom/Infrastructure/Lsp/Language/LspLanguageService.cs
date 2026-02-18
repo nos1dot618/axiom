@@ -1,6 +1,6 @@
 ﻿using Axiom.Core.Completion;
 using Axiom.Core.Documents;
-using Axiom.Infrastructure.Lsp.Dispatching;
+using Axiom.Infrastructure.Lsp.Features.Dispatching;
 using Axiom.Infrastructure.Lsp.Protocol;
 using Axiom.Infrastructure.Lsp.Transport;
 

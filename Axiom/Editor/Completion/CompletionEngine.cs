@@ -1,13 +1,14 @@
 ﻿using System.Windows;
 using System.Windows.Input;
+using Axiom.Core.Completion;
 using Axiom.Infrastructure.Logging;
 using Axiom.UI.Themes;
 using ICSharpCode.AvalonEdit.CodeCompletion;
 using ICSharpCode.AvalonEdit.Editing;
 
-namespace Axiom.Core.Completion;
+namespace Axiom.Editor.Completion;
 
-public sealed class CompletionController
+public sealed class CompletionEngine
 {
     /// <summary>
     /// Delay in milliseconds before making request for completions.
@@ -20,7 +21,7 @@ public sealed class CompletionController
 
     private CompletionWindow? _completionWindow;
 
-    public CompletionController(TextArea textArea, IReadOnlyList<string> triggerCharacters,
+    public CompletionEngine(TextArea textArea, IReadOnlyList<string> triggerCharacters,
         Func<string?, Task<IReadOnlyList<CompletionItem>>> completionProvider)
     {
         _textArea = textArea;

@@ -1,9 +1,10 @@
 ﻿using System.Text.Json;
+using Axiom.Core.Diagnostics;
 using Axiom.Core.Documents;
 
-namespace Axiom.Core.Diagnostics;
+namespace Axiom.Infrastructure.Lsp.Features.Mapping;
 
-public sealed class DiagnosticMapper : IServiceMapper<Diagnostic>
+public sealed class DiagnosticMapper : IFeatureMapper<Diagnostic>
 {
     public string ResultSetName => "diagnostics";
 

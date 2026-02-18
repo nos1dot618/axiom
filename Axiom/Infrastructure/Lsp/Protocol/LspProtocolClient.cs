@@ -2,6 +2,7 @@
 using Axiom.Core;
 using Axiom.Core.Completion;
 using Axiom.Core.Documents;
+using Axiom.Infrastructure.Lsp.Features.Mapping;
 using Axiom.Infrastructure.Lsp.Transport;
 
 namespace Axiom.Infrastructure.Lsp.Protocol;
@@ -9,7 +10,7 @@ namespace Axiom.Infrastructure.Lsp.Protocol;
 public sealed class LspProtocolClient(JsonRpcLspClient transport)
 {
     [SuppressMessage("Performance", "CA1859:Use concrete types when possible for improved performance")]
-    private readonly IServiceMapper<CompletionItem> _mapper = new CompletionItemMapper();
+    private readonly IFeatureMapper<CompletionItem> _mapper = new CompletionItemMapper();
 
     public async Task<LspCapabilities> InitializeAsync()
     {

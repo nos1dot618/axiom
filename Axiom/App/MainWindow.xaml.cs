@@ -4,6 +4,8 @@ using System.Windows.Input;
 using Axiom.Core.Completion;
 using Axiom.Core.Documents;
 using Axiom.Editor;
+using Axiom.Editor.Completion;
+using Axiom.Editor.Documents;
 using Axiom.Infrastructure.Logging;
 using Axiom.Infrastructure.Lsp.Language;
 using Axiom.UI.Editor;
@@ -52,7 +54,7 @@ public partial class MainWindow
             {
                 await _lspService.InitializeAsync();
 
-                _ = new CompletionController(
+                _ = new CompletionEngine(
                     Editor.TextArea,
                     _lspService!.Capabilities.CompletionTriggerCharacters,
                     CompletionProvider
