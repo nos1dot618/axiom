@@ -1,22 +1,18 @@
-﻿using System.Windows.Input;
-using Axiom.Infrastructure.Logging;
+﻿using Axiom.Infrastructure.Logging;
 
 namespace Axiom.UI.Commands;
 
 public static class AsyncCommand
 {
-    public static ExecutedRoutedEventHandler Create(Func<Task> execute)
+    public static async void Execute(Func<Task> execute)
     {
-        return async void (_, _) =>
+        try
         {
-            try
-            {
-                await execute();
-            }
-            catch (Exception ex)
-            {
-                ErrorHandler.HandleException(ex);
-            }
-        };
+            await execute();
+        }
+        catch (Exception ex)
+        {
+            ErrorHandler.HandleException(ex);
+        }
     }
 }

@@ -17,11 +17,11 @@
 
             <MenuItem Header="_File">
                 <MenuItem Header="_New" Click="NewFile_Click" />
-                <MenuItem Header="_Open..." Click="NewFile_Click" />
+                <MenuItem Header="_Open..." Click="OpenFileMenuButtonHandler" />
                 <MenuItem Header="_Save" Click="NewFile_Click" />
                 <MenuItem Header="Save _As..." Click="NewFile_Click" />
                 <Separator />
-                <MenuItem Header="E_xit" Click="NewFile_Click" />
+                <MenuItem Header="E_xit" Click="ExitMenuButtonHandler" />
             </MenuItem>
 
             <MenuItem Header="_Edit">

@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Input;
+using Accessibility;
 using Axiom.Core.Services;
 using Axiom.Core.Completion;
 using Axiom.Core.Documents;
@@ -20,10 +21,16 @@ public partial class MainWindow
     private readonly DocumentManager _documentManager;
     private readonly IFileService _fileService;
 
+    // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable
+    private readonly IEditorService _editorService;
+
     public MainWindow()
     {
         InitializeComponent();
+
         EditorContext.SetEditor(Editor);
+        EditorConfigurator.Configure(Editor);
+        SetKeybindings();
 
         LspServerConfiguration lspConfiguration = new(
             languageId: "python",
@@ -34,92 +41,21 @@ public partial class MainWindow
 
         _lspService = new LspLanguageService(lspConfiguration);
         _documentManager = new DocumentManager(Editor);
-        _fileService = new FileService(_documentManager, _lspService);
+        ServiceFactory.Configure(_documentManager, _lspService);
+        _fileService = ServiceFactory.FileService;
+        _editorService = ServiceFactory.EditorService;
 
-        EditorConfigurator.Configure(Editor);
-        SetKeybindings();
-        EditorContext.SetEditor(Editor);
-
-        Editor.Text = "";
-
-        Loaded += OnLoadedAsync;
-        Closed += OnClosedAsync;
-        Editor.Document.Changed += OnDocumentChanged;
-    }
-
-    private async void OnLoadedAsync(object sender, RoutedEventArgs e)
-    {
-        try
-        {
-            if (_lspService != null)
-            {
-                await _lspService.InitializeAsync();
-
-                _ = new CompletionEngine(
-                    Editor.TextArea,
-                    _lspService!.Capabilities.CompletionTriggerCharacters,
-                    CompletionProvider
-                );
-            }
-
-            await _fileService.OpenFileAsync(@"C:\Users\nosferatu\Downloads\test.py");
-        }
-        catch (Exception ex)
-        {
-            ErrorHandler.HandleException(ex);
-        }
-    }
-
-    private async void OnClosedAsync(object? sender, EventArgs e)
-    {
-        try
-        {
-            if (_lspService != null) await _lspService.DisposeAsync();
-            DocumentManager.CloseFile();
-        }
-        catch (Exception ex)
-        {
-            ErrorHandler.HandleException(ex);
-        }
-    }
-
-    private async Task<IReadOnlyList<CompletionItem>> CompletionProvider(string? triggerCharacter)
-    {
-        if (_fileService.DocumentMetadata == null && _lspService == null) return [];
-
-        DocumentPosition position = new(Editor.TextArea.Caret);
-        var contextDto = new CompletionContextDto(triggerCharacter);
-        return await _lspService!.GetCompletionsAsync(_fileService.DocumentMetadata!, position, contextDto);
-    }
-
-    private async void OnDocumentChanged(object? sender, DocumentChangeEventArgs e)
-    {
-        try
-        {
-            // Close tooltip if exists.
-            if (Editor.ToolTip != null)
-            {
-                ((System.Windows.Controls.ToolTip)Editor.ToolTip).IsOpen = false;
-                Editor.ToolTip = null;
-            }
-
-            if (_fileService.DocumentMetadata == null || _documentManager.SuppressChanges) return;
-
-            var changeDto = _documentManager.CreateChange(e);
-
-            if (_lspService != null) await _lspService.ChangeDocumentAsync(_fileService.DocumentMetadata, changeDto);
-        }
-        catch (Exception ex)
-        {
-            ErrorHandler.HandleException(ex);
-        }
+        Loaded += (_, _) => AsyncCommand.Execute(_editorService.OnLoadCallback);
+        Closed += (_, _) => AsyncCommand.Execute(_editorService.OnCloseCallback);
+        Editor.Document.Changed += async (_, e) => await _editorService.OnDocumentChangeCallback(e);
     }
 
     private void SetKeybindings()
     {
         CommandBindings.Add(new CommandBinding(ApplicationCommands.Open,
-            AsyncCommand.Create(_fileService.OpenFileDialogAsync)));
-        CommandBindings.Add(new CommandBinding(ApplicationCommands.Save, AsyncCommand.Create(_fileService.SaveAsync)));
+            (_, _) => AsyncCommand.Execute(_fileService.OpenFileDialogAsync)));
+        CommandBindings.Add(new CommandBinding(ApplicationCommands.Save,
+            (_, _) => AsyncCommand.Execute(_fileService.SaveAsync)));
 
         InputBindings.Add(new KeyBinding(ApplicationCommands.Open, new KeyGesture(Key.O, ModifierKeys.Control)));
         InputBindings.Add(new KeyBinding(ApplicationCommands.Save, new KeyGesture(Key.S, ModifierKeys.Control)));
@@ -128,5 +64,12 @@ public partial class MainWindow
     private void NewFile_Click(object sender, RoutedEventArgs e)
     {
         throw new NotImplementedException();
+    }
+
+    private void OpenFileMenuButtonHandler(object? sender, RoutedEventArgs e) =>
+        AsyncCommand.Execute(_fileService.OpenFileDialogAsync);
+
+    private void ExitMenuButtonHandler(object? sender, RoutedEventArgs e)
+    {
     }
 }
