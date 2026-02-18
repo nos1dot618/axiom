@@ -4,7 +4,8 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using Axiom.Core.Diagnostics;
-using Axiom.UI.Themes;
+using Axiom.Core.Services;
+using Axiom.Core.Settings;
 using ICSharpCode.AvalonEdit;
 
 namespace Axiom.Editor.Diagnostics;
@@ -13,6 +14,7 @@ public sealed class DiagnosticService
 {
     private readonly TextEditor _editor;
     private readonly ITextMarkerService _markerService;
+    private readonly EditorSettings _settings;
 
     public DiagnosticService(TextEditor editor)
     {
@@ -20,6 +22,7 @@ public sealed class DiagnosticService
 
         var textMarkerService = new TextMarkerService(editor.Document);
         _markerService = textMarkerService;
+        _settings = ServiceFactory.SettingsService.CurrentSettings;
 
         editor.TextArea.TextView.BackgroundRenderers.Add(textMarkerService);
         editor.TextArea.TextView.LineTransformers.Add(textMarkerService);
@@ -122,7 +125,7 @@ public sealed class DiagnosticService
                     Text = marker.ToolTip.ToString(),
                     TextWrapping = TextWrapping.Wrap,
                     MaxWidth = 500,
-                    FontFamily = Stylesheet.FontFamily
+                    FontFamily = new FontFamily(_settings.Editor.FontFamily)
                 },
                 PlacementTarget = _editor.TextArea,
                 Placement = System.Windows.Controls.Primitives.PlacementMode.Mouse,

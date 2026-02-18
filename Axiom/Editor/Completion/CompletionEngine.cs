@@ -1,8 +1,9 @@
 ﻿using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
 using Axiom.Core.Completion;
+using Axiom.Core.Settings;
 using Axiom.Infrastructure.Logging;
-using Axiom.UI.Themes;
 using ICSharpCode.AvalonEdit.CodeCompletion;
 using ICSharpCode.AvalonEdit.Editing;
 
@@ -18,6 +19,7 @@ public sealed class CompletionEngine
     private readonly TextArea _textArea;
     private readonly HashSet<string> _triggerCharacters;
     private readonly Func<string?, Task<IReadOnlyList<CompletionItem>>> _completionProvider;
+    private readonly EditorSettings _settings;
 
     private CompletionWindow? _completionWindow;
 
@@ -27,6 +29,7 @@ public sealed class CompletionEngine
         _textArea = textArea;
         _triggerCharacters = triggerCharacters.ToHashSet();
         _completionProvider = completionProvider;
+        _settings = new EditorSettings();
 
         _textArea.TextEntering += OnTextEntering;
         _textArea.TextEntered += OnTextEntered;
@@ -76,7 +79,7 @@ public sealed class CompletionEngine
         listBox.Style = (Style)Application.Current.FindResource("AxiomCompletionListStyle")!;
         listBox.ItemContainerStyle = (Style)Application.Current.FindResource("AxiomCompletionItemStyle")!;
 
-        _completionWindow.FontFamily = Stylesheet.FontFamily;
-        _completionWindow.FontSize = Stylesheet.FontSize;
+        _completionWindow.FontFamily = new FontFamily(_settings.Editor.FontFamily);
+        _completionWindow.FontSize = _settings.Editor.FontSize;
     }
 }

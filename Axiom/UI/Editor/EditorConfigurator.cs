@@ -1,5 +1,6 @@
 ﻿using System.Windows.Controls;
-using Axiom.UI.Themes;
+using System.Windows.Media;
+using Axiom.Core.Services;
 using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.Highlighting;
 
@@ -9,6 +10,8 @@ public static class EditorConfigurator
 {
     public static void Configure(TextEditor textEditor)
     {
+        var settings = ServiceFactory.SettingsService.CurrentSettings;
+
         textEditor.Options.ConvertTabsToSpaces = true;
         textEditor.Options.IndentationSize = 4;
         textEditor.Options.EnableHyperlinks = false;
@@ -17,8 +20,8 @@ public static class EditorConfigurator
         textEditor.Options.ShowSpaces = false;
 
         // Font must be present inside Fonts.SystemFontFamilies
-        textEditor.FontFamily = Stylesheet.FontFamily;
-        textEditor.FontSize = Stylesheet.FontSize;
+        textEditor.FontFamily = new FontFamily(settings.Editor.FontFamily);
+        textEditor.FontSize = settings.Editor.FontSize;
 
         textEditor.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
         textEditor.HorizontalScrollBarVisibility = ScrollBarVisibility.Hidden;

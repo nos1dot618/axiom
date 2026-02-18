@@ -28,10 +28,6 @@ public partial class MainWindow
     {
         InitializeComponent();
 
-        EditorContext.SetEditor(Editor);
-        EditorConfigurator.Configure(Editor);
-        SetKeybindings();
-
         LspServerConfiguration lspConfiguration = new(
             languageId: "python",
             command: "../../../../node_modules/.bin/pyright-langserver.cmd",
@@ -44,6 +40,10 @@ public partial class MainWindow
         ServiceFactory.Configure(_documentManager, _lspService);
         _fileService = ServiceFactory.FileService;
         _editorService = ServiceFactory.EditorService;
+
+        EditorContext.SetEditor(Editor);
+        EditorConfigurator.Configure(Editor);
+        SetKeybindings();
 
         Loaded += (_, _) => AsyncCommand.Execute(_editorService.OnLoadCallback);
         Closed += (_, _) => AsyncCommand.Execute(_editorService.OnCloseCallback);
