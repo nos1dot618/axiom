@@ -1,6 +1,6 @@
-﻿using System.IO;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Input;
+using Axiom.Core.Services;
 using Axiom.Core.Completion;
 using Axiom.Core.Documents;
 using Axiom.Editor;
@@ -8,9 +8,9 @@ using Axiom.Editor.Completion;
 using Axiom.Editor.Documents;
 using Axiom.Infrastructure.Logging;
 using Axiom.Infrastructure.Lsp.Language;
+using Axiom.UI.Commands;
 using Axiom.UI.Editor;
 using ICSharpCode.AvalonEdit.Document;
-using Microsoft.Win32;
 
 namespace Axiom.App;
 
@@ -18,12 +18,12 @@ public partial class MainWindow
 {
     private readonly LspLanguageService? _lspService;
     private readonly DocumentManager _documentManager;
-
-    private DocumentMetadata? _documentMetadata;
+    private readonly IFileService _fileService;
 
     public MainWindow()
     {
         InitializeComponent();
+        EditorContext.SetEditor(Editor);
 
         LspServerConfiguration lspConfiguration = new(
             languageId: "python",
@@ -34,6 +34,7 @@ public partial class MainWindow
 
         _lspService = new LspLanguageService(lspConfiguration);
         _documentManager = new DocumentManager(Editor);
+        _fileService = new FileService(_documentManager, _lspService);
 
         EditorConfigurator.Configure(Editor);
         SetKeybindings();
@@ -61,7 +62,7 @@ public partial class MainWindow
                 );
             }
 
-            await OpenFileAsync(@"C:\Users\nosferatu\Downloads\test.py");
+            await _fileService.OpenFileAsync(@"C:\Users\nosferatu\Downloads\test.py");
         }
         catch (Exception ex)
         {
@@ -84,56 +85,11 @@ public partial class MainWindow
 
     private async Task<IReadOnlyList<CompletionItem>> CompletionProvider(string? triggerCharacter)
     {
-        if (_documentMetadata == null && _lspService == null) return [];
+        if (_fileService.DocumentMetadata == null && _lspService == null) return [];
 
         DocumentPosition position = new(Editor.TextArea.Caret);
         var contextDto = new CompletionContextDto(triggerCharacter);
-        return await _lspService!.GetCompletionsAsync(_documentMetadata!, position, contextDto);
-    }
-
-    private async Task OpenFileAsync(string filePath)
-    {
-        var text = await _documentManager.LoadFileAsync(filePath);
-
-        if (_lspService != null) _documentMetadata = await _lspService.OpenDocumentAsync(filePath, "python", text);
-    }
-
-    private async void OnOpenExecuted(object sender, ExecutedRoutedEventArgs e)
-    {
-        try
-        {
-            var dialog = new OpenFileDialog
-            {
-                Filter = "Python Files (*.py)|*.py|All Files (*.*)|*.*"
-            };
-
-            // TODO: Save file if any changes before switching to a different file.
-            if (dialog.ShowDialog() == true)
-            {
-                await OpenFileAsync(dialog.FileName);
-            }
-        }
-        catch (Exception ex)
-        {
-            ErrorHandler.HandleException(ex);
-        }
-    }
-
-    private async void OnSaveExecuted(object sender, ExecutedRoutedEventArgs e)
-    {
-        try
-        {
-            if (_documentMetadata == null || string.IsNullOrEmpty(_documentMetadata.Uri)) return;
-
-            var filePath = new Uri(_documentMetadata.Uri).LocalPath;
-            await File.WriteAllTextAsync(filePath, Editor.Text);
-
-            if (_lspService != null) await _lspService.SaveDocumentAsync(_documentMetadata);
-        }
-        catch (Exception ex)
-        {
-            ErrorHandler.HandleException(ex);
-        }
+        return await _lspService!.GetCompletionsAsync(_fileService.DocumentMetadata!, position, contextDto);
     }
 
     private async void OnDocumentChanged(object? sender, DocumentChangeEventArgs e)
@@ -147,11 +103,11 @@ public partial class MainWindow
                 Editor.ToolTip = null;
             }
 
-            if (_documentMetadata == null || _documentManager.SuppressChanges) return;
+            if (_fileService.DocumentMetadata == null || _documentManager.SuppressChanges) return;
 
             var changeDto = _documentManager.CreateChange(e);
 
-            if (_lspService != null) await _lspService.ChangeDocumentAsync(_documentMetadata, changeDto);
+            if (_lspService != null) await _lspService.ChangeDocumentAsync(_fileService.DocumentMetadata, changeDto);
         }
         catch (Exception ex)
         {
@@ -161,8 +117,9 @@ public partial class MainWindow
 
     private void SetKeybindings()
     {
-        CommandBindings.Add(new CommandBinding(ApplicationCommands.Open, OnOpenExecuted));
-        CommandBindings.Add(new CommandBinding(ApplicationCommands.Save, OnSaveExecuted));
+        CommandBindings.Add(new CommandBinding(ApplicationCommands.Open,
+            AsyncCommand.Create(_fileService.OpenFileDialogAsync)));
+        CommandBindings.Add(new CommandBinding(ApplicationCommands.Save, AsyncCommand.Create(_fileService.SaveAsync)));
 
         InputBindings.Add(new KeyBinding(ApplicationCommands.Open, new KeyGesture(Key.O, ModifierKeys.Control)));
         InputBindings.Add(new KeyBinding(ApplicationCommands.Save, new KeyGesture(Key.S, ModifierKeys.Control)));
