@@ -6,16 +6,15 @@ using Axiom.Infrastructure.Lsp.Transport;
 
 namespace Axiom.Infrastructure.Lsp.Language;
 
-public sealed class LspLanguageService : IAsyncDisposable
+public sealed class LspService : ILspService
 {
     private readonly LspServerConfiguration _configuration;
     private readonly JsonRpcLspClient _transport;
     private readonly LspProtocolClient _client;
 
     public LspCapabilities Capabilities { get; private set; } = new();
-    public string LanguageId => _configuration.LanguageId;
 
-    public LspLanguageService(LspServerConfiguration configuration)
+    public LspService(LspServerConfiguration configuration)
     {
         _configuration = configuration;
         _transport = new JsonRpcLspClient(configuration);
@@ -30,10 +29,10 @@ public sealed class LspLanguageService : IAsyncDisposable
         Capabilities = await _client.InitializeAsync();
     }
 
-    public async Task<DocumentMetadata> OpenDocumentAsync(string filePath, string languageId, string text)
+    public async Task<DocumentMetadata> OpenDocumentAsync(string filePath, string text)
     {
         var uri = new Uri(filePath).AbsoluteUri;
-        var documentMetadata = new DocumentMetadata(uri, languageId);
+        var documentMetadata = new DocumentMetadata(uri, _configuration.LanguageId);
 
         await _client.DidOpenAsync(documentMetadata, text);
         return documentMetadata;
@@ -68,5 +67,5 @@ public sealed class LspLanguageService : IAsyncDisposable
     }
 
     private void RegisterNotificationHandler(ILspNotificationHandler handler) =>
-        _transport.RegisterNotificationHandler(handler.Method, payload => handler.HandleAsync(payload));
+        _transport.RegisterNotificationHandler(handler.Method, handler.HandleAsync);
 }

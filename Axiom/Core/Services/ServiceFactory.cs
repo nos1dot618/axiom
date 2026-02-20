@@ -11,7 +11,7 @@ public static class ServiceFactory
     private static IEditorService? _editorService;
     private static ISettingsService? _settingsService;
 
-    public static void Configure(DocumentManager documentManager, LspLanguageService? lspLanguageService)
+    public static void Configure(DocumentManager documentManager, ILspService? lspLanguageService)
     {
         _documentManager = documentManager;
         LspLanguageService = lspLanguageService;
@@ -23,7 +23,7 @@ public static class ServiceFactory
     private static DocumentManager DocumentManager =>
         _documentManager ?? throw new InvalidOperationException("Services not configured");
 
-    private static LspLanguageService? LspLanguageService { get; set; }
+    private static ILspService? LspLanguageService { get; set; }
 
     public static IFileService FileService => _fileService ??= new FileService(DocumentManager, LspLanguageService);
 

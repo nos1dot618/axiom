@@ -7,15 +7,14 @@ using Microsoft.Win32;
 
 namespace Axiom.Core.Services;
 
-public class FileService(DocumentManager documentManager, LspLanguageService? lspService) : IFileService
+public class FileService(DocumentManager documentManager, ILspService? lspService) : IFileService
 {
     public DocumentMetadata? DocumentMetadata { get; private set; }
 
     public async Task OpenFileAsync(string filepath)
     {
         var text = await documentManager.LoadFileAsync(filepath);
-        if (lspService != null)
-            DocumentMetadata = await lspService.OpenDocumentAsync(filepath, lspService.LanguageId, text);
+        if (lspService != null) DocumentMetadata = await lspService.OpenDocumentAsync(filepath, text);
     }
 
     public async Task SaveAsync()

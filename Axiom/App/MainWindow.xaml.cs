@@ -1,24 +1,16 @@
 ﻿using System.Windows;
 using System.Windows.Input;
-using Accessibility;
 using Axiom.Core.Services;
-using Axiom.Core.Completion;
-using Axiom.Core.Documents;
 using Axiom.Editor;
-using Axiom.Editor.Completion;
 using Axiom.Editor.Documents;
-using Axiom.Infrastructure.Logging;
 using Axiom.Infrastructure.Lsp.Language;
 using Axiom.UI.Commands;
 using Axiom.UI.Editor;
-using ICSharpCode.AvalonEdit.Document;
 
 namespace Axiom.App;
 
 public partial class MainWindow
 {
-    private readonly LspLanguageService? _lspService;
-    private readonly DocumentManager _documentManager;
     private readonly IFileService _fileService;
 
     // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable
@@ -35,9 +27,9 @@ public partial class MainWindow
             rootPath: @"C:\Users\nosferatu\Downloads"
         );
 
-        _lspService = new LspLanguageService(lspConfiguration);
-        _documentManager = new DocumentManager(Editor);
-        ServiceFactory.Configure(_documentManager, _lspService);
+        var lspService = new LspService(lspConfiguration);
+        var documentManager = new DocumentManager(Editor);
+        ServiceFactory.Configure(documentManager, lspService);
         _fileService = ServiceFactory.FileService;
         _editorService = ServiceFactory.EditorService;
 

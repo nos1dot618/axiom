@@ -8,7 +8,7 @@ using ICSharpCode.AvalonEdit.Document;
 
 namespace Axiom.Core.Services;
 
-public class EditorService(DocumentManager documentManager, LspLanguageService? lspService, IFileService fileService)
+public class EditorService(DocumentManager documentManager, ILspService? lspService, IFileService fileService)
     : IEditorService
 {
     public async Task OnLoadCallback()
