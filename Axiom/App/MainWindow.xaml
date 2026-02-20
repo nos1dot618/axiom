@@ -46,16 +46,16 @@
                 <MenuItem Header="_Run File (F5)" Click="NewFile_Click" />
                 <Separator />
                 <MenuItem Header="Language">
-                    <MenuItem Header="Python"
-                              IsCheckable="True"
-                              IsChecked="True"
-                              Click="NewFile_Click" />
-                    <MenuItem Header="C#"
-                              IsCheckable="True"
-                              Click="NewFile_Click" />
-                    <MenuItem Header="JavaScript"
-                              IsCheckable="True"
-                              Click="NewFile_Click" />
+                    <MenuItem Header="Python" IsCheckable="True" IsChecked="True" Click="NewFile_Click" />
+                    <MenuItem Header="C#" IsCheckable="True" Click="NewFile_Click" />
+                    <MenuItem Header="JavaScript" IsCheckable="True" Click="NewFile_Click" />
+                </MenuItem>
+            </MenuItem>
+
+            <MenuItem Header="Tools">
+                <MenuItem Header="Language Server">
+                    <MenuItem Header="Enable" IsCheckable="True" IsChecked="True"
+                              Click="ToggleLanguageServerButtonHandler" />
                 </MenuItem>
             </MenuItem>
 

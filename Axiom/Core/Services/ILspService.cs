@@ -2,7 +2,7 @@
 using Axiom.Core.Documents;
 using Axiom.Infrastructure.Lsp.Protocol;
 
-namespace Axiom.Infrastructure.Lsp.Language;
+namespace Axiom.Core.Services;
 
 public interface ILspService : IAsyncDisposable
 {

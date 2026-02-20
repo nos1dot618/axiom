@@ -1,8 +1,10 @@
 ﻿using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using Axiom.Core.Services;
 using Axiom.Editor;
 using Axiom.Editor.Documents;
+using Axiom.Infrastructure.Logging;
 using Axiom.Infrastructure.Lsp.Language;
 using Axiom.UI.Commands;
 using Axiom.UI.Editor;
@@ -20,7 +22,7 @@ public partial class MainWindow
     {
         InitializeComponent();
 
-        LspServerConfiguration lspConfiguration = new(
+        var lspConfiguration = new LspServerConfiguration(
             languageId: "python",
             command: "../../../../node_modules/.bin/pyright-langserver.cmd",
             arguments: "--stdio",
@@ -61,7 +63,24 @@ public partial class MainWindow
     private void OpenFileMenuButtonHandler(object? sender, RoutedEventArgs e) =>
         AsyncCommand.Execute(_fileService.OpenFileDialogAsync);
 
+    private async void ToggleLanguageServerButtonHandler(object? sender, RoutedEventArgs e)
+    {
+        try
+        {
+            if (sender is not MenuItem menuItem) return;
+
+            Console.WriteLine(menuItem.IsChecked);
+
+            await ServiceFactory.EditorService.ToggleLsp();
+        }
+        catch (Exception ex)
+        {
+            ErrorHandler.HandleException(ex);
+        }
+    }
+
     private void ExitMenuButtonHandler(object? sender, RoutedEventArgs e)
     {
+        throw new NotImplementedException();
     }
 }

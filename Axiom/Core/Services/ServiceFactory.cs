@@ -1,6 +1,5 @@
 ﻿using Axiom.Core.Settings;
 using Axiom.Editor.Documents;
-using Axiom.Infrastructure.Lsp.Language;
 
 namespace Axiom.Core.Services;
 
@@ -11,10 +10,10 @@ public static class ServiceFactory
     private static IEditorService? _editorService;
     private static ISettingsService? _settingsService;
 
-    public static void Configure(DocumentManager documentManager, ILspService? lspLanguageService)
+    public static void Configure(DocumentManager documentManager, ILspService lspLanguageService)
     {
         _documentManager = documentManager;
-        LspLanguageService = lspLanguageService;
+        LspService = lspLanguageService;
 
         _settingsService = new SettingsService();
         _settingsService.Load();
@@ -23,12 +22,12 @@ public static class ServiceFactory
     private static DocumentManager DocumentManager =>
         _documentManager ?? throw new InvalidOperationException("Services not configured");
 
-    private static ILspService? LspLanguageService { get; set; }
+    public static ILspService LspService { get; set; } = new NoOpLspService();
 
-    public static IFileService FileService => _fileService ??= new FileService(DocumentManager, LspLanguageService);
+    public static IFileService FileService => _fileService ??= new FileService(DocumentManager, LspService);
 
     public static IEditorService EditorService =>
-        _editorService ??= new EditorService(DocumentManager, LspLanguageService, FileService);
+        _editorService ??= new EditorService(DocumentManager, FileService);
 
     public static ISettingsService SettingsService =>
         _settingsService ?? throw new InvalidOperationException("Services not configured");

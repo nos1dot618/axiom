@@ -1,10 +1,11 @@
 ﻿using Axiom.Core.Completion;
 using Axiom.Core.Documents;
 using Axiom.Infrastructure.Lsp.Features.Dispatching;
+using Axiom.Infrastructure.Lsp.Language;
 using Axiom.Infrastructure.Lsp.Protocol;
 using Axiom.Infrastructure.Lsp.Transport;
 
-namespace Axiom.Infrastructure.Lsp.Language;
+namespace Axiom.Core.Services;
 
 public sealed class LspService : ILspService
 {

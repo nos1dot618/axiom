@@ -9,7 +9,7 @@ using ICSharpCode.AvalonEdit.Editing;
 
 namespace Axiom.Editor.Completion;
 
-public sealed class CompletionEngine
+public sealed class CompletionEngine : IDisposable
 {
     /// <summary>
     /// Delay in milliseconds before making request for completions.
@@ -81,5 +81,14 @@ public sealed class CompletionEngine
 
         _completionWindow.FontFamily = new FontFamily(_settings.Editor.FontFamily);
         _completionWindow.FontSize = _settings.Editor.FontSize;
+    }
+
+    public void Dispose()
+    {
+        _textArea.TextEntering -= OnTextEntering;
+        _textArea.TextEntered -= OnTextEntered;
+
+        _completionWindow?.Close();
+        _completionWindow = null;
     }
 }
