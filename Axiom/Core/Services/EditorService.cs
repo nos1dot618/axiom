@@ -60,9 +60,14 @@ public class EditorService(DocumentManager documentManager, IFileService fileSer
 
     public async Task ToggleLsp()
     {
+        // Dispose services.
+        _completionEngine?.Dispose();
+        _completionEngine = null;
+        DocumentContextProvider.DisposeAllDiagnostics();
         await ServiceFactory.LspService.DisposeAsync();
+
         ServiceFactory.LspService = IsLspEnabled ? new NoOpLspService() : new LspService(_lspConfiguration);
-        await RestartLspFeatures();
+        if (!IsLspEnabled) await RestartLspFeatures();
         IsLspEnabled = !IsLspEnabled;
     }
 
@@ -71,14 +76,23 @@ public class EditorService(DocumentManager documentManager, IFileService fileSer
         var lspService = ServiceFactory.LspService;
         await lspService.InitializeAsync();
 
+        _completionEngine?.Dispose();
+        _completionEngine = null;
+        DocumentContextProvider.DisposeAllDiagnostics();
+
+        if (lspService is NoOpLspService) return;
+
         // TODO: Add feature to register CompletionEngine inside LspService,
         //       to sync the lifecycle of CompletionWindow with LspService.
-        _completionEngine?.Dispose();
         _completionEngine = new CompletionEngine(
             EditorContext.GetEditor().TextArea,
             lspService.Capabilities.CompletionTriggerCharacters,
             CompletionProvider
         );
+
+        // TODO: Move lifecycle of this to LspService as well.
+        // Restart diagnostic service.
+        DocumentContextProvider.Create();
     }
 
     private async Task<IReadOnlyList<CompletionItem>> CompletionProvider(string? triggerCharacter)

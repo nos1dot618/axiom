@@ -85,9 +85,11 @@ public sealed class CompletionEngine : IDisposable
 
     public void Dispose()
     {
+        // Unsubscribe events.
         _textArea.TextEntering -= OnTextEntering;
         _textArea.TextEntered -= OnTextEntered;
 
+        // Close completion window.
         _completionWindow?.Close();
         _completionWindow = null;
     }

@@ -10,26 +10,27 @@ using ICSharpCode.AvalonEdit;
 
 namespace Axiom.Editor.Diagnostics;
 
-public sealed class DiagnosticService
+public sealed class DiagnosticService : IDisposable
 {
     private readonly TextEditor _editor;
     private readonly ITextMarkerService _markerService;
+    private readonly TextMarkerService _textMarkerService;
     private readonly EditorSettings _settings;
+    private bool _isDisposed = false;
 
     public DiagnosticService(TextEditor editor)
     {
         _editor = editor;
 
-        var textMarkerService = new TextMarkerService(editor.Document);
-        _markerService = textMarkerService;
+        _textMarkerService = new TextMarkerService(editor.Document);
+        _markerService = _textMarkerService;
         _settings = ServiceFactory.SettingsService.CurrentSettings;
 
-        editor.TextArea.TextView.BackgroundRenderers.Add(textMarkerService);
-        editor.TextArea.TextView.LineTransformers.Add(textMarkerService);
+        editor.TextArea.TextView.BackgroundRenderers.Add(_textMarkerService);
+        editor.TextArea.TextView.LineTransformers.Add(_textMarkerService);
 
         editor.TextArea.TextView.MouseHover += OnTextViewMouseHover;
         editor.TextArea.TextView.MouseHoverStopped += OnTextViewMouseHoverStopped;
-        editor.ToolTipOpening += (_, _) => { Console.WriteLine("tooltip opening"); };
     }
 
     public void Update(IEnumerable<Diagnostic> diagnostics)
@@ -137,6 +138,27 @@ public sealed class DiagnosticService
 
     private void OnTextViewMouseHoverStopped(object sender, MouseEventArgs e)
     {
+        _editor.ToolTip = null;
+    }
+
+    public void Dispose()
+    {
+        if (_isDisposed) return;
+        _isDisposed = true;
+
+        // Clear markers.
+        _markerService.RemoveAll(_ => true);
+
+        // Remove renderers.
+        _editor.TextArea.TextView.BackgroundRenderers.Remove(_textMarkerService);
+        _editor.TextArea.TextView.LineTransformers.Remove(_textMarkerService);
+
+        // Unsubscribe events.
+        _editor.TextArea.TextView.MouseHover -= OnTextViewMouseHover;
+        _editor.TextArea.TextView.MouseHoverStopped -= OnTextViewMouseHoverStopped;
+
+        // Close tooltip.
+        if (_editor.ToolTip is ToolTip tooltip) tooltip.IsOpen = false;
         _editor.ToolTip = null;
     }
 }

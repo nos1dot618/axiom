@@ -20,16 +20,27 @@ public static class DocumentContextProvider
 
     public static void Create()
     {
-        if (_currentDocumentUri is null) throw new KeyNotFoundException($"Document not found: {_currentDocumentUri}");
+        if (_currentDocumentUri is null) return;
+        
+        Console.WriteLine(_currentDocumentUri);
 
-        var context = new DocumentContext(_currentDocumentUri, new DiagnosticService(EditorContext.GetEditor()!));
-
-        if (!Documents.TryAdd(_currentDocumentUri, context))
-            throw new InvalidOperationException($"Document already exists: {_currentDocumentUri}");
+        var context = new DocumentContext(_currentDocumentUri, new DiagnosticService(EditorContext.GetEditor()));
+        Documents.TryAdd(_currentDocumentUri, context);
     }
 
     public static void Close()
     {
-        if (_currentDocumentUri is not null) Documents.TryRemove(_currentDocumentUri, out _);
+        if (_currentDocumentUri is not null && Documents.TryRemove(_currentDocumentUri, out var context))
+        {
+            context.DiagnosticService.Dispose();
+        }
+    }
+
+    public static void DisposeAllDiagnostics()
+    {
+        foreach (var context in Documents.Values) context.DiagnosticService.Dispose();
+        // TODO: Clearing may not be the correct approach, once more things are added to the DocumentContext
+        //       besides just DiagnosticService.
+        Documents.Clear();
     }
 }
