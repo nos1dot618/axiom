@@ -9,7 +9,7 @@ public sealed class DocumentManager
     public bool SuppressChanges { get; private set; }
 
     // TODO: fix this madness, we are always using LocalPath, there is no need to store this as an URI.
-    public static string? CurrentDocumentUri { get; private set; }
+    public static string? CurrentDocumentFilepath { get; private set; }
 
     public async Task<string> LoadFileAsync(string filepath)
     {
@@ -18,7 +18,7 @@ public sealed class DocumentManager
         EditorContext.GetEditor().Text = text;
         SuppressChanges = false;
 
-        CurrentDocumentUri = new Uri(filepath).AbsoluteUri;
+        CurrentDocumentFilepath = filepath;
         return text;
     }
 
