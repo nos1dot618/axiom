@@ -42,10 +42,17 @@ public class EditorService : IEditorService
 
     public async Task ToggleLsp()
     {
-        ILspService lspService = ServiceFactory.SettingsService.CurrentSettings.Lsp.EnableLsp
-            ? new LspService(LspRegistry.Get(LspSession.EffectiveLanguageId!)!)
-            : new NoOpLspService();
+        if (!ServiceFactory.SettingsService.CurrentSettings.Lsp.EnableLsp)
+        {
+            await LspSession.Reload(new NoOpLspService());
+            return;
+        }
 
-        await LspSession.Reload(lspService);
+        var languageId = LspSession.EffectiveLanguageId;
+        if (languageId == null) return;
+        var lspConfiguration = LspRegistry.Get(languageId);
+        if (lspConfiguration == null) return;
+
+        await LspSession.Reload(new LspService(lspConfiguration));
     }
 }

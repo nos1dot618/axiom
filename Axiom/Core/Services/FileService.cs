@@ -23,13 +23,11 @@ public class FileService : IFileService
             return;
         }
 
-        // TODO: Fix exceptions.
-        if (languageId == null) throw new ArgumentNullException(nameof(languageId));
+        if (languageId == null) return;
         var lspConfiguration = LspRegistry.Get(languageId);
-        if (lspConfiguration == null) throw new ArgumentNullException(nameof(lspConfiguration));
+        if (lspConfiguration == null) return;
 
-        ILspService lspService = new LspService(lspConfiguration);
-        await LspSession.Reload(lspService);
+        await LspSession.Reload(new LspService(lspConfiguration));
     }
 
     public async Task OpenDocumentAsync(string filepath, string text)
