@@ -8,27 +8,22 @@ public static class ServiceFactory
     private static DocumentManager? _documentManager;
     private static IFileService? _fileService;
     private static IEditorService? _editorService;
-    private static ISettingsService? _settingsService;
+    private static LspSession? _lspSession;
 
-    public static void Configure(DocumentManager documentManager, ILspService lspLanguageService)
+    public static LspSession LspSession
     {
-        _documentManager = documentManager;
-        LspService = lspLanguageService;
-
-        _settingsService = new SettingsService();
-        _settingsService.Load();
+        get => _lspSession ??= new LspSession(new NoOpLspService());
+        set => _lspSession = value;
     }
 
-    private static DocumentManager DocumentManager =>
-        _documentManager ?? throw new InvalidOperationException("Services not configured");
+    public static DocumentManager DocumentManager => _documentManager ??= new DocumentManager();
+    public static IFileService FileService => _fileService ??= new FileService();
+    public static IEditorService EditorService => _editorService ??= new EditorService();
+    public static ISettingsService SettingsService => new SettingsService();
 
-    public static ILspService LspService { get; set; } = new NoOpLspService();
-
-    public static IFileService FileService => _fileService ??= new FileService(DocumentManager, LspService);
-
-    public static IEditorService EditorService =>
-        _editorService ??= new EditorService(DocumentManager, FileService);
-
-    public static ISettingsService SettingsService =>
-        _settingsService ?? throw new InvalidOperationException("Services not configured");
+    public static async Task Configure(ILspService lspService)
+    {
+        _lspSession = new LspSession(lspService);
+        await _lspSession.InitializeAsync();
+    }
 }

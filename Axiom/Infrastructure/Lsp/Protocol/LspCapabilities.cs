@@ -4,14 +4,6 @@ namespace Axiom.Infrastructure.Lsp.Protocol;
 
 public sealed class LspCapabilities
 {
-    private bool SupportsCompletion { get; set; }
-    public bool SupportsCompletionResolve { get; private set; }
-    public IReadOnlyList<string> CompletionTriggerCharacters { get; private set; } = [];
-
-    public bool SupportsHover { get; private set; }
-    public bool SupportsFormatting { get; private set; }
-    public bool SupportsIncrementalSync { get; private set; }
-
     public LspCapabilities()
     {
     }
@@ -29,6 +21,14 @@ public sealed class LspCapabilities
             sync.GetInt32() == 2;
     }
 
+    private bool SupportsCompletion { get; set; }
+    public bool SupportsCompletionResolve { get; private set; }
+    public IReadOnlyList<string> CompletionTriggerCharacters { get; private set; } = [];
+
+    public bool SupportsHover { get; private set; }
+    public bool SupportsFormatting { get; private set; }
+    public bool SupportsIncrementalSync { get; private set; }
+
     private void ParseCompletionElement(JsonElement result)
     {
         SupportsCompletion = result.TryGetProperty("completionProvider", out var completionProvider);
@@ -38,16 +38,12 @@ public sealed class LspCapabilities
 
         if (completionProvider.TryGetProperty("triggerCharacters", out var triggers) &&
             triggers.ValueKind == JsonValueKind.Array)
-        {
             completionTriggerCharacters.AddRange(from item in triggers.EnumerateArray()
                 where item.ValueKind == JsonValueKind.String
                 select item.GetString()!);
-        }
 
         CompletionTriggerCharacters = completionTriggerCharacters;
         if (completionProvider.TryGetProperty("resolveProvider", out var resolve))
-        {
             SupportsCompletionResolve = resolve.GetBoolean();
-        }
     }
 }

@@ -8,6 +8,18 @@ internal sealed class TextMarker : TextSegment, ITextMarker
 {
     private readonly TextMarkerService _service;
 
+    private Color? _backgroundColor;
+
+    private FontStyle? _fontStyle;
+
+    private FontWeight? _fontWeight;
+
+    private Color? _foregroundColor;
+
+    private Color _markerColor;
+
+    private TextMarkerTypes _markerTypes;
+
     public TextMarker(TextMarkerService service, int startOffset, int length)
     {
         _service = service ?? throw new ArgumentNullException(nameof(service));
@@ -20,13 +32,10 @@ internal sealed class TextMarker : TextSegment, ITextMarker
 
     public bool IsDeleted => !IsConnectedToCollection;
 
-    public void Delete() => _service.Remove(this);
-
-    internal void OnDeleted() => Deleted?.Invoke(this, EventArgs.Empty);
-
-    private void Redraw() => _service.Redraw(this);
-
-    private Color? _backgroundColor;
+    public void Delete()
+    {
+        _service.Remove(this);
+    }
 
     public Color? BackgroundColor
     {
@@ -39,8 +48,6 @@ internal sealed class TextMarker : TextSegment, ITextMarker
         }
     }
 
-    private Color? _foregroundColor;
-
     public Color? ForegroundColor
     {
         get => _foregroundColor;
@@ -51,8 +58,6 @@ internal sealed class TextMarker : TextSegment, ITextMarker
             Redraw();
         }
     }
-
-    private FontWeight? _fontWeight;
 
     public FontWeight? FontWeight
     {
@@ -65,8 +70,6 @@ internal sealed class TextMarker : TextSegment, ITextMarker
         }
     }
 
-    private FontStyle? _fontStyle;
-
     public FontStyle? FontStyle
     {
         get => _fontStyle;
@@ -78,8 +81,6 @@ internal sealed class TextMarker : TextSegment, ITextMarker
         }
     }
 
-    private TextMarkerTypes _markerTypes;
-
     public TextMarkerTypes MarkerTypes
     {
         get => _markerTypes;
@@ -90,8 +91,6 @@ internal sealed class TextMarker : TextSegment, ITextMarker
             Redraw();
         }
     }
-
-    private Color _markerColor;
 
     public Color MarkerColor
     {
@@ -107,4 +106,14 @@ internal sealed class TextMarker : TextSegment, ITextMarker
     public object? Tag { get; set; }
 
     public object? ToolTip { get; set; }
+
+    internal void OnDeleted()
+    {
+        Deleted?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void Redraw()
+    {
+        _service.Redraw(this);
+    }
 }

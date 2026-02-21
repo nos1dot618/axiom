@@ -9,11 +9,9 @@ namespace Axiom.Core.Services;
 
 public sealed class LspService : ILspService
 {
+    private readonly LspProtocolClient _client;
     private readonly LspServerConfiguration _configuration;
     private readonly JsonRpcLspClient _transport;
-    private readonly LspProtocolClient _client;
-
-    public LspCapabilities Capabilities { get; private set; } = new();
 
     public LspService(LspServerConfiguration configuration)
     {
@@ -23,6 +21,8 @@ public sealed class LspService : ILspService
 
         RegisterHandlers();
     }
+
+    public LspCapabilities Capabilities { get; private set; } = new();
 
     public async Task InitializeAsync()
     {
@@ -67,6 +67,8 @@ public sealed class LspService : ILspService
         RegisterNotificationHandler(new DiagnosticsNotificationHandler());
     }
 
-    private void RegisterNotificationHandler(ILspNotificationHandler handler) =>
+    private void RegisterNotificationHandler(ILspNotificationHandler handler)
+    {
         _transport.RegisterNotificationHandler(handler.Method, handler.HandleAsync);
+    }
 }

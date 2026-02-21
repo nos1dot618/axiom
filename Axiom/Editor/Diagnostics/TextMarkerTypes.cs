@@ -1,51 +1,51 @@
 ﻿namespace Axiom.Editor.Diagnostics;
 
 /// <summary>
-/// Reference:
-/// "https://github.com/siegfriedpammer/AvalonEditSamples/blob/master/TextMarkerSample/SharpDevelop/ITextMarker.cs"
+///     Reference:
+///     "https://github.com/siegfriedpammer/AvalonEditSamples/blob/master/TextMarkerSample/SharpDevelop/ITextMarker.cs"
 /// </summary>
 [Flags]
 public enum TextMarkerTypes
 {
     /// <summary>
-    /// Use no marker
+    ///     Use no marker
     /// </summary>
     None = 0x0000,
 
     /// <summary>
-    /// Use squiggly underline marker
+    ///     Use squiggly underline marker
     /// </summary>
     SquigglyUnderline = 0x001,
 
     /// <summary>
-    /// Normal underline.
+    ///     Normal underline.
     /// </summary>
     NormalUnderline = 0x002,
 
     /// <summary>
-    /// Dotted underline.
+    ///     Dotted underline.
     /// </summary>
     DottedUnderline = 0x004,
 
     UnderlineTypes = SquigglyUnderline | NormalUnderline | DottedUnderline,
 
     /// <summary>
-    /// Horizontal line in the scroll bar.
+    ///     Horizontal line in the scroll bar.
     /// </summary>
     LineInScrollBar = 0x0100,
 
     /// <summary>
-    /// Small triangle in the scroll bar, pointing to the right.
+    ///     Small triangle in the scroll bar, pointing to the right.
     /// </summary>
     ScrollBarRightTriangle = 0x0400,
 
     /// <summary>
-    /// Small triangle in the scroll bar, pointing to the left.
+    ///     Small triangle in the scroll bar, pointing to the left.
     /// </summary>
     ScrollBarLeftTriangle = 0x0800,
 
     /// <summary>
-    /// Small circle in the scroll bar.
+    ///     Small circle in the scroll bar.
     /// </summary>
     CircleInScrollBar = 0x1000
 }

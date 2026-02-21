@@ -21,9 +21,7 @@ public sealed class DiagnosticMapper : IFeatureMapper<Diagnostic>
 
         var severity = DiagnosticSeverity.Info;
         if (item.TryGetProperty("severity", out var severityElement))
-        {
             severity = severityElement.GetInt32().ToDiagnosticSeverity() ?? DiagnosticSeverity.Info;
-        }
 
         return new Diagnostic
         {

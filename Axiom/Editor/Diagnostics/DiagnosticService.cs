@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
 using Axiom.Core.Diagnostics;
@@ -14,9 +15,9 @@ public sealed class DiagnosticService : IDisposable
 {
     private readonly TextEditor _editor;
     private readonly ITextMarkerService _markerService;
-    private readonly TextMarkerService _textMarkerService;
     private readonly EditorSettings _settings;
-    private bool _isDisposed = false;
+    private readonly TextMarkerService _textMarkerService;
+    private bool _isDisposed;
 
     public DiagnosticService(TextEditor editor)
     {
@@ -31,6 +32,27 @@ public sealed class DiagnosticService : IDisposable
 
         editor.TextArea.TextView.MouseHover += OnTextViewMouseHover;
         editor.TextArea.TextView.MouseHoverStopped += OnTextViewMouseHoverStopped;
+    }
+
+    public void Dispose()
+    {
+        if (_isDisposed) return;
+        _isDisposed = true;
+
+        // Clear markers.
+        _markerService.RemoveAll(_ => true);
+
+        // Remove renderers.
+        _editor.TextArea.TextView.BackgroundRenderers.Remove(_textMarkerService);
+        _editor.TextArea.TextView.LineTransformers.Remove(_textMarkerService);
+
+        // Unsubscribe events.
+        _editor.TextArea.TextView.MouseHover -= OnTextViewMouseHover;
+        _editor.TextArea.TextView.MouseHoverStopped -= OnTextViewMouseHoverStopped;
+
+        // Close tooltip.
+        if (_editor.ToolTip is ToolTip tooltip) tooltip.IsOpen = false;
+        _editor.ToolTip = null;
     }
 
     public void Update(IEnumerable<Diagnostic> diagnostics)
@@ -116,7 +138,6 @@ public sealed class DiagnosticService : IDisposable
         var marker = _markerService.GetMarkersAtOffset(offset).FirstOrDefault();
 
         if (marker != null && !string.IsNullOrWhiteSpace((string)marker.ToolTip!))
-        {
             _editor.ToolTip = new ToolTip
             {
                 Style = (Style)Application.Current.Resources["AxiomDiagnosticToolTipStyle"]!,
@@ -129,36 +150,14 @@ public sealed class DiagnosticService : IDisposable
                     FontFamily = new FontFamily(_settings.Editor.FontFamily)
                 },
                 PlacementTarget = _editor.TextArea,
-                Placement = System.Windows.Controls.Primitives.PlacementMode.Mouse,
+                Placement = PlacementMode.Mouse,
                 StaysOpen = false,
                 IsOpen = true
             };
-        }
     }
 
     private void OnTextViewMouseHoverStopped(object sender, MouseEventArgs e)
     {
-        _editor.ToolTip = null;
-    }
-
-    public void Dispose()
-    {
-        if (_isDisposed) return;
-        _isDisposed = true;
-
-        // Clear markers.
-        _markerService.RemoveAll(_ => true);
-
-        // Remove renderers.
-        _editor.TextArea.TextView.BackgroundRenderers.Remove(_textMarkerService);
-        _editor.TextArea.TextView.LineTransformers.Remove(_textMarkerService);
-
-        // Unsubscribe events.
-        _editor.TextArea.TextView.MouseHover -= OnTextViewMouseHover;
-        _editor.TextArea.TextView.MouseHoverStopped -= OnTextViewMouseHoverStopped;
-
-        // Close tooltip.
-        if (_editor.ToolTip is ToolTip tooltip) tooltip.IsOpen = false;
         _editor.ToolTip = null;
     }
 }

@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using Axiom.Core.Diagnostics;
-using Axiom.Editor.Documents;
+using Axiom.Core.Services;
 using Axiom.Infrastructure.Lsp.Features.Mapping;
 using Axiom.Infrastructure.Lsp.Protocol;
 
@@ -17,7 +17,7 @@ public sealed class DiagnosticsNotificationHandler : ILspNotificationHandler
     public Task HandleAsync(JsonElement payload)
     {
         var diagnostics = _mapper.Map(payload);
-        DocumentContextProvider.Get()?.DiagnosticService.Update(diagnostics);
+        ServiceFactory.LspSession.DiagnosticService?.Update(diagnostics);
         return Task.CompletedTask;
     }
 }

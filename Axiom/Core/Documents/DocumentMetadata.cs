@@ -6,5 +6,8 @@ public sealed class DocumentMetadata(string uri, string languageId)
     public string LanguageId { get; } = languageId;
     public int Version { get; private set; } = 1;
 
-    public void IncrementVersion() => Version++;
+    public void IncrementVersion()
+    {
+        Version++;
+    }
 }

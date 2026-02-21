@@ -10,6 +10,8 @@ public enum DiagnosticSeverity
 
 public static class DiagnosticSeverityExtensions
 {
-    public static DiagnosticSeverity? ToDiagnosticSeverity(this int value) =>
-        Enum.IsDefined(typeof(DiagnosticSeverity), value) ? (DiagnosticSeverity)value : null;
+    public static DiagnosticSeverity? ToDiagnosticSeverity(this int value)
+    {
+        return Enum.IsDefined(typeof(DiagnosticSeverity), value) ? (DiagnosticSeverity)value : null;
+    }
 }

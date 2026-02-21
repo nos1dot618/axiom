@@ -13,9 +13,12 @@ public sealed record DocumentPosition(int Row, int Column)
     {
     }
 
-    public object ToDto() => new
+    public object ToDto()
     {
-        line = Row,
-        character = Column
-    };
+        return new
+        {
+            line = Row,
+            character = Column
+        };
+    }
 }

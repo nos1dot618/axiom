@@ -1,41 +1,35 @@
-﻿using Axiom.Core.Completion;
-using Axiom.Core.Documents;
+﻿using System.Windows.Controls;
 using Axiom.Editor;
-using Axiom.Editor.Completion;
 using Axiom.Editor.Documents;
 using Axiom.Infrastructure.Lsp.Language;
 using ICSharpCode.AvalonEdit.Document;
 
 namespace Axiom.Core.Services;
 
-public class EditorService(DocumentManager documentManager, IFileService fileService) : IEditorService
+public class EditorService : IEditorService
 {
+    // TODO: Hard coded.
+    private readonly LspServerConfiguration _lspConfiguration = new(
+        "python",
+        "../../../../node_modules/.bin/pyright-langserver.cmd",
+        "--stdio",
+        @"C:\Users\nosferatu\Downloads"
+    );
+
     // TODO: Add setting for default value.
     public bool IsLspEnabled { get; private set; } = true;
 
-    // TODO: Hard coded.
-    private readonly LspServerConfiguration _lspConfiguration = new(
-        languageId: "python",
-        command: "../../../../node_modules/.bin/pyright-langserver.cmd",
-        arguments: "--stdio",
-        rootPath: @"C:\Users\nosferatu\Downloads"
-    );
-
-    private CompletionEngine? _completionEngine;
-
     public async Task OnLoadCallback()
     {
-        await RestartLspFeatures();
+        await ServiceFactory.Configure(new LspService(_lspConfiguration));
 
         // TODO: Replace with some temporary file, or load the previous session.
-        await fileService.OpenFileAsync(@"C:\Users\nosferatu\Downloads\test.py");
+        await ServiceFactory.FileService.OpenFileAsync(@"C:\Users\nosferatu\Downloads\test.py");
     }
 
     public async Task OnCloseCallback()
     {
-        _completionEngine?.Dispose();
-        var lspService = ServiceFactory.LspService;
-        await lspService.DisposeAsync();
+        await ServiceFactory.LspSession.DisposeAsync();
         DocumentManager.CloseFile();
     }
 
@@ -46,62 +40,26 @@ public class EditorService(DocumentManager documentManager, IFileService fileSer
         // Close tooltip if exists.
         if (editor.ToolTip != null)
         {
-            ((System.Windows.Controls.ToolTip)editor.ToolTip).IsOpen = false;
+            ((ToolTip)editor.ToolTip).IsOpen = false;
             editor.ToolTip = null;
         }
 
-        if (fileService.DocumentMetadata == null || documentManager.SuppressChanges) return;
+        if (ServiceFactory.FileService.DocumentMetadata == null ||
+            ServiceFactory.DocumentManager.SuppressChanges) return;
 
-        var changeDto = documentManager.CreateChange(e);
+        var changeDto = ServiceFactory.DocumentManager.CreateChange(e);
 
-        var lspService = ServiceFactory.LspService;
-        await lspService.ChangeDocumentAsync(fileService.DocumentMetadata, changeDto);
+        var lspService = ServiceFactory.LspSession.LspService;
+        await lspService.ChangeDocumentAsync(ServiceFactory.FileService.DocumentMetadata, changeDto);
     }
 
     public async Task ToggleLsp()
     {
-        // Dispose services.
-        _completionEngine?.Dispose();
-        _completionEngine = null;
-        DocumentContextProvider.DisposeAllDiagnostics();
-        await ServiceFactory.LspService.DisposeAsync();
+        await ServiceFactory.LspSession.DisposeAsync();
 
-        ServiceFactory.LspService = IsLspEnabled ? new NoOpLspService() : new LspService(_lspConfiguration);
-        if (!IsLspEnabled) await RestartLspFeatures();
+        ILspService lspService = IsLspEnabled ? new NoOpLspService() : new LspService(_lspConfiguration);
+        ServiceFactory.LspSession = new LspSession(lspService);
+        await ServiceFactory.LspSession.InitializeAsync();
         IsLspEnabled = !IsLspEnabled;
-    }
-
-    private async Task RestartLspFeatures()
-    {
-        var lspService = ServiceFactory.LspService;
-        await lspService.InitializeAsync();
-
-        _completionEngine?.Dispose();
-        _completionEngine = null;
-        DocumentContextProvider.DisposeAllDiagnostics();
-
-        if (lspService is NoOpLspService) return;
-
-        // TODO: Add feature to register CompletionEngine inside LspService,
-        //       to sync the lifecycle of CompletionWindow with LspService.
-        _completionEngine = new CompletionEngine(
-            EditorContext.GetEditor().TextArea,
-            lspService.Capabilities.CompletionTriggerCharacters,
-            CompletionProvider
-        );
-
-        // TODO: Move lifecycle of this to LspService as well.
-        // Restart diagnostic service.
-        DocumentContextProvider.Create();
-    }
-
-    private async Task<IReadOnlyList<CompletionItem>> CompletionProvider(string? triggerCharacter)
-    {
-        var lspService = ServiceFactory.LspService;
-        if (fileService.DocumentMetadata == null) return [];
-
-        DocumentPosition position = new(EditorContext.GetEditor().TextArea.Caret);
-        var contextDto = new CompletionContextDto(triggerCharacter);
-        return await lspService.GetCompletionsAsync(fileService.DocumentMetadata!, position, contextDto);
     }
 }

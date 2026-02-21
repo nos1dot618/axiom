@@ -2,9 +2,8 @@
 
 public interface ITextMarkerService
 {
-    ITextMarker Create(int startOffset, int length);
-
     IEnumerable<ITextMarker> TextMarkers { get; }
+    ITextMarker Create(int startOffset, int length);
 
     void Remove(ITextMarker marker);
 

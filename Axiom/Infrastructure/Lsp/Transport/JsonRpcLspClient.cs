@@ -13,16 +13,7 @@ namespace Axiom.Infrastructure.Lsp.Transport;
 
 public sealed class JsonRpcLspClient : IAsyncDisposable
 {
-    private Process? _process;
-    private Stream? _stdin;
-    private Stream? _stdout;
-
-    private int _requestId;
-    private readonly ConcurrentDictionary<int, TaskCompletionSource<JsonElement>> _pendingRequests = new();
-    private readonly ConcurrentDictionary<string, List<Func<JsonElement, Task>>> _notificationHandlers = new();
     private readonly CancellationTokenSource _cancellationTokenSource = new();
-    private readonly Logger _logger = new(ModuleType.Lsp, LogLevel.Debug);
-    private bool IsRunning => _process is { HasExited: false };
 
     private readonly JsonSerializerOptions _jsonSerializerOptions = new()
     {
@@ -30,12 +21,41 @@ public sealed class JsonRpcLspClient : IAsyncDisposable
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
     };
 
-    public LspServerConfiguration Configuration { get; }
+    private readonly Logger _logger = new(ModuleType.Lsp, LogLevel.Debug);
+    private readonly ConcurrentDictionary<string, List<Func<JsonElement, Task>>> _notificationHandlers = new();
+    private readonly ConcurrentDictionary<int, TaskCompletionSource<JsonElement>> _pendingRequests = new();
+    private Process? _process;
+
+    private int _requestId;
+    private Stream? _stdin;
+    private Stream? _stdout;
 
     // ReSharper disable once ConvertToPrimaryConstructor
     public JsonRpcLspClient(LspServerConfiguration configuration)
     {
         Configuration = configuration;
+    }
+
+    private bool IsRunning => _process is { HasExited: false };
+
+    public LspServerConfiguration Configuration { get; }
+
+    public async ValueTask DisposeAsync()
+    {
+        await _cancellationTokenSource.CancelAsync();
+
+        if (IsRunning)
+        {
+            await SendNotificationAsync(LspMethod.Notification.Shutdown);
+            await SendNotificationAsync(LspMethod.Notification.Exit);
+
+            if (_stdin is not null) await _stdin.DisposeAsync();
+            if (_stdout is not null) await _stdout.DisposeAsync();
+
+            _process!.Kill();
+        }
+
+        _process?.Dispose();
     }
 
     public Task StartAsync()
@@ -83,13 +103,11 @@ public sealed class JsonRpcLspClient : IAsyncDisposable
     public Task SendNotificationAsync(string method, object? @params = null)
     {
         if (@params == null)
-        {
             return SendAsync(new
             {
                 jsonrpc = "2.0",
                 method
             });
-        }
 
         return SendAsync(new
         {
@@ -210,10 +228,7 @@ public sealed class JsonRpcLspClient : IAsyncDisposable
 
         JsonElement @params = default;
         if (message.TryGetProperty("params", out var paramsProperty)) @params = paramsProperty;
-        foreach (var handler in handlers)
-        {
-            _ = Task.Run(() => handler(@params));
-        }
+        foreach (var handler in handlers) _ = Task.Run(() => handler(@params));
     }
 
     private async Task ReadStderrAsync()
@@ -223,28 +238,7 @@ public sealed class JsonRpcLspClient : IAsyncDisposable
         while (!_process.StandardError.EndOfStream)
         {
             var line = await _process.StandardError.ReadLineAsync();
-            if (!string.IsNullOrWhiteSpace(line))
-            {
-                _logger.Error($"Server: error={line}");
-            }
+            if (!string.IsNullOrWhiteSpace(line)) _logger.Error($"Server: error={line}");
         }
-    }
-
-    public async ValueTask DisposeAsync()
-    {
-        await _cancellationTokenSource.CancelAsync();
-
-        if (IsRunning)
-        {
-            await SendNotificationAsync(LspMethod.Notification.Shutdown);
-            await SendNotificationAsync(LspMethod.Notification.Exit);
-
-            if (_stdin is not null) await _stdin.DisposeAsync();
-            if (_stdout is not null) await _stdout.DisposeAsync();
-
-            _process!.Kill();
-        }
-
-        _process?.Dispose();
     }
 }

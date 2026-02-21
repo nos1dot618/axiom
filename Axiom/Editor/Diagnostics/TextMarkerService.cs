@@ -8,13 +8,9 @@ namespace Axiom.Editor.Diagnostics;
 public sealed class TextMarkerService : DocumentColorizingTransformer, IBackgroundRenderer, ITextMarkerService,
     ITextViewConnect
 {
-    private readonly TextSegmentCollection<TextMarker> _markers;
     private readonly TextDocument _document;
+    private readonly TextSegmentCollection<TextMarker> _markers;
     private readonly List<TextView> _textViews = [];
-
-    public IEnumerable<ITextMarker> TextMarkers => _markers;
-    public IEnumerable<ITextMarker> GetMarkersAtOffset(int offset) => _markers.FindSegmentsContaining(offset);
-    public KnownLayer Layer => KnownLayer.Selection;
 
     public TextMarkerService(TextDocument document)
     {
@@ -22,33 +18,7 @@ public sealed class TextMarkerService : DocumentColorizingTransformer, IBackgrou
         _markers = new TextSegmentCollection<TextMarker>(_document);
     }
 
-    public ITextMarker Create(int startOffset, int length)
-    {
-        var textLength = _document.TextLength;
-
-        if (startOffset < 0 || startOffset > textLength) throw new ArgumentOutOfRangeException(nameof(startOffset));
-        if (length < 0 || startOffset + length > textLength) throw new ArgumentOutOfRangeException(nameof(length));
-
-        var marker = new TextMarker(this, startOffset, length);
-        _markers.Add(marker);
-        return marker;
-    }
-
-    public void Remove(ITextMarker marker)
-    {
-        if (marker is not TextMarker m || !_markers.Remove(m)) return;
-
-        Redraw(m);
-        m.OnDeleted();
-    }
-
-    public void RemoveAll(Predicate<ITextMarker> predicate)
-    {
-        foreach (var m in _markers.ToArray())
-        {
-            if (predicate(m)) Remove(m);
-        }
-    }
+    public KnownLayer Layer => KnownLayer.Selection;
 
     public void Draw(TextView textView, DrawingContext drawingContext)
     {
@@ -123,20 +93,61 @@ public sealed class TextMarkerService : DocumentColorizingTransformer, IBackgrou
         }
     }
 
+    public IEnumerable<ITextMarker> TextMarkers => _markers;
+
+    public IEnumerable<ITextMarker> GetMarkersAtOffset(int offset)
+    {
+        return _markers.FindSegmentsContaining(offset);
+    }
+
+    public ITextMarker Create(int startOffset, int length)
+    {
+        var textLength = _document.TextLength;
+
+        if (startOffset < 0 || startOffset > textLength) throw new ArgumentOutOfRangeException(nameof(startOffset));
+        if (length < 0 || startOffset + length > textLength) throw new ArgumentOutOfRangeException(nameof(length));
+
+        var marker = new TextMarker(this, startOffset, length);
+        _markers.Add(marker);
+        return marker;
+    }
+
+    public void Remove(ITextMarker marker)
+    {
+        if (marker is not TextMarker m || !_markers.Remove(m)) return;
+
+        Redraw(m);
+        m.OnDeleted();
+    }
+
+    public void RemoveAll(Predicate<ITextMarker> predicate)
+    {
+        foreach (var m in _markers.ToArray())
+            if (predicate(m))
+                Remove(m);
+    }
+
+
+    void ITextViewConnect.AddToTextView(TextView textView)
+    {
+        if (!_textViews.Contains(textView)) _textViews.Add(textView);
+    }
+
+    void ITextViewConnect.RemoveFromTextView(TextView textView)
+    {
+        _textViews.Remove(textView);
+    }
+
     private static IEnumerable<Point> CreatePoints(Point start, Point _, double offset, int count)
     {
         for (var i = 0; i < count; i++)
-        {
             yield return new Point(start.X + i * offset, start.Y - ((i + 1) % 2 == 0 ? offset : 0));
-        }
     }
 
     protected override void ColorizeLine(DocumentLine line)
     {
         foreach (var marker in _markers.FindOverlappingSegments(line.Offset, line.Length))
-        {
             if (marker.ForegroundColor != null || marker.FontWeight != null || marker.FontStyle != null)
-            {
                 ChangeLinePart(Math.Max(marker.StartOffset, line.Offset), Math.Min(marker.EndOffset, line.EndOffset),
                     element =>
                     {
@@ -156,19 +167,6 @@ public sealed class TextMarkerService : DocumentColorizingTransformer, IBackgrou
                                 typeface.Stretch));
                     }
                 );
-            }
-        }
-    }
-
-
-    void ITextViewConnect.AddToTextView(TextView textView)
-    {
-        if (!_textViews.Contains(textView)) _textViews.Add(textView);
-    }
-
-    void ITextViewConnect.RemoveFromTextView(TextView textView)
-    {
-        _textViews.Remove(textView);
     }
 
     internal void Redraw(ISegment segment)

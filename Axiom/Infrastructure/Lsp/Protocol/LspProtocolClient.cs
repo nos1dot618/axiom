@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using Axiom.Core;
 using Axiom.Core.Completion;
 using Axiom.Core.Documents;
 using Axiom.Infrastructure.Lsp.Features.Mapping;

@@ -30,6 +30,8 @@ public static class EditorConfigurator
         textEditor.SyntaxHighlighting = HighlightingManager.Instance.GetDefinition("Python");
     }
 
-    private static ScrollBarVisibility ParseScrollBarVisibility(bool visible) =>
-        visible ? ScrollBarVisibility.Visible : ScrollBarVisibility.Hidden;
+    private static ScrollBarVisibility ParseScrollBarVisibility(bool visible)
+    {
+        return visible ? ScrollBarVisibility.Visible : ScrollBarVisibility.Hidden;
+    }
 }

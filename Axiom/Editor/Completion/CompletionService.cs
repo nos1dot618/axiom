@@ -9,21 +9,22 @@ using ICSharpCode.AvalonEdit.Editing;
 
 namespace Axiom.Editor.Completion;
 
-public sealed class CompletionEngine : IDisposable
+public sealed class CompletionService : IDisposable
 {
     /// <summary>
-    /// Delay in milliseconds before making request for completions.
+    ///     Delay in milliseconds before making request for completions.
     /// </summary>
     private const int CompletionRequestDelay = 100;
 
-    private readonly TextArea _textArea;
-    private readonly HashSet<string> _triggerCharacters;
     private readonly Func<string?, Task<IReadOnlyList<CompletionItem>>> _completionProvider;
     private readonly EditorSettings _settings;
 
+    private readonly TextArea _textArea;
+    private readonly HashSet<string> _triggerCharacters;
+
     private CompletionWindow? _completionWindow;
 
-    public CompletionEngine(TextArea textArea, IReadOnlyList<string> triggerCharacters,
+    public CompletionService(TextArea textArea, IReadOnlyList<string> triggerCharacters,
         Func<string?, Task<IReadOnlyList<CompletionItem>>> completionProvider)
     {
         _textArea = textArea;
@@ -33,6 +34,17 @@ public sealed class CompletionEngine : IDisposable
 
         _textArea.TextEntering += OnTextEntering;
         _textArea.TextEntered += OnTextEntered;
+    }
+
+    public void Dispose()
+    {
+        // Unsubscribe events.
+        _textArea.TextEntering -= OnTextEntering;
+        _textArea.TextEntered -= OnTextEntered;
+
+        // Close completion window.
+        _completionWindow?.Close();
+        _completionWindow = null;
     }
 
     private void OnTextEntering(object sender, TextCompositionEventArgs e)
@@ -81,16 +93,5 @@ public sealed class CompletionEngine : IDisposable
 
         _completionWindow.FontFamily = new FontFamily(_settings.Editor.FontFamily);
         _completionWindow.FontSize = _settings.Editor.FontSize;
-    }
-
-    public void Dispose()
-    {
-        // Unsubscribe events.
-        _textArea.TextEntering -= OnTextEntering;
-        _textArea.TextEntered -= OnTextEntered;
-
-        // Close completion window.
-        _completionWindow?.Close();
-        _completionWindow = null;
     }
 }

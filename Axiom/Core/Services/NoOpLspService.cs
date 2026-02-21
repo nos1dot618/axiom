@@ -8,17 +8,34 @@ public sealed class NoOpLspService : ILspService
 {
     public LspCapabilities Capabilities { get; } = new();
 
-    public Task InitializeAsync() => Task.CompletedTask;
+    public Task InitializeAsync()
+    {
+        return Task.CompletedTask;
+    }
 
-    public Task<DocumentMetadata> OpenDocumentAsync(string filepath, string text) =>
-        Task.FromResult<DocumentMetadata>(null!);
+    public Task<DocumentMetadata> OpenDocumentAsync(string filepath, string text)
+    {
+        return Task.FromResult<DocumentMetadata>(null!);
+    }
 
-    public Task ChangeDocumentAsync(DocumentMetadata metadata, DocumentChangeDto changeDto) => Task.CompletedTask;
+    public Task ChangeDocumentAsync(DocumentMetadata metadata, DocumentChangeDto changeDto)
+    {
+        return Task.CompletedTask;
+    }
 
-    public Task SaveDocumentAsync(DocumentMetadata metadata) => Task.CompletedTask;
+    public Task SaveDocumentAsync(DocumentMetadata metadata)
+    {
+        return Task.CompletedTask;
+    }
 
     public Task<IReadOnlyList<CompletionItem>> GetCompletionsAsync(DocumentMetadata metadata, DocumentPosition position,
-        CompletionContextDto contextDto) => Task.FromResult<IReadOnlyList<CompletionItem>>([]);
+        CompletionContextDto contextDto)
+    {
+        return Task.FromResult<IReadOnlyList<CompletionItem>>([]);
+    }
 
-    public ValueTask DisposeAsync() => ValueTask.CompletedTask;
+    public ValueTask DisposeAsync()
+    {
+        return ValueTask.CompletedTask;
+    }
 }

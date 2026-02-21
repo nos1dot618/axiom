@@ -8,11 +8,7 @@ public interface ITextMarker
     int StartOffset { get; }
     int EndOffset { get; }
     int Length { get; }
-
-    void Delete();
     bool IsDeleted { get; }
-
-    event EventHandler? Deleted;
 
     Color? BackgroundColor { get; set; }
     Color? ForegroundColor { get; set; }
@@ -25,4 +21,8 @@ public interface ITextMarker
 
     object? Tag { get; set; }
     object? ToolTip { get; set; }
+
+    void Delete();
+
+    event EventHandler? Deleted;
 }

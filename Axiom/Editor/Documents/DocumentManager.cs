@@ -1,40 +1,38 @@
 ﻿using System.IO;
 using Axiom.Core.Documents;
-using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.Document;
 
 namespace Axiom.Editor.Documents;
 
-public sealed class DocumentManager(TextEditor textEditor)
+public sealed class DocumentManager
 {
     public bool SuppressChanges { get; private set; }
+
+    public static string? CurrentDocumentUri { get; private set; }
 
     public async Task<string> LoadFileAsync(string filePath)
     {
         SuppressChanges = true;
         var text = await File.ReadAllTextAsync(filePath);
-        textEditor.Text = text;
+        EditorContext.GetEditor().Text = text;
         SuppressChanges = false;
 
-        DocumentContextProvider.SetCurrentDocument(new Uri(filePath).AbsoluteUri);
-        DocumentContextProvider.Create();
-
+        CurrentDocumentUri = new Uri(filePath).AbsoluteUri;
         return text;
     }
 
     public static void CloseFile()
     {
-        DocumentContextProvider.Close();
     }
 
     public async Task SaveFileAsync(string filePath)
     {
-        await File.WriteAllTextAsync(filePath, textEditor.Text);
+        await File.WriteAllTextAsync(filePath, EditorContext.GetEditor().Text);
     }
 
     public DocumentChangeDto CreateChange(DocumentChangeEventArgs e)
     {
-        var document = textEditor.Document;
+        var document = EditorContext.GetEditor().Document;
 
         // Start position (safe)
         var startLocation = document.GetLocation(e.Offset);
@@ -50,7 +48,6 @@ public sealed class DocumentManager(TextEditor textEditor)
             var column = startLocation.Column;
 
             foreach (var ch in removedText)
-            {
                 if (ch == '\n')
                 {
                     line++;
@@ -60,7 +57,6 @@ public sealed class DocumentManager(TextEditor textEditor)
                 {
                     column++;
                 }
-            }
 
             endLocation = new TextLocation(line, column);
         }
