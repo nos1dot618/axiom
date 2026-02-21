@@ -60,6 +60,9 @@ public class EditorService : IEditorService
         ILspService lspService = IsLspEnabled ? new NoOpLspService() : new LspService(_lspConfiguration);
         ServiceFactory.LspSession = new LspSession(lspService);
         await ServiceFactory.LspSession.InitializeAsync();
+        if (DocumentManager.CurrentDocumentUri is not null)
+            await lspService.OpenDocumentAsync(new Uri(DocumentManager.CurrentDocumentUri).LocalPath,
+                EditorContext.GetEditor().Text);
         IsLspEnabled = !IsLspEnabled;
     }
 }
