@@ -22,6 +22,12 @@ public sealed class SettingsService : ISettingsService
 
     public EditorSettings CurrentSettings { get; }
 
+    public void Update(Action<EditorSettings> action)
+    {
+        action(CurrentSettings);
+        Save();
+    }
+
     private static string InitializeFilePath()
     {
         var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
@@ -32,7 +38,7 @@ public sealed class SettingsService : ISettingsService
         return Path.Combine(appDirectory, "settings.toml");
     }
 
-    public void Save()
+    private void Save()
     {
         var configText = Toml.FromModel(CurrentSettings);
         File.WriteAllText(FilePath, configText);

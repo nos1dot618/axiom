@@ -54,8 +54,24 @@
 
             <MenuItem Header="Tools">
                 <MenuItem Header="Language Server">
-                    <MenuItem Header="Enable" IsCheckable="True" IsChecked="True"
-                              Click="ToggleLanguageServerButtonHandler" />
+                    <MenuItem x:Name="LanguageServerEnabledMenuItem"
+                              Header="Enable Language Server"
+                              IsCheckable="True"
+                              IsChecked="True"
+                              Click="LanguageServerEnabledMenuItemHandler" />
+                    <Separator />
+                    <MenuItem x:Name="CodeCompletionMenuItem"
+                              Header="Code Completion"
+                              IsCheckable="True"
+                              IsChecked="True"
+                              IsEnabled="{Binding IsChecked, ElementName=LanguageServerEnabledMenuItem}"
+                              Click="LanguageServerFeatureMenuItemHandler" />
+                    <MenuItem x:Name="DiagnosticsMenuItem"
+                              Header="Diagnostics"
+                              IsCheckable="True"
+                              IsChecked="True"
+                              IsEnabled="{Binding IsChecked, ElementName=LanguageServerEnabledMenuItem}"
+                              Click="LanguageServerFeatureMenuItemHandler" />
                 </MenuItem>
             </MenuItem>
 

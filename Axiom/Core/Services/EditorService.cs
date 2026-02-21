@@ -16,9 +16,6 @@ public class EditorService : IEditorService
         @"C:\Users\nosferatu\Downloads"
     );
 
-    // TODO: Add setting for default value.
-    public bool IsLspEnabled { get; private set; } = true;
-
     public async Task OnLoadCallback()
     {
         await ServiceFactory.Configure(new LspService(_lspConfiguration));
@@ -57,12 +54,15 @@ public class EditorService : IEditorService
     {
         await ServiceFactory.LspSession.DisposeAsync();
 
-        ILspService lspService = IsLspEnabled ? new NoOpLspService() : new LspService(_lspConfiguration);
+        ILspService lspService = ServiceFactory.SettingsService.CurrentSettings.Lsp.EnableLsp
+            ? new LspService(_lspConfiguration)
+            : new NoOpLspService();
+
         ServiceFactory.LspSession = new LspSession(lspService);
         await ServiceFactory.LspSession.InitializeAsync();
+
         if (DocumentManager.CurrentDocumentUri is not null)
             await lspService.OpenDocumentAsync(new Uri(DocumentManager.CurrentDocumentUri).LocalPath,
                 EditorContext.GetEditor().Text);
-        IsLspEnabled = !IsLspEnabled;
     }
 }
