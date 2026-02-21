@@ -60,11 +60,15 @@ public sealed class JsonRpcLspClient : IAsyncDisposable
 
     public Task StartAsync()
     {
+        var resolvedCommand = CommandResolver.ResolveFromPath(Configuration.Command);
+        if (resolvedCommand is null)
+            throw new InvalidOperationException($"LSP command '{Configuration.Command}' not found in PATH.");
+
         _process = new Process
         {
             StartInfo = new ProcessStartInfo
             {
-                FileName = Configuration.Command,
+                FileName = resolvedCommand,
                 Arguments = Configuration.Arguments,
                 RedirectStandardInput = true,
                 RedirectStandardOutput = true,

@@ -17,13 +17,13 @@ public static class ServiceFactory
     }
 
     public static DocumentManager DocumentManager => _documentManager ??= new DocumentManager();
-    public static IFileService FileService => _fileService ??= new FileService();
+
+    public static IFileService FileService
+    {
+        get => _fileService ??= new FileService();
+        set => _fileService = value;
+    }
+
     public static IEditorService EditorService => _editorService ??= new EditorService();
     public static ISettingsService SettingsService => new SettingsService();
-
-    public static async Task Configure(ILspService lspService)
-    {
-        _lspSession = new LspSession(lspService);
-        await _lspSession.InitializeAsync();
-    }
 }

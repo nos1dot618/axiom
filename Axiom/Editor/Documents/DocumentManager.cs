@@ -8,16 +8,17 @@ public sealed class DocumentManager
 {
     public bool SuppressChanges { get; private set; }
 
+    // TODO: fix this madness, we are always using LocalPath, there is no need to store this as an URI.
     public static string? CurrentDocumentUri { get; private set; }
 
-    public async Task<string> LoadFileAsync(string filePath)
+    public async Task<string> LoadFileAsync(string filepath)
     {
         SuppressChanges = true;
-        var text = await File.ReadAllTextAsync(filePath);
+        var text = await File.ReadAllTextAsync(filepath);
         EditorContext.GetEditor().Text = text;
         SuppressChanges = false;
 
-        CurrentDocumentUri = new Uri(filePath).AbsoluteUri;
+        CurrentDocumentUri = new Uri(filepath).AbsoluteUri;
         return text;
     }
 
@@ -30,7 +31,7 @@ public sealed class DocumentManager
         await File.WriteAllTextAsync(filePath, EditorContext.GetEditor().Text);
     }
 
-    public DocumentChangeDto CreateChange(DocumentChangeEventArgs e)
+    public static DocumentChangeDto CreateChange(DocumentChangeEventArgs e)
     {
         var document = EditorContext.GetEditor().Document;
 

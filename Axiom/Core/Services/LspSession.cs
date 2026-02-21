@@ -3,14 +3,29 @@ using Axiom.Core.Documents;
 using Axiom.Editor;
 using Axiom.Editor.Completion;
 using Axiom.Editor.Diagnostics;
+using Axiom.Editor.Documents;
 
 namespace Axiom.Core.Services;
 
-public sealed class LspSession(ILspService lspService) : IAsyncDisposable
+public sealed class LspSession : IAsyncDisposable
 {
-    public ILspService LspService { get; } = lspService;
+    public LspSession(ILspService lspService)
+    {
+        LspService = lspService;
+        LanguageId = lspService.LanguageId;
+        EffectiveLanguageId = lspService.LanguageId ?? EffectiveLanguageId;
+    }
+
+    public ILspService LspService { get; }
     private CompletionService? CompletionService { get; set; }
     public DiagnosticService? DiagnosticService { get; private set; }
+
+    public static string? LanguageId { get; private set; }
+
+    /// <summary>
+    ///     Last valid language ID. Used for acquiring the LSP configuration after re-enbling the LSP service.
+    /// </summary>
+    public static string? EffectiveLanguageId { get; private set; }
 
     public async ValueTask DisposeAsync()
     {
@@ -20,7 +35,7 @@ public sealed class LspSession(ILspService lspService) : IAsyncDisposable
         await LspService.DisposeAsync();
     }
 
-    public async Task InitializeAsync()
+    private async Task InitializeAsync()
     {
         await LspService.InitializeAsync();
 
@@ -53,6 +68,22 @@ public sealed class LspSession(ILspService lspService) : IAsyncDisposable
         {
             DiagnosticService?.Dispose();
             DiagnosticService = null;
+        }
+    }
+
+    public static async Task Reload(ILspService lspService)
+    {
+        await ServiceFactory.LspSession.DisposeAsync();
+
+        ServiceFactory.LspSession = new LspSession(lspService);
+        await ServiceFactory.LspSession.InitializeAsync();
+
+        if (DocumentManager.CurrentDocumentUri is not null)
+        {
+            // Reloading the LspService, thus makes sense to reset DocumentMetadata inside FileService as well.
+            ServiceFactory.FileService = new FileService();
+            await ServiceFactory.FileService.OpenDocumentAsync(new Uri(DocumentManager.CurrentDocumentUri).LocalPath,
+                EditorContext.GetEditor().Text);
         }
     }
 

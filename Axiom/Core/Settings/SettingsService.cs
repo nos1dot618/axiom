@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using Axiom.Infrastructure.Lsp.Language;
 using Tomlyn;
 
 namespace Axiom.Core.Settings;
@@ -18,6 +19,10 @@ public sealed class SettingsService : ISettingsService
 
         var configText = File.ReadAllText(FilePath);
         CurrentSettings = Toml.ToModel<EditorSettings>(configText);
+
+        foreach (var configuration in CurrentSettings.Lsp.Servers)
+            LspRegistry.Add(new LspServerConfiguration(configuration.LanguageId, configuration.Command,
+                configuration.Arguments));
     }
 
     public EditorSettings CurrentSettings { get; }

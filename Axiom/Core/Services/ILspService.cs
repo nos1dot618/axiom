@@ -7,6 +7,7 @@ namespace Axiom.Core.Services;
 public interface ILspService : IAsyncDisposable
 {
     LspCapabilities Capabilities { get; }
+    string? LanguageId { get; }
 
     Task InitializeAsync();
     Task<DocumentMetadata> OpenDocumentAsync(string filepath, string text);

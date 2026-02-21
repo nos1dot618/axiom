@@ -23,6 +23,7 @@ public sealed class LspService : ILspService
     }
 
     public LspCapabilities Capabilities { get; private set; } = new();
+    public string? LanguageId => _configuration.LanguageId;
 
     public async Task InitializeAsync()
     {

@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using Axiom.Core.Documents;
 using Axiom.Editor;
+using Axiom.Infrastructure.Lsp.Language;
 using Microsoft.Win32;
 
 namespace Axiom.Core.Services;
@@ -12,6 +13,27 @@ public class FileService : IFileService
     public async Task OpenFileAsync(string filepath)
     {
         var text = await ServiceFactory.DocumentManager.LoadFileAsync(filepath);
+
+        var languageId = LanguageIdResolver.GetLanguageId(filepath);
+        // If the language ID of the newly opened document is same as the current running LSP server's language ID:
+        // them no need to change the LSP session.
+        if (languageId == LspSession.LanguageId)
+        {
+            DocumentMetadata = await ServiceFactory.LspSession.LspService.OpenDocumentAsync(filepath, text);
+            return;
+        }
+
+        // TODO: Fix exceptions.
+        if (languageId == null) throw new ArgumentNullException(nameof(languageId));
+        var lspConfiguration = LspRegistry.Get(languageId);
+        if (lspConfiguration == null) throw new ArgumentNullException(nameof(lspConfiguration));
+
+        ILspService lspService = new LspService(lspConfiguration);
+        await LspSession.Reload(lspService);
+    }
+
+    public async Task OpenDocumentAsync(string filepath, string text)
+    {
         DocumentMetadata = await ServiceFactory.LspSession.LspService.OpenDocumentAsync(filepath, text);
     }
 

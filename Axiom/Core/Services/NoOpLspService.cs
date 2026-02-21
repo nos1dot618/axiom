@@ -7,6 +7,7 @@ namespace Axiom.Core.Services;
 public sealed class NoOpLspService : ILspService
 {
     public LspCapabilities Capabilities { get; } = new();
+    public string? LanguageId { get; } = null;
 
     public Task InitializeAsync()
     {
