@@ -2,12 +2,21 @@
 using Axiom.Editor.Documents;
 using Axiom.Editor.Lsp;
 using Axiom.Infrastructure.Lsp.Language;
+using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.Document;
 
 namespace Axiom.Editor;
 
 public class EditorService : IEditorService
 {
+    private static TextEditor? _editor;
+
+    public static TextEditor Editor
+    {
+        get => _editor ?? throw new InvalidOperationException("Editor has not been initialized.");
+        set => _editor = value;
+    }
+
     public async Task OnLoadCallback()
     {
         // TODO: Replace with some temporary file, or load the previous session.
@@ -22,7 +31,7 @@ public class EditorService : IEditorService
 
     public async Task OnDocumentChangeCallback(DocumentChangeEventArgs e)
     {
-        var editor = EditorContext.GetEditor();
+        var editor = Editor;
 
         // Close tooltip if exists.
         if (editor.ToolTip != null)

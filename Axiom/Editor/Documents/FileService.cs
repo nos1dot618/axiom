@@ -43,7 +43,7 @@ public class FileService : IFileService
         if (DocumentMetadata == null || string.IsNullOrEmpty(DocumentMetadata.Uri)) return;
 
         var filePath = new Uri(DocumentMetadata.Uri).LocalPath;
-        await File.WriteAllTextAsync(filePath, EditorContext.GetEditor().Text);
+        await File.WriteAllTextAsync(filePath, EditorService.Editor.Text);
 
         await ServiceFactory.LspSession.LspService.SaveDocumentAsync(DocumentMetadata);
     }

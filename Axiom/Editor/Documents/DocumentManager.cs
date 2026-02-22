@@ -15,7 +15,7 @@ public sealed class DocumentManager
     {
         SuppressChanges = true;
         var text = await File.ReadAllTextAsync(filepath);
-        EditorContext.GetEditor().Text = text;
+        EditorService.Editor.Text = text;
         SuppressChanges = false;
 
         CurrentDocumentFilepath = filepath;
@@ -28,12 +28,12 @@ public sealed class DocumentManager
 
     public async Task SaveFileAsync(string filePath)
     {
-        await File.WriteAllTextAsync(filePath, EditorContext.GetEditor().Text);
+        await File.WriteAllTextAsync(filePath, EditorService.Editor.Text);
     }
 
     public static DocumentChangeDto CreateChange(DocumentChangeEventArgs e)
     {
-        var document = EditorContext.GetEditor().Document;
+        var document = EditorService.Editor.Document;
 
         // Start position (safe)
         var startLocation = document.GetLocation(e.Offset);

@@ -48,7 +48,7 @@ public sealed class LspSession : IAsyncDisposable
         if (lspSettings.EnableCodeCompletion)
         {
             CompletionService ??= new CompletionService(
-                EditorContext.GetEditor().TextArea,
+                EditorService.Editor.TextArea,
                 LspService.Capabilities.CompletionTriggerCharacters,
                 CompletionProvider
             );
@@ -61,7 +61,7 @@ public sealed class LspSession : IAsyncDisposable
 
         if (lspSettings.EnableDiagnostics)
         {
-            DiagnosticService ??= new DiagnosticService(EditorContext.GetEditor());
+            DiagnosticService ??= new DiagnosticService(EditorService.Editor);
         }
         else
         {
@@ -82,7 +82,7 @@ public sealed class LspSession : IAsyncDisposable
             // Reloading the LspService, thus makes sense to reset DocumentMetadata inside FileService as well.
             ServiceFactory.FileService = new FileService();
             await ServiceFactory.FileService.OpenDocumentAsync(DocumentManager.CurrentDocumentFilepath,
-                EditorContext.GetEditor().Text);
+                EditorService.Editor.Text);
         }
     }
 
@@ -92,7 +92,7 @@ public sealed class LspSession : IAsyncDisposable
         var fileService = ServiceFactory.FileService;
         if (fileService.DocumentMetadata == null) return [];
 
-        DocumentPosition position = new(EditorContext.GetEditor().TextArea.Caret);
+        DocumentPosition position = new(EditorService.Editor.TextArea.Caret);
         var contextDto = new CompletionContextDto(triggerCharacter);
         return await lspService.GetCompletionsAsync(fileService.DocumentMetadata!, position, contextDto);
     }

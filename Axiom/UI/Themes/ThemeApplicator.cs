@@ -9,7 +9,7 @@ public static class ThemeApplicator
 {
     public static void Apply()
     {
-        var editor = EditorContext.GetEditor();
+        var editor = EditorService.Editor;
         var theme = ServiceFactory.ThemeService.CurrentTheme;
 
         editor.Background = Brush(theme.Editor.Background);
@@ -25,7 +25,7 @@ public static class ThemeApplicator
 
     public static void ApplySyntaxHighlighting()
     {
-        var editor = EditorContext.GetEditor();
+        var editor = EditorService.Editor;
         var theme = ServiceFactory.ThemeService.CurrentTheme;
 
         var highlighting = HighlightingManager.Instance.HighlightingDefinitions.FirstOrDefault(h =>

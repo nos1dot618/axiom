@@ -14,7 +14,7 @@ public partial class MainWindow
     {
         InitializeComponent();
 
-        EditorContext.SetEditor(Editor);
+        EditorService.Editor = Editor;
         EditorConfigurator.Configure(Editor);
 
         Loaded += (_, _) => AsyncCommand.Execute(ServiceFactory.EditorService.OnLoadCallback);
