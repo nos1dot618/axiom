@@ -2,12 +2,12 @@
 using Axiom.Core.Documents;
 using Axiom.Infrastructure.Lsp.Protocol;
 
-namespace Axiom.Core.Services;
+namespace Axiom.Editor.Lsp;
 
 public sealed class NoOpLspService : ILspService
 {
     public LspCapabilities Capabilities { get; } = new();
-    public string? LanguageId { get; } = null;
+    public string? LanguageId => null;
 
     public Task InitializeAsync()
     {

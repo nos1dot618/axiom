@@ -1,6 +1,6 @@
 ﻿using System.Windows.Media;
-using Axiom.Core.Services;
 using Axiom.Editor;
+using Axiom.Editor.Lsp;
 using ICSharpCode.AvalonEdit.Highlighting;
 
 namespace Axiom.UI.Themes;
@@ -48,5 +48,8 @@ public static class ThemeApplicator
         }
     }
 
-    private static SolidColorBrush Brush(string hex) => new((Color)ColorConverter.ConvertFromString(hex));
+    private static SolidColorBrush Brush(string hex)
+    {
+        return new SolidColorBrush((Color)ColorConverter.ConvertFromString(hex));
+    }
 }

@@ -1,8 +1,9 @@
 ﻿using System.IO;
+using Axiom.Core.Settings;
 using Axiom.Infrastructure.Lsp.Language;
 using Tomlyn;
 
-namespace Axiom.Core.Settings;
+namespace Axiom.Editor.Settings;
 
 public sealed class SettingsService : ISettingsService
 {

@@ -1,4 +1,6 @@
-﻿namespace Axiom.Core.Settings;
+﻿using Axiom.Core.Settings;
+
+namespace Axiom.Editor.Settings;
 
 public interface ISettingsService
 {

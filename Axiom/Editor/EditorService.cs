@@ -1,10 +1,10 @@
 ﻿using System.Windows.Controls;
-using Axiom.Editor;
 using Axiom.Editor.Documents;
+using Axiom.Editor.Lsp;
 using Axiom.Infrastructure.Lsp.Language;
 using ICSharpCode.AvalonEdit.Document;
 
-namespace Axiom.Core.Services;
+namespace Axiom.Editor;
 
 public class EditorService : IEditorService
 {

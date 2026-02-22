@@ -1,7 +1,9 @@
-﻿using Axiom.Core.Settings;
-using Axiom.Editor.Documents;
+﻿using Axiom.Editor.Documents;
+using Axiom.Editor.Lsp;
+using Axiom.Editor.Settings;
+using Axiom.Editor.Themes;
 
-namespace Axiom.Core.Services;
+namespace Axiom.Editor;
 
 public static class ServiceFactory
 {

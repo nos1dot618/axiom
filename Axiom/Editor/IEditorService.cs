@@ -1,6 +1,6 @@
 ﻿using ICSharpCode.AvalonEdit.Document;
 
-namespace Axiom.Core.Services;
+namespace Axiom.Editor;
 
 public interface IEditorService
 {

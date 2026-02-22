@@ -1,6 +1,6 @@
 ﻿using System.Windows.Controls;
 using System.Windows.Media;
-using Axiom.Core.Services;
+using Axiom.Editor;
 using Axiom.UI.Themes;
 using ICSharpCode.AvalonEdit;
 

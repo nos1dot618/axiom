@@ -1,6 +1,6 @@
 ﻿namespace Axiom.Infrastructure.Lsp.Language;
 
-public class LspRegistry
+public static class LspRegistry
 {
     private static Dictionary<string, LspServerConfiguration> Servers { get; } = new();
 

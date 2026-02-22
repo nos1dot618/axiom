@@ -1,7 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using Axiom.Core.Services;
 using Axiom.Editor;
 using Axiom.Infrastructure.Logging;
 using Axiom.UI.Commands;

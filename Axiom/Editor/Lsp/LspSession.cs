@@ -1,11 +1,10 @@
 ﻿using Axiom.Core.Completion;
 using Axiom.Core.Documents;
-using Axiom.Editor;
 using Axiom.Editor.Completion;
 using Axiom.Editor.Diagnostics;
 using Axiom.Editor.Documents;
 
-namespace Axiom.Core.Services;
+namespace Axiom.Editor.Lsp;
 
 public sealed class LspSession : IAsyncDisposable
 {

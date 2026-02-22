@@ -1,6 +1,6 @@
 ﻿using Axiom.Core.Documents;
 
-namespace Axiom.Core.Services;
+namespace Axiom.Editor.Documents;
 
 public interface IFileService
 {

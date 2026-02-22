@@ -1,11 +1,11 @@
 ﻿using System.IO;
 using Axiom.Core.Documents;
-using Axiom.Editor;
+using Axiom.Editor.Lsp;
 using Axiom.Infrastructure.Lsp.Language;
 using Axiom.UI.Themes;
 using Microsoft.Win32;
 
-namespace Axiom.Core.Services;
+namespace Axiom.Editor.Documents;
 
 public class FileService : IFileService
 {

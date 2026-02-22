@@ -1,5 +1,5 @@
 ﻿using System.IO;
-using Axiom.Core.Services;
+using Axiom.Editor;
 using Axiom.Editor.Documents;
 
 namespace Axiom.Infrastructure.Lsp.Language;

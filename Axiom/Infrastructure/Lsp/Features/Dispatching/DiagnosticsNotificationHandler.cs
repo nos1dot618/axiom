@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using Axiom.Core.Diagnostics;
-using Axiom.Core.Services;
+using Axiom.Editor;
 using Axiom.Infrastructure.Lsp.Features.Mapping;
 using Axiom.Infrastructure.Lsp.Protocol;
 

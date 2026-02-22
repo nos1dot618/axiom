@@ -2,22 +2,12 @@
 using Axiom.UI.Themes;
 using Tomlyn;
 
-namespace Axiom.Core.Services;
+namespace Axiom.Editor.Themes;
 
 public class ThemeService : IThemeService
 {
     private static readonly string ThemesDirectoryPath = InitializeDirectoryPath();
     private readonly List<EditorTheme> _themes = [];
-
-    private static string InitializeDirectoryPath()
-    {
-        var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-        var themesDirectoryPath = Path.Combine(appDataPath, "Axiom", "Themes");
-        // TODO: Maybe populate the themes directory with some default themes.
-        Directory.CreateDirectory(themesDirectoryPath);
-
-        return themesDirectoryPath;
-    }
 
     public ThemeService()
     {
@@ -43,5 +33,15 @@ public class ThemeService : IThemeService
         var theme = _themes.FirstOrDefault(theme =>
             string.Equals(theme.Name, name, StringComparison.OrdinalIgnoreCase));
         SetTheme(theme ?? new EditorTheme());
+    }
+
+    private static string InitializeDirectoryPath()
+    {
+        var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+        var themesDirectoryPath = Path.Combine(appDataPath, "Axiom", "Themes");
+        // TODO: Maybe populate the themes directory with some default themes.
+        Directory.CreateDirectory(themesDirectoryPath);
+
+        return themesDirectoryPath;
     }
 }

@@ -5,7 +5,6 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
 using Axiom.Core.Diagnostics;
-using Axiom.Core.Services;
 using Axiom.Core.Settings;
 using ICSharpCode.AvalonEdit;
 

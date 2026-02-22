@@ -2,6 +2,7 @@
 
 namespace Axiom.Editor;
 
+// TODO: Merge this into EditorService.
 public static class EditorContext
 {
     private static TextEditor? _editor;

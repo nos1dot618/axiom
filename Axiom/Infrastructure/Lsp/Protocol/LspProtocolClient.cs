@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Axiom.Core.Completion;
 using Axiom.Core.Documents;
-using Axiom.Core.Services;
+using Axiom.Editor;
 using Axiom.Infrastructure.Lsp.Features.Mapping;
 using Axiom.Infrastructure.Lsp.Language;
 using Axiom.Infrastructure.Lsp.Transport;

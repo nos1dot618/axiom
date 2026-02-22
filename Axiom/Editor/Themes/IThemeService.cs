@@ -1,6 +1,6 @@
 ﻿using Axiom.UI.Themes;
 
-namespace Axiom.Core.Services;
+namespace Axiom.Editor.Themes;
 
 public interface IThemeService
 {

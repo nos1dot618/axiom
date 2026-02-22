@@ -5,7 +5,7 @@ using Axiom.Infrastructure.Lsp.Language;
 using Axiom.Infrastructure.Lsp.Protocol;
 using Axiom.Infrastructure.Lsp.Transport;
 
-namespace Axiom.Core.Services;
+namespace Axiom.Editor.Lsp;
 
 public sealed class LspService : ILspService
 {
