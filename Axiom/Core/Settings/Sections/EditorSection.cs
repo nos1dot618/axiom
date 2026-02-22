@@ -14,4 +14,7 @@ public class EditorSection
     public bool ShowSpaces { get; set; } = false;
     public bool VerticalScrollBarVisibility { get; set; } = false;
     public bool HorizontalScrollBarVisibility { get; set; } = false;
+
+    // TODO: Editor should have default theme instead of relying on default values of EditorTheme class.
+    public string Theme { get; set; } = "Unnamed";
 }

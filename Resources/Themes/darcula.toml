@@ -1,0 +1,16 @@
+﻿name = "Darcula"
+
+[editor]
+background = "#2B2B2B"
+foreground = "#A9B7C6"
+caret = "#BBBBBB"
+selection = "#214283"
+selection_foreground = "#FFFFFF"
+line_numbers = "#606366"
+
+[syntax]
+keyword = "#CC7832"
+string = "#6A8759"
+comment = "#808080"
+number = "#6897BB"
+method = "#FFC66D"

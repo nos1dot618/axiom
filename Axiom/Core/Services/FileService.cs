@@ -2,6 +2,7 @@
 using Axiom.Core.Documents;
 using Axiom.Editor;
 using Axiom.Infrastructure.Lsp.Language;
+using Axiom.UI.Themes;
 using Microsoft.Win32;
 
 namespace Axiom.Core.Services;
@@ -28,6 +29,8 @@ public class FileService : IFileService
         if (lspConfiguration == null) return;
 
         await LspSession.Reload(new LspService(lspConfiguration));
+
+        ThemeApplicator.ApplySyntaxHighlighting();
     }
 
     public async Task OpenDocumentAsync(string filepath, string text)

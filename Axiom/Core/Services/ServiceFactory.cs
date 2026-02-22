@@ -9,6 +9,7 @@ public static class ServiceFactory
     private static IFileService? _fileService;
     private static IEditorService? _editorService;
     private static LspSession? _lspSession;
+    private static IThemeService? _themeService;
 
     public static LspSession LspSession
     {
@@ -26,4 +27,5 @@ public static class ServiceFactory
 
     public static IEditorService EditorService => _editorService ??= new EditorService();
     public static ISettingsService SettingsService => new SettingsService();
+    public static IThemeService ThemeService => _themeService ??= new ThemeService();
 }

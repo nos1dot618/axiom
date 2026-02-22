@@ -1,8 +1,8 @@
 ﻿using System.Windows.Controls;
 using System.Windows.Media;
 using Axiom.Core.Services;
+using Axiom.UI.Themes;
 using ICSharpCode.AvalonEdit;
-using ICSharpCode.AvalonEdit.Highlighting;
 
 namespace Axiom.UI.Editor;
 
@@ -27,7 +27,8 @@ public static class EditorConfigurator
         textEditor.HorizontalScrollBarVisibility =
             ParseScrollBarVisibility(settings.Editor.HorizontalScrollBarVisibility);
 
-        textEditor.SyntaxHighlighting = HighlightingManager.Instance.GetDefinition("Python");
+        ServiceFactory.ThemeService.SetTheme(settings.Editor.Theme);
+        ThemeApplicator.Apply();
     }
 
     private static ScrollBarVisibility ParseScrollBarVisibility(bool visible)

@@ -4,8 +4,8 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/UI/Themes/CompletionWindowTheme.xaml" />
-                <ResourceDictionary Source="/UI/Themes/DiagnosticTooltipTheme.xaml" />
+                <ResourceDictionary Source="/UI/Components/CompletionWindow.xaml" />
+                <ResourceDictionary Source="/UI/Components/DiagnosticTooltip.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

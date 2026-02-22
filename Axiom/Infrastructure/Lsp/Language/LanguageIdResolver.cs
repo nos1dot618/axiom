@@ -2,7 +2,7 @@
 
 namespace Axiom.Infrastructure.Lsp.Language;
 
-public sealed class LanguageIdResolver
+public static class LanguageIdResolver
 {
     private static readonly Dictionary<string, string> ExtensionMap =
         new(StringComparer.OrdinalIgnoreCase)

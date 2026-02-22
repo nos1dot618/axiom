@@ -17,4 +17,17 @@
         <ApplicationDefinition Include="App\App.xaml"/>
     </ItemGroup>
 
+    <ItemGroup>
+      <Page Update="UI\Components\CompletionWindow.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="UI\Components\DiagnosticTooltip.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+    </ItemGroup>
+
 </Project>

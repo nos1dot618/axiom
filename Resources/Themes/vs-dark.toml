@@ -1,0 +1,16 @@
+﻿name = "VS Code Dark"
+
+[editor]
+background = "#1E1E1E"
+foreground = "#D4D4D4"
+caret = "#AEAFAD"
+selection = "#264F78"
+selection_foreground = "#FFFFFF"
+line_numbers = "#858585"
+
+[syntax]
+keyword = "#569CD6"
+string = "#CE9178"
+comment = "#6A9955"
+number = "#B5CEA8"
+method = "#DCDCAA"
