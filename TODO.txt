@@ -1,6 +1,5 @@
 ﻿- Verify Lsp response is jsonrpc=2.0.
 - Support both full and incremental text document sync.
-- Better syntax highlighting.
 - Multiple language support.
 - Integrated terminal.
 - Run support.
