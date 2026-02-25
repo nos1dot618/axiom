@@ -26,6 +26,7 @@ public class ThemeService : IThemeService
     public void SetTheme(EditorTheme theme)
     {
         CurrentTheme = theme;
+        ServicesRegistry.SettingsService.Update(settings => { settings.Editor.Theme = theme.Name; });
     }
 
     public void SetTheme(string name)

@@ -40,6 +40,10 @@
                           IsCheckable="True"
                           IsChecked="True"
                           Click="NewFile_Click" />
+                <Separator />
+
+                <MenuItem Header="_Themes"
+                          x:Name="ThemesMenuItem" />
             </MenuItem>
 
             <MenuItem Header="_Run">
