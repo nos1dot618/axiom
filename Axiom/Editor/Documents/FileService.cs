@@ -13,14 +13,14 @@ public class FileService : IFileService
 
     public async Task OpenFileAsync(string filepath)
     {
-        var text = await ServiceFactory.DocumentManager.LoadFileAsync(filepath);
+        var text = await ServicesRegistry.DocumentManager.LoadFileAsync(filepath);
 
         var languageId = LanguageIdResolver.GetLanguageId(filepath);
         // If the language ID of the newly opened document is same as the current running LSP server's language ID:
         // them no need to change the LSP session.
         if (languageId == LspSession.LanguageId)
         {
-            DocumentMetadata = await ServiceFactory.LspSession.LspService.OpenDocumentAsync(filepath, text);
+            DocumentMetadata = await ServicesRegistry.LspSession.LspService.OpenDocumentAsync(filepath, text);
             return;
         }
 
@@ -35,7 +35,7 @@ public class FileService : IFileService
 
     public async Task OpenDocumentAsync(string filepath, string text)
     {
-        DocumentMetadata = await ServiceFactory.LspSession.LspService.OpenDocumentAsync(filepath, text);
+        DocumentMetadata = await ServicesRegistry.LspSession.LspService.OpenDocumentAsync(filepath, text);
     }
 
     public async Task SaveAsync()
@@ -45,7 +45,7 @@ public class FileService : IFileService
         var filePath = new Uri(DocumentMetadata.Uri).LocalPath;
         await File.WriteAllTextAsync(filePath, EditorService.Editor.Text);
 
-        await ServiceFactory.LspSession.LspService.SaveDocumentAsync(DocumentMetadata);
+        await ServicesRegistry.LspSession.LspService.SaveDocumentAsync(DocumentMetadata);
     }
 
     public async Task OpenFileDialogAsync()

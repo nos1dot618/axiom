@@ -15,7 +15,7 @@ public sealed class LspProtocolClient(JsonRpcLspClient transport)
 
     public async Task<LspCapabilities> InitializeAsync()
     {
-        var rootUri = new Uri(ServiceFactory.SettingsService.CurrentSettings.Lsp.DefaultRootMode.GetRootPath())
+        var rootUri = new Uri(ServicesRegistry.SettingsService.CurrentSettings.Lsp.DefaultRootMode.GetRootPath())
             .AbsoluteUri;
 
         var result = await transport.SendRequestAsync(LspMethod.Request.Initialize, new

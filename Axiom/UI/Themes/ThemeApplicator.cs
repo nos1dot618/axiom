@@ -10,7 +10,7 @@ public static class ThemeApplicator
     public static void Apply()
     {
         var editor = EditorService.Editor;
-        var theme = ServiceFactory.ThemeService.CurrentTheme;
+        var theme = ServicesRegistry.ThemeService.CurrentTheme;
 
         editor.Background = Brush(theme.Editor.Background);
         editor.Foreground = Brush(theme.Editor.Foreground);
@@ -26,7 +26,7 @@ public static class ThemeApplicator
     public static void ApplySyntaxHighlighting()
     {
         var editor = EditorService.Editor;
-        var theme = ServiceFactory.ThemeService.CurrentTheme;
+        var theme = ServicesRegistry.ThemeService.CurrentTheme;
 
         var highlighting = HighlightingManager.Instance.HighlightingDefinitions.FirstOrDefault(h =>
             string.Equals(h.Name, LspSession.LanguageId, StringComparison.OrdinalIgnoreCase));

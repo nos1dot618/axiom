@@ -20,12 +20,12 @@ public class EditorService : IEditorService
     public async Task OnLoadCallback()
     {
         // TODO: Replace with some temporary file, or load the previous session.
-        await ServiceFactory.FileService.OpenFileAsync(@"C:\Users\nosferatu\Downloads\test.py");
+        await ServicesRegistry.FileService.OpenFileAsync(@"C:\Users\nosferatu\Downloads\test.py");
     }
 
     public async Task OnCloseCallback()
     {
-        await ServiceFactory.LspSession.DisposeAsync();
+        await ServicesRegistry.LspSession.DisposeAsync();
         DocumentManager.CloseFile();
     }
 
@@ -40,18 +40,18 @@ public class EditorService : IEditorService
             editor.ToolTip = null;
         }
 
-        if (ServiceFactory.FileService.DocumentMetadata == null ||
-            ServiceFactory.DocumentManager.SuppressChanges) return;
+        if (ServicesRegistry.FileService.DocumentMetadata == null ||
+            ServicesRegistry.DocumentManager.SuppressChanges) return;
 
         var changeDto = DocumentManager.CreateChange(e);
 
-        var lspService = ServiceFactory.LspSession.LspService;
-        await lspService.ChangeDocumentAsync(ServiceFactory.FileService.DocumentMetadata, changeDto);
+        var lspService = ServicesRegistry.LspSession.LspService;
+        await lspService.ChangeDocumentAsync(ServicesRegistry.FileService.DocumentMetadata, changeDto);
     }
 
     public async Task ToggleLsp()
     {
-        if (!ServiceFactory.SettingsService.CurrentSettings.Lsp.EnableLsp)
+        if (!ServicesRegistry.SettingsService.CurrentSettings.Lsp.EnableLsp)
         {
             await LspSession.Reload(new NoOpLspService());
             return;

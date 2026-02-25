@@ -5,7 +5,7 @@ using Axiom.Editor.Themes;
 
 namespace Axiom.Editor;
 
-public static class ServiceFactory
+public static class ServicesRegistry
 {
     private static DocumentManager? _documentManager;
     private static IFileService? _fileService;

@@ -17,9 +17,9 @@ public partial class MainWindow
         EditorService.Editor = Editor;
         EditorConfigurator.Configure(Editor);
 
-        Loaded += (_, _) => AsyncCommand.Execute(ServiceFactory.EditorService.OnLoadCallback);
-        Closed += (_, _) => AsyncCommand.Execute(ServiceFactory.EditorService.OnCloseCallback);
-        Editor.Document.Changed += async (_, e) => await ServiceFactory.EditorService.OnDocumentChangeCallback(e);
+        Loaded += (_, _) => AsyncCommand.Execute(ServicesRegistry.EditorService.OnLoadCallback);
+        Closed += (_, _) => AsyncCommand.Execute(ServicesRegistry.EditorService.OnCloseCallback);
+        Editor.Document.Changed += async (_, e) => await ServicesRegistry.EditorService.OnDocumentChangeCallback(e);
 
         SetKeybindings();
         SetDefaultOptions();
@@ -28,9 +28,9 @@ public partial class MainWindow
     private void SetKeybindings()
     {
         CommandBindings.Add(new CommandBinding(ApplicationCommands.Open,
-            (_, _) => AsyncCommand.Execute(ServiceFactory.FileService.OpenFileDialogAsync)));
+            (_, _) => AsyncCommand.Execute(ServicesRegistry.FileService.OpenFileDialogAsync)));
         CommandBindings.Add(new CommandBinding(ApplicationCommands.Save,
-            (_, _) => AsyncCommand.Execute(ServiceFactory.FileService.SaveAsync)));
+            (_, _) => AsyncCommand.Execute(ServicesRegistry.FileService.SaveAsync)));
 
         InputBindings.Add(new KeyBinding(ApplicationCommands.Open, new KeyGesture(Key.O, ModifierKeys.Control)));
         InputBindings.Add(new KeyBinding(ApplicationCommands.Save, new KeyGesture(Key.S, ModifierKeys.Control)));
@@ -38,7 +38,7 @@ public partial class MainWindow
 
     private void SetDefaultOptions()
     {
-        var settings = ServiceFactory.SettingsService.CurrentSettings;
+        var settings = ServicesRegistry.SettingsService.CurrentSettings;
 
         LanguageServerEnabledMenuItem.IsChecked = settings.Lsp.EnableLsp;
         CodeCompletionMenuItem.IsChecked = settings.Lsp.EnableCodeCompletion;
@@ -52,7 +52,7 @@ public partial class MainWindow
 
     private void OpenFileMenuButtonHandler(object? sender, RoutedEventArgs e)
     {
-        AsyncCommand.Execute(ServiceFactory.FileService.OpenFileDialogAsync);
+        AsyncCommand.Execute(ServicesRegistry.FileService.OpenFileDialogAsync);
     }
 
     private async void LanguageServerEnabledMenuItemHandler(object? sender, RoutedEventArgs e)
@@ -61,12 +61,12 @@ public partial class MainWindow
         {
             if (sender is not MenuItem) return;
 
-            ServiceFactory.SettingsService.Update(settings =>
+            ServicesRegistry.SettingsService.Update(settings =>
             {
                 settings.Lsp.EnableLsp = LanguageServerEnabledMenuItem.IsChecked;
             });
 
-            await ServiceFactory.EditorService.ToggleLsp();
+            await ServicesRegistry.EditorService.ToggleLsp();
         }
         catch (Exception ex)
         {
@@ -78,13 +78,13 @@ public partial class MainWindow
     {
         if (sender is not MenuItem) return;
 
-        ServiceFactory.SettingsService.Update(settings =>
+        ServicesRegistry.SettingsService.Update(settings =>
         {
             settings.Lsp.EnableCodeCompletion = CodeCompletionMenuItem.IsChecked;
             settings.Lsp.EnableDiagnostics = DiagnosticsMenuItem.IsChecked;
         });
 
-        ServiceFactory.LspSession.ToggleFeatures();
+        ServicesRegistry.LspSession.ToggleFeatures();
     }
 
     private void ExitMenuButtonHandler(object? sender, RoutedEventArgs e)

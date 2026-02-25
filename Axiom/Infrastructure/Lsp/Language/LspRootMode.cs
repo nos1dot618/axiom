@@ -37,9 +37,9 @@ public static class LspRootModeExtensions
                   throw new InvalidOperationException("Failed to determine directory from current document URI."),
 
             LspRootMode.Fixed =>
-                string.IsNullOrWhiteSpace(ServiceFactory.SettingsService.CurrentSettings.Lsp.FixedRootPath)
+                string.IsNullOrWhiteSpace(ServicesRegistry.SettingsService.CurrentSettings.Lsp.FixedRootPath)
                     ? throw new InvalidOperationException("Fixed root path is not set.")
-                    : ServiceFactory.SettingsService.CurrentSettings.Lsp.FixedRootPath,
+                    : ServicesRegistry.SettingsService.CurrentSettings.Lsp.FixedRootPath,
 
             _ => throw new ArgumentOutOfRangeException(nameof(mode), mode, null)
         };

@@ -17,7 +17,7 @@ public sealed class DiagnosticsNotificationHandler : ILspNotificationHandler
     public Task HandleAsync(JsonElement payload)
     {
         var diagnostics = _mapper.Map(payload);
-        ServiceFactory.LspSession.DiagnosticService?.Update(diagnostics);
+        ServicesRegistry.LspSession.DiagnosticService?.Update(diagnostics);
         return Task.CompletedTask;
     }
 }

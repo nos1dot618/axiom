@@ -10,7 +10,7 @@ public static class EditorConfigurator
 {
     public static void Configure(TextEditor textEditor)
     {
-        var settings = ServiceFactory.SettingsService.CurrentSettings;
+        var settings = ServicesRegistry.SettingsService.CurrentSettings;
 
         textEditor.Options.ConvertTabsToSpaces = settings.Editor.ConvertTabsToSpaces;
         textEditor.Options.IndentationSize = settings.Editor.IndentationSize;
@@ -27,7 +27,7 @@ public static class EditorConfigurator
         textEditor.HorizontalScrollBarVisibility =
             ParseScrollBarVisibility(settings.Editor.HorizontalScrollBarVisibility);
 
-        ServiceFactory.ThemeService.SetTheme(settings.Editor.Theme);
+        ServicesRegistry.ThemeService.SetTheme(settings.Editor.Theme);
         ThemeApplicator.Apply();
     }
 

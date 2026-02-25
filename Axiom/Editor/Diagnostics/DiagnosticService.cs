@@ -24,7 +24,7 @@ public sealed class DiagnosticService : IDisposable
 
         _textMarkerService = new TextMarkerService(editor.Document);
         _markerService = _textMarkerService;
-        _settings = ServiceFactory.SettingsService.CurrentSettings;
+        _settings = ServicesRegistry.SettingsService.CurrentSettings;
 
         editor.TextArea.TextView.BackgroundRenderers.Add(_textMarkerService);
         editor.TextArea.TextView.LineTransformers.Add(_textMarkerService);

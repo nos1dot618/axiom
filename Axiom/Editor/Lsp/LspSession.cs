@@ -43,7 +43,7 @@ public sealed class LspSession : IAsyncDisposable
 
     public void ToggleFeatures()
     {
-        var lspSettings = ServiceFactory.SettingsService.CurrentSettings.Lsp;
+        var lspSettings = ServicesRegistry.SettingsService.CurrentSettings.Lsp;
 
         if (lspSettings.EnableCodeCompletion)
         {
@@ -72,24 +72,24 @@ public sealed class LspSession : IAsyncDisposable
 
     public static async Task Reload(ILspService lspService)
     {
-        await ServiceFactory.LspSession.DisposeAsync();
+        await ServicesRegistry.LspSession.DisposeAsync();
 
-        ServiceFactory.LspSession = new LspSession(lspService);
-        await ServiceFactory.LspSession.InitializeAsync();
+        ServicesRegistry.LspSession = new LspSession(lspService);
+        await ServicesRegistry.LspSession.InitializeAsync();
 
         if (DocumentManager.CurrentDocumentFilepath is not null)
         {
             // Reloading the LspService, thus makes sense to reset DocumentMetadata inside FileService as well.
-            ServiceFactory.FileService = new FileService();
-            await ServiceFactory.FileService.OpenDocumentAsync(DocumentManager.CurrentDocumentFilepath,
+            ServicesRegistry.FileService = new FileService();
+            await ServicesRegistry.FileService.OpenDocumentAsync(DocumentManager.CurrentDocumentFilepath,
                 EditorService.Editor.Text);
         }
     }
 
     private static async Task<IReadOnlyList<CompletionItem>> CompletionProvider(string? triggerCharacter)
     {
-        var lspService = ServiceFactory.LspSession.LspService;
-        var fileService = ServiceFactory.FileService;
+        var lspService = ServicesRegistry.LspSession.LspService;
+        var fileService = ServicesRegistry.FileService;
         if (fileService.DocumentMetadata == null) return [];
 
         DocumentPosition position = new(EditorService.Editor.TextArea.Caret);
