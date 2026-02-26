@@ -41,6 +41,11 @@
             <MenuItem Header="_View">
                 <MenuItem Header="Toggle _Line Numbers" IsCheckable="True" IsChecked="True" />
                 <Separator />
+                <MenuItem Header="Increase Font Size"
+                          Command="{x:Static editor:EditorUiController.IncreaseFontSizeCommand}" />
+                <MenuItem Header="Decrease Font Size"
+                          Command="{x:Static editor:EditorUiController.DecreaseFontSizeCommand}" />
+                <Separator />
                 <MenuItem Header="_Themes" x:Name="ThemesMenuItem" />
             </MenuItem>
 
@@ -93,7 +98,8 @@
             Foreground="White"
             FontFamily="Consolas"
             FontSize="14"
-            ShowLineNumbers="True" />
+            ShowLineNumbers="True"
+            PreviewMouseWheel="EditorPreviewMouseWheel" />
 
     </DockPanel>
 

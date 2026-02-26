@@ -1,4 +1,5 @@
 ﻿using Axiom.Core.Settings.Sections;
+using Axiom.Core.Settings.Sections.Editor;
 
 namespace Axiom.Core.Settings;
 

@@ -50,4 +50,9 @@ public partial class MainWindow
     {
         new ThemeUiController(ThemesMenuItem).Populate();
     }
+
+    private void EditorPreviewMouseWheel(object sender, MouseWheelEventArgs e)
+    {
+        EditorUiController.HandlePreviewMouseWheel(sender, e);
+    }
 }
