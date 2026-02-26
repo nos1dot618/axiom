@@ -5,6 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
         xmlns:documents="clr-namespace:Axiom.UI.Documents"
+        xmlns:lsp="clr-namespace:Axiom.UI.Lsp"
+        xmlns:editor="clr-namespace:Axiom.UI.Editor"
         mc:Ignorable="d"
         Width="1000"
         Height="700"
@@ -17,43 +19,38 @@
         <Menu DockPanel.Dock="Top">
 
             <MenuItem Header="_File">
-                <MenuItem Header="_New" Click="NewFile_Click" />
-                <MenuItem Header="_Open..." Click="OpenFileMenuButtonHandler" />
-                <MenuItem Header="_Save" Click="NewFile_Click" />
-                <MenuItem Header="Save _As..." Click="NewFile_Click" />
+                <MenuItem Header="_New" />
+                <MenuItem Header="_Open..." Command="{x:Static documents:FileUiController.OpenFileCommand}" />
+                <MenuItem Header="_Save" />
+                <MenuItem Header="Save _As..." />
                 <Separator />
-                <MenuItem Header="E_xit" Click="ExitMenuButtonHandler" />
+                <MenuItem Header="E_xit" Command="{x:Static editor:EditorUiController.ExitCommand}" />
             </MenuItem>
 
             <MenuItem Header="_Edit">
-                <MenuItem Header="_Undo" Click="NewFile_Click" />
-                <MenuItem Header="_Redo" Click="NewFile_Click" />
+                <MenuItem Header="_Undo" />
+                <MenuItem Header="_Redo" />
                 <Separator />
-                <MenuItem Header="Cu_t" Click="NewFile_Click" />
-                <MenuItem Header="_Copy" Click="NewFile_Click" />
-                <MenuItem Header="_Paste" Click="NewFile_Click" />
+                <MenuItem Header="Cu_t" />
+                <MenuItem Header="_Copy" />
+                <MenuItem Header="_Paste" />
                 <Separator />
-                <MenuItem Header="Select _All" Click="NewFile_Click" />
+                <MenuItem Header="Select _All" />
             </MenuItem>
 
             <MenuItem Header="_View">
-                <MenuItem Header="Toggle _Line Numbers"
-                          IsCheckable="True"
-                          IsChecked="True"
-                          Click="NewFile_Click" />
+                <MenuItem Header="Toggle _Line Numbers" IsCheckable="True" IsChecked="True" />
                 <Separator />
-
-                <MenuItem Header="_Themes"
-                          x:Name="ThemesMenuItem" />
+                <MenuItem Header="_Themes" x:Name="ThemesMenuItem" />
             </MenuItem>
 
             <MenuItem Header="_Run">
                 <MenuItem Header="_Run File (F5)" Command="{x:Static documents:FileUiController.RunFileCommand}" />
                 <Separator />
                 <MenuItem Header="Language">
-                    <MenuItem Header="Python" IsCheckable="True" IsChecked="True" Click="NewFile_Click" />
-                    <MenuItem Header="C#" IsCheckable="True" Click="NewFile_Click" />
-                    <MenuItem Header="JavaScript" IsCheckable="True" Click="NewFile_Click" />
+                    <MenuItem Header="Python" IsCheckable="True" IsChecked="True" />
+                    <MenuItem Header="C#" IsCheckable="True" />
+                    <MenuItem Header="JavaScript" IsCheckable="True" />
                 </MenuItem>
             </MenuItem>
 
@@ -63,25 +60,28 @@
                               Header="Enable Language Server"
                               IsCheckable="True"
                               IsChecked="True"
-                              Click="LanguageServerEnabledMenuItemHandler" />
+                              Command="{x:Static lsp:LspUiController.ToggleLspCommand}"
+                              CommandParameter="{Binding RelativeSource={RelativeSource Self}}" />
                     <Separator />
                     <MenuItem x:Name="CodeCompletionMenuItem"
                               Header="Code Completion"
                               IsCheckable="True"
                               IsChecked="True"
                               IsEnabled="{Binding IsChecked, ElementName=LanguageServerEnabledMenuItem}"
-                              Click="LanguageServerFeatureMenuItemHandler" />
+                              Command="{x:Static lsp:LspUiController.ToggleFeatureCommand}"
+                              CommandParameter="{Binding RelativeSource={RelativeSource Self}}" />
                     <MenuItem x:Name="DiagnosticsMenuItem"
                               Header="Diagnostics"
                               IsCheckable="True"
                               IsChecked="True"
                               IsEnabled="{Binding IsChecked, ElementName=LanguageServerEnabledMenuItem}"
-                              Click="LanguageServerFeatureMenuItemHandler" />
+                              Command="{x:Static lsp:LspUiController.ToggleFeatureCommand}"
+                              CommandParameter="{Binding RelativeSource={RelativeSource Self}}" />
                 </MenuItem>
             </MenuItem>
 
             <MenuItem Header="_Help">
-                <MenuItem Header="_About" Click="NewFile_Click" />
+                <MenuItem Header="_About" />
             </MenuItem>
 
         </Menu>

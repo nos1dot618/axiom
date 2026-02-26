@@ -1,10 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
 using Axiom.Common;
 using Axiom.Editor;
-using Axiom.Infrastructure.Logging;
 using Axiom.UI.Editor;
 using Axiom.UI.Themes;
 
@@ -52,52 +49,5 @@ public partial class MainWindow
     private void SetUiControllers()
     {
         new ThemeUiController(ThemesMenuItem).Populate();
-    }
-
-    private void NewFile_Click(object sender, RoutedEventArgs e)
-    {
-        throw new NotImplementedException();
-    }
-
-    private void OpenFileMenuButtonHandler(object? sender, RoutedEventArgs e)
-    {
-        AsyncCommand.Execute(ServicesRegistry.FileService.OpenFileDialogAsync);
-    }
-
-    private async void LanguageServerEnabledMenuItemHandler(object? sender, RoutedEventArgs e)
-    {
-        try
-        {
-            if (sender is not MenuItem) return;
-
-            ServicesRegistry.SettingsService.Update(settings =>
-            {
-                settings.Lsp.EnableLsp = LanguageServerEnabledMenuItem.IsChecked;
-            });
-
-            await ServicesRegistry.EditorService.ToggleLsp();
-        }
-        catch (Exception ex)
-        {
-            ErrorHandler.HandleException(ex);
-        }
-    }
-
-    private void LanguageServerFeatureMenuItemHandler(object? sender, RoutedEventArgs e)
-    {
-        if (sender is not MenuItem) return;
-
-        ServicesRegistry.SettingsService.Update(settings =>
-        {
-            settings.Lsp.EnableCodeCompletion = CodeCompletionMenuItem.IsChecked;
-            settings.Lsp.EnableDiagnostics = DiagnosticsMenuItem.IsChecked;
-        });
-
-        ServicesRegistry.LspSession.ToggleFeatures();
-    }
-
-    private void ExitMenuButtonHandler(object? sender, RoutedEventArgs e)
-    {
-        Application.Current.Shutdown();
     }
 }
