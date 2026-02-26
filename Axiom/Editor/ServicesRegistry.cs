@@ -1,4 +1,5 @@
-﻿using Axiom.Editor.Documents;
+﻿using Axiom.Editor.Build;
+using Axiom.Editor.Documents;
 using Axiom.Editor.Lsp;
 using Axiom.Editor.Settings;
 using Axiom.Editor.Themes;
@@ -12,6 +13,7 @@ public static class ServicesRegistry
     private static IEditorService? _editorService;
     private static LspSession? _lspSession;
     private static IThemeService? _themeService;
+    private static IRunService? _runService;
 
     public static LspSession LspSession
     {
@@ -30,4 +32,5 @@ public static class ServicesRegistry
     public static IEditorService EditorService => _editorService ??= new EditorService();
     public static ISettingsService SettingsService => new SettingsService();
     public static IThemeService ThemeService => _themeService ??= new ThemeService();
+    public static IRunService RunService => _runService ??= new RunService();
 }

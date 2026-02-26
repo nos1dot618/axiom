@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
+        xmlns:documents="clr-namespace:Axiom.UI.Documents"
         mc:Ignorable="d"
         Width="1000"
         Height="700"
@@ -47,7 +48,7 @@
             </MenuItem>
 
             <MenuItem Header="_Run">
-                <MenuItem Header="_Run File (F5)" Click="NewFile_Click" />
+                <MenuItem Header="_Run File (F5)" Command="{x:Static documents:FileUiController.RunFileCommand}" />
                 <Separator />
                 <MenuItem Header="Language">
                     <MenuItem Header="Python" IsCheckable="True" IsChecked="True" Click="NewFile_Click" />

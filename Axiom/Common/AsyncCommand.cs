@@ -1,6 +1,6 @@
 ﻿using Axiom.Infrastructure.Logging;
 
-namespace Axiom.UI.Commands;
+namespace Axiom.Common;
 
 public static class AsyncCommand
 {

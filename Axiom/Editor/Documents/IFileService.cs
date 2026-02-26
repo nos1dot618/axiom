@@ -4,7 +4,13 @@ namespace Axiom.Editor.Documents;
 
 public interface IFileService
 {
+    /// <summary>
+    /// This is merely to be used for the LSP Session. This may not reflect the currently opened document.
+    /// </summary>
     DocumentMetadata? DocumentMetadata { get; }
+
+    public string? CurrentDocumentPath { get; }
+    string? WorkingDirectory { get; }
 
     Task OpenFileAsync(string filepath);
     Task OpenDocumentAsync(string filepath, string text);

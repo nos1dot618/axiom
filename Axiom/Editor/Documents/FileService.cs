@@ -10,10 +10,14 @@ namespace Axiom.Editor.Documents;
 public class FileService : IFileService
 {
     public DocumentMetadata? DocumentMetadata { get; private set; }
+    public string? CurrentDocumentPath { get; private set; }
+    public string? WorkingDirectory { get; private set; }
 
     public async Task OpenFileAsync(string filepath)
     {
         var text = await ServicesRegistry.DocumentManager.LoadFileAsync(filepath);
+        CurrentDocumentPath = new Uri(filepath).AbsolutePath;
+        WorkingDirectory = Path.GetDirectoryName(CurrentDocumentPath);
 
         var languageId = LanguageIdResolver.GetLanguageId(filepath);
         // If the language ID of the newly opened document is same as the current running LSP server's language ID:
@@ -36,6 +40,8 @@ public class FileService : IFileService
     public async Task OpenDocumentAsync(string filepath, string text)
     {
         DocumentMetadata = await ServicesRegistry.LspSession.LspService.OpenDocumentAsync(filepath, text);
+        CurrentDocumentPath = new Uri(filepath).AbsolutePath;
+        WorkingDirectory = Path.GetDirectoryName(CurrentDocumentPath);
     }
 
     public async Task SaveAsync()
