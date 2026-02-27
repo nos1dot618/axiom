@@ -1,5 +1,12 @@
-﻿- SANITY: Verify Lsp response is jsonrpc=2.0.
+﻿- LSP: Verify LSP response is jsonrpc=2.0.
+- LSP: Add support for formatting the document.
 - FEATURE: Support both full and incremental text document sync.
 - FEATURE: Multiple language support.
-- FEATURE: Add support for formatting the document.
+- FEATURE: Find/Replace inside current document.
+- FEATURE: Support configuring all settings supported by Avalon.
+- FEATURE: Restructure settings into appropiate sections.
+- FEATURE: Support more menu options.
+- FEATURE: Allow configuring keymaps.
+- FEATURE: Custom run configurations like jetbrains IDEs.
+- APPEARANCE: Change look-n-feel of tooltips (complition window/diagnostics tooltip) based on the editor theme.
 - APPEARANCE: Better WPF theming: <https://github.com/AngryCarrot789/WPFDarkTheme>.
