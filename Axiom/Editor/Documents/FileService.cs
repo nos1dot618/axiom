@@ -83,8 +83,7 @@ public class FileService : IFileService
     /// <param name="contents">Contents of the Current Document.</param>
     private async Task SetupCurrentDocument(string contents)
     {
-        // TODO: Only modify based on LspRootMode setting.
-        WorkingDirectory = Path.GetDirectoryName(CurrentDocumentAddress.Path);
+        WorkingDirectory = ServicesRegistry.SettingsService.CurrentSettings.Lsp.DefaultRootMode.GetRootPath();
 
         var languageId = LanguageIdResolver.GetLanguageId(CurrentDocumentAddress.Path);
         // If the language ID of the newly opened document is same as the current running LSP server's language ID:
