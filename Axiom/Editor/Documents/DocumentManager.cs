@@ -8,9 +8,6 @@ public sealed class DocumentManager
 {
     public bool SuppressChanges { get; private set; }
 
-    // TODO: fix this madness, we are always using LocalPath, there is no need to store this as an URI.
-    public static string? CurrentDocumentFilepath { get; private set; }
-
     public async Task<string> LoadFileAsync(string filepath)
     {
         SuppressChanges = true;
@@ -18,31 +15,21 @@ public sealed class DocumentManager
         EditorService.Editor.Text = text;
         SuppressChanges = false;
 
-        CurrentDocumentFilepath = filepath;
         return text;
-    }
-
-    public static void CloseFile()
-    {
-    }
-
-    public async Task SaveFileAsync(string filePath)
-    {
-        await File.WriteAllTextAsync(filePath, EditorService.Editor.Text);
     }
 
     public static DocumentChangeDto CreateChange(DocumentChangeEventArgs e)
     {
         var document = EditorService.Editor.Document;
 
-        // Start position (safe)
+        // Start position (safe).
         var startLocation = document.GetLocation(e.Offset);
 
         TextLocation endLocation;
 
         if (e.RemovalLength > 0)
         {
-            // Compute end position manually using removed text
+            // Compute end position manually using removed text.
             var removedText = e.RemovedText?.Text ?? string.Empty;
 
             var line = startLocation.Line;
@@ -63,7 +50,7 @@ public sealed class DocumentManager
         }
         else
         {
-            // No removal → insertion only
+            // No removal: insertion only.
             endLocation = startLocation;
         }
 

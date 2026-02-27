@@ -77,11 +77,11 @@ public sealed class LspSession : IAsyncDisposable
         ServicesRegistry.LspSession = new LspSession(lspService);
         await ServicesRegistry.LspSession.InitializeAsync();
 
-        if (DocumentManager.CurrentDocumentFilepath is not null)
+        if (!FileService.CurrentDocumentAddress.IsVirtual)
         {
             // Reloading the LspService, thus makes sense to reset DocumentMetadata inside FileService as well.
             ServicesRegistry.FileService = new FileService();
-            await ServicesRegistry.FileService.OpenDocumentAsync(DocumentManager.CurrentDocumentFilepath,
+            await ServicesRegistry.FileService.OpenDocumentAsync(FileService.CurrentDocumentAddress.Path,
                 EditorService.Editor.Text);
         }
     }

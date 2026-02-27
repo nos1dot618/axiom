@@ -26,7 +26,7 @@ public class EditorService : IEditorService
     public async Task OnCloseCallback()
     {
         await ServicesRegistry.LspSession.DisposeAsync();
-        DocumentManager.CloseFile();
+        await ServicesRegistry.FileService.SaveAsync();
     }
 
     public async Task OnDocumentChangeCallback(DocumentChangeEventArgs e)

@@ -1,6 +1,7 @@
 ﻿using System.Windows.Input;
 using Axiom.Common;
 using Axiom.Editor;
+using Axiom.Editor.Documents;
 
 namespace Axiom.UI.Documents;
 
@@ -14,8 +15,7 @@ public static class FileUiController
     {
         // TODO: Assert that the file is non virtual.
         // TODO: User defined Run Configuration.
-        var command = $"python {ServicesRegistry.FileService.CurrentDocumentAddress.Path}";
-        Console.WriteLine(command);
+        var command = $"python {FileService.CurrentDocumentAddress.Path}";
         ServicesRegistry.RunService.Run(command);
     }
 

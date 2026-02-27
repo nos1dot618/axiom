@@ -30,10 +30,10 @@ public static class LspRootModeExtensions
         {
             LspRootMode.Workspace => Directory.GetCurrentDirectory(),
 
-            LspRootMode.FileDirectory => DocumentManager.CurrentDocumentFilepath == null
+            LspRootMode.FileDirectory => FileService.CurrentDocumentAddress.IsVirtual
                 ? throw new InvalidOperationException(
                     "Failed to determine directory, because current document URI is null.")
-                : Path.GetDirectoryName(DocumentManager.CurrentDocumentFilepath) ??
+                : Path.GetDirectoryName(FileService.CurrentDocumentAddress.Path) ??
                   throw new InvalidOperationException("Failed to determine directory from current document URI."),
 
             LspRootMode.Fixed =>

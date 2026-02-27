@@ -9,16 +9,10 @@ namespace Axiom.Editor.Documents;
 
 public class FileService : IFileService
 {
-    public DocumentMetadata? DocumentMetadata { get; private set; }
-    public DocumentAddress CurrentDocumentAddress { get; private set; } = new();
-    public string? WorkingDirectory { get; private set; }
+    public static DocumentAddress CurrentDocumentAddress { get; private set; } = new();
+    public static string? WorkingDirectory { get; private set; }
 
-    public async Task OpenFileAsync(string filepath)
-    {
-        var contents = await ServicesRegistry.DocumentManager.LoadFileAsync(filepath);
-        CurrentDocumentAddress = new DocumentAddress(filepath);
-        await SetupCurrentDocument(contents);
-    }
+    public DocumentMetadata? DocumentMetadata { get; private set; }
 
     public async Task OpenDocumentAsync(string filepath, string text)
     {
@@ -29,6 +23,11 @@ public class FileService : IFileService
 
     public async Task SaveAsync()
     {
+        // Save document when the Editor buffer is non-empty.
+        // TODO: Check whether the document needs saving or not. If no new changes then saving can be skipped.
+        //       We can compute digest for determining.
+        if (string.IsNullOrEmpty(EditorService.Editor.Text)) return;
+
         if (CurrentDocumentAddress.IsVirtual)
         {
             var dialog = new SaveFileDialog
@@ -62,16 +61,20 @@ public class FileService : IFileService
 
     public async Task NewDocumentAsync()
     {
-        // Save document when the Editor buffer is non-empty.
-        // TODO: Check whether the document needs saving or not. If no new changes then saving can be skipped.
-        //       We can compute digest for determining.
-        if (!string.IsNullOrEmpty(EditorService.Editor.Text)) await SaveAsync();
+        await SaveAsync();
         await ServicesRegistry.LspSession.DisposeAsync();
         ThemeApplicator.RemoveSyntaxHighlighting();
 
         LspSession.LanguageId = null;
         CurrentDocumentAddress = new DocumentAddress();
         EditorService.Editor.Text = string.Empty;
+    }
+
+    private async Task OpenFileAsync(string filepath)
+    {
+        var contents = await ServicesRegistry.DocumentManager.LoadFileAsync(filepath);
+        CurrentDocumentAddress = new DocumentAddress(filepath);
+        await SetupCurrentDocument(contents);
     }
 
     /// <summary>
