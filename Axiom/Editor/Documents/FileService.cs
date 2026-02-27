@@ -37,6 +37,7 @@ public class FileService : IFileService
             };
 
             if (dialog.ShowDialog() == true) CurrentDocumentAddress = new DocumentAddress(dialog.FileName);
+            else return;
             await SetupCurrentDocument(EditorService.Editor.Text);
         }
 
@@ -61,8 +62,10 @@ public class FileService : IFileService
 
     public async Task NewDocumentAsync()
     {
-        // TODO: Prompt whether the user wants to save or not.
-        await SaveAsync();
+        // Save document when the Editor buffer is non-empty.
+        // TODO: Check whether the document needs saving or not. If no new changes then saving can be skipped.
+        //       We can compute digest for determining.
+        if (!string.IsNullOrEmpty(EditorService.Editor.Text)) await SaveAsync();
         await ServicesRegistry.LspSession.DisposeAsync();
         ThemeApplicator.RemoveSyntaxHighlighting();
 
