@@ -19,8 +19,8 @@ public class EditorService : IEditorService
 
     public async Task OnLoadCallback()
     {
-        // TODO: Replace with some temporary file, or load the previous session.
-        await ServicesRegistry.FileService.OpenFileAsync(@"C:\Users\nosferatu\Downloads\test.py");
+        // TODO: Support loading the previous session.
+        await ServicesRegistry.FileService.NewDocumentAsync();
     }
 
     public async Task OnCloseCallback()
