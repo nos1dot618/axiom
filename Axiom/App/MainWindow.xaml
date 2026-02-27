@@ -19,7 +19,7 @@
         <Menu DockPanel.Dock="Top">
 
             <MenuItem Header="_File">
-                <MenuItem Header="_New" />
+                <MenuItem Header="_New" Command="{x:Static documents:FileUiController.NewFileCommand}" />
                 <MenuItem Header="_Open..." Command="{x:Static documents:FileUiController.OpenFileCommand}" />
                 <MenuItem Header="_Save" />
                 <MenuItem Header="Save _As..." />

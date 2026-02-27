@@ -31,9 +31,12 @@ public partial class MainWindow
             (_, _) => AsyncCommand.Execute(ServicesRegistry.FileService.OpenFileDialogAsync)));
         CommandBindings.Add(new CommandBinding(ApplicationCommands.Save,
             (_, _) => AsyncCommand.Execute(ServicesRegistry.FileService.SaveAsync)));
+        CommandBindings.Add(new CommandBinding(ApplicationCommands.New,
+            (_, _) => AsyncCommand.Execute(ServicesRegistry.FileService.NewDocumentAsync)));
 
         InputBindings.Add(new KeyBinding(ApplicationCommands.Open, new KeyGesture(Key.O, ModifierKeys.Control)));
         InputBindings.Add(new KeyBinding(ApplicationCommands.Save, new KeyGesture(Key.S, ModifierKeys.Control)));
+        InputBindings.Add(new KeyBinding(ApplicationCommands.New, new KeyGesture(Key.N, ModifierKeys.Control)));
     }
 
     private void SetDefaultOptions()

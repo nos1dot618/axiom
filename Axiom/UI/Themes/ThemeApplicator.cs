@@ -48,6 +48,11 @@ public static class ThemeApplicator
         }
     }
 
+    public static void RemoveSyntaxHighlighting()
+    {
+        EditorService.Editor.SyntaxHighlighting = null;
+    }
+
     private static SolidColorBrush Brush(string hex)
     {
         return new SolidColorBrush((Color)ColorConverter.ConvertFromString(hex));

@@ -9,11 +9,12 @@ public interface IFileService
     /// </summary>
     DocumentMetadata? DocumentMetadata { get; }
 
-    public string? CurrentDocumentPath { get; }
+    public DocumentAddress CurrentDocumentAddress { get; }
     string? WorkingDirectory { get; }
 
     Task OpenFileAsync(string filepath);
     Task OpenDocumentAsync(string filepath, string text);
     Task SaveAsync();
     Task OpenFileDialogAsync();
+    Task NewDocumentAsync();
 }

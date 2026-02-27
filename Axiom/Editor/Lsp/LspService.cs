@@ -18,15 +18,19 @@ public sealed class LspService : ILspService
         _configuration = configuration;
         _transport = new JsonRpcLspClient(configuration);
         _client = new LspProtocolClient(_transport);
+        IsDisposed = false;
 
         RegisterHandlers();
     }
 
+    private bool IsDisposed { get; set; }
+
     public LspCapabilities Capabilities { get; private set; } = new();
-    public string? LanguageId => _configuration.LanguageId;
+    public string LanguageId => _configuration.LanguageId;
 
     public async Task InitializeAsync()
     {
+        if (IsDisposed) return;
         await _transport.StartAsync();
         Capabilities = await _client.InitializeAsync();
     }
@@ -42,13 +46,15 @@ public sealed class LspService : ILspService
 
     public async Task ChangeDocumentAsync(DocumentMetadata documentMetadata, DocumentChangeDto changeDto)
     {
-        documentMetadata.IncrementVersion();
+        if (IsDisposed) return;
 
+        documentMetadata.IncrementVersion();
         await _client.DidChangeAsync(documentMetadata, changeDto);
     }
 
     public async Task SaveDocumentAsync(DocumentMetadata documentMetadata)
     {
+        if (IsDisposed) return;
         await _client.DidSaveAsync(documentMetadata);
     }
 
@@ -60,6 +66,9 @@ public sealed class LspService : ILspService
 
     public async ValueTask DisposeAsync()
     {
+        if (IsDisposed) return;
+
+        IsDisposed = true;
         await _transport.DisposeAsync();
     }
 

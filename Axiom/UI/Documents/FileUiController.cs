@@ -8,10 +8,13 @@ public static class FileUiController
 {
     public static ICommand RunFileCommand { get; } = new RelayCommand(_ => Run());
     public static ICommand OpenFileCommand { get; } = new RelayCommand(_ => Open());
+    public static ICommand NewFileCommand { get; } = new RelayCommand(_ => New());
 
     private static void Run()
     {
-        var command = $"python {ServicesRegistry.FileService.CurrentDocumentPath}";
+        // TODO: Assert that the file is non virtual.
+        // TODO: User defined Run Configuration.
+        var command = $"python {ServicesRegistry.FileService.CurrentDocumentAddress.Path}";
         Console.WriteLine(command);
         ServicesRegistry.RunService.Run(command);
     }
@@ -19,5 +22,10 @@ public static class FileUiController
     private static void Open()
     {
         AsyncCommand.Execute(ServicesRegistry.FileService.OpenFileDialogAsync);
+    }
+
+    private static void New()
+    {
+        AsyncCommand.Execute(ServicesRegistry.FileService.NewDocumentAsync);
     }
 }

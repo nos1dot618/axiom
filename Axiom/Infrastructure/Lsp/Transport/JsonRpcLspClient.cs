@@ -38,7 +38,7 @@ public sealed class JsonRpcLspClient : IAsyncDisposable
 
     private bool IsRunning => _process is { HasExited: false };
 
-    public LspServerConfiguration Configuration { get; }
+    private LspServerConfiguration Configuration { get; }
 
     public async ValueTask DisposeAsync()
     {
@@ -143,9 +143,9 @@ public sealed class JsonRpcLspClient : IAsyncDisposable
 
         _logger.Debug($"Client: {jsonString}");
 
-        await _stdin!.WriteAsync(headerBytes);
-        await _stdin.WriteAsync(bytes);
-        await _stdin.FlushAsync();
+        if (_stdin != null) await _stdin.WriteAsync(headerBytes);
+        if (_stdin != null) await _stdin.WriteAsync(bytes);
+        if (_stdin != null) await _stdin.FlushAsync();
     }
 
     private async Task ListenLoopAsync()

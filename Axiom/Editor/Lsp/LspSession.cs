@@ -19,7 +19,7 @@ public sealed class LspSession : IAsyncDisposable
     private CompletionService? CompletionService { get; set; }
     public DiagnosticService? DiagnosticService { get; private set; }
 
-    public static string? LanguageId { get; private set; }
+    public static string? LanguageId { get; set; }
 
     /// <summary>
     ///     Last valid language ID. Used for acquiring the LSP configuration after re-enbling the LSP service.
