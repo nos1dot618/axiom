@@ -1,4 +1,5 @@
-﻿- Verify Lsp response is jsonrpc=2.0.
-- Support both full and incremental text document sync.
-- Multiple language support.
-- Maybe not: Better WPF theming: <https://github.com/AngryCarrot789/WPFDarkTheme>.
+﻿- SANITY: Verify Lsp response is jsonrpc=2.0.
+- FEATURE: Support both full and incremental text document sync.
+- FEATURE: Multiple language support.
+- FEATURE: Add support for formatting the document.
+- APPEARANCE: Better WPF theming: <https://github.com/AngryCarrot789/WPFDarkTheme>.
