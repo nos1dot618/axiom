@@ -28,8 +28,15 @@ public static class LspUiController
 
         ServicesRegistry.SettingsService.Update(settings =>
         {
-            settings.Lsp.EnableCodeCompletion = menuItem is { Name: "CodeCompletionMenuItem", IsChecked: true };
-            settings.Lsp.EnableDiagnostics = menuItem is { Name: "DiagnosticsMenuItem", IsChecked: true };
+            switch (menuItem.Name)
+            {
+                case "CodeCompletionMenuItem":
+                    settings.Lsp.EnableCodeCompletion = menuItem.IsChecked;
+                    break;
+                case "DiagnosticsMenuItem":
+                    settings.Lsp.EnableDiagnostics = menuItem.IsChecked;
+                    break;
+            }
         });
 
         ServicesRegistry.LspSession.ToggleFeatures();
