@@ -61,7 +61,7 @@ public sealed class LspSession : IAsyncDisposable
 
         if (lspSettings.EnableDiagnostics)
         {
-            DiagnosticService ??= new DiagnosticService(EditorService.Editor);
+            DiagnosticService ??= new DiagnosticService();
         }
         else
         {

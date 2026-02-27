@@ -1,4 +1,4 @@
-﻿using System.Windows.Controls;
+﻿using Axiom.Editor.Diagnostics;
 using Axiom.Editor.Documents;
 using Axiom.Editor.Lsp;
 using Axiom.Infrastructure.Lsp.Language;
@@ -34,11 +34,7 @@ public class EditorService : IEditorService
         var editor = Editor;
 
         // Close tooltip if exists.
-        if (editor.ToolTip != null)
-        {
-            ((ToolTip)editor.ToolTip).IsOpen = false;
-            editor.ToolTip = null;
-        }
+        DiagnosticService.CloseDiagnosticTooltip();
 
         if (ServicesRegistry.FileService.DocumentMetadata == null ||
             ServicesRegistry.DocumentManager.SuppressChanges) return;

@@ -6,21 +6,19 @@ using System.Windows.Input;
 using System.Windows.Media;
 using Axiom.Core.Diagnostics;
 using Axiom.Core.Settings;
-using ICSharpCode.AvalonEdit;
 
 namespace Axiom.Editor.Diagnostics;
 
 public sealed class DiagnosticService : IDisposable
 {
-    private readonly TextEditor _editor;
     private readonly ITextMarkerService _markerService;
     private readonly EditorSettings _settings;
     private readonly TextMarkerService _textMarkerService;
     private bool _isDisposed;
 
-    public DiagnosticService(TextEditor editor)
+    public DiagnosticService()
     {
-        _editor = editor;
+        var editor = EditorService.Editor;
 
         _textMarkerService = new TextMarkerService(editor.Document);
         _markerService = _textMarkerService;
@@ -31,6 +29,7 @@ public sealed class DiagnosticService : IDisposable
 
         editor.TextArea.TextView.MouseHover += OnTextViewMouseHover;
         editor.TextArea.TextView.MouseHoverStopped += OnTextViewMouseHoverStopped;
+        editor.TextArea.TextView.MouseMove += OnTextViewMouseMove;
     }
 
     public void Dispose()
@@ -41,24 +40,25 @@ public sealed class DiagnosticService : IDisposable
         // Clear markers.
         _markerService.RemoveAll(_ => true);
 
+        var editor = EditorService.Editor;
+
         // Remove renderers.
-        _editor.TextArea.TextView.BackgroundRenderers.Remove(_textMarkerService);
-        _editor.TextArea.TextView.LineTransformers.Remove(_textMarkerService);
+        editor.TextArea.TextView.BackgroundRenderers.Remove(_textMarkerService);
+        editor.TextArea.TextView.LineTransformers.Remove(_textMarkerService);
 
         // Unsubscribe events.
-        _editor.TextArea.TextView.MouseHover -= OnTextViewMouseHover;
-        _editor.TextArea.TextView.MouseHoverStopped -= OnTextViewMouseHoverStopped;
+        editor.TextArea.TextView.MouseHover -= OnTextViewMouseHover;
+        editor.TextArea.TextView.MouseHoverStopped -= OnTextViewMouseHoverStopped;
 
         // Close tooltip.
-        if (_editor.ToolTip is ToolTip tooltip) tooltip.IsOpen = false;
-        _editor.ToolTip = null;
+        CloseDiagnosticTooltip();
     }
 
     public void Update(IEnumerable<Diagnostic> diagnostics)
     {
-        if (!_editor.Dispatcher.CheckAccess())
+        if (!EditorService.Editor.Dispatcher.CheckAccess())
         {
-            _editor.Dispatcher.BeginInvoke(() => Update(diagnostics));
+            EditorService.Editor.Dispatcher.BeginInvoke(() => Update(diagnostics));
             return;
         }
 
@@ -78,15 +78,10 @@ public sealed class DiagnosticService : IDisposable
         }
     }
 
-    public void Clear()
-    {
-        _markerService.RemoveAll(_ => true);
-    }
-
     private (int offset, int length) ConvertToOffsets(Diagnostic d)
     {
-        var start = _editor.Document.GetOffset(d.StartPosition.Row + 1, d.StartPosition.Column + 1);
-        var end = _editor.Document.GetOffset(d.EndPosition.Row + 1, d.EndPosition.Column + 1);
+        var start = EditorService.Editor.Document.GetOffset(d.StartPosition.Row + 1, d.StartPosition.Column + 1);
+        var end = EditorService.Editor.Document.GetOffset(d.EndPosition.Row + 1, d.EndPosition.Column + 1);
         return (start, end - start);
     }
 
@@ -130,14 +125,15 @@ public sealed class DiagnosticService : IDisposable
 
     private void OnTextViewMouseHover(object sender, MouseEventArgs e)
     {
-        var position = _editor.TextArea.TextView.GetPositionFloor(e.GetPosition(_editor.TextArea.TextView));
-        if (position == null) return;
+        var textArea = EditorService.Editor.TextArea;
+        var position = textArea.TextView.GetPositionFloor(e.GetPosition(textArea.TextView));
+        if (position?.IsAtEndOfLine != false) return;
 
-        var offset = _editor.Document.GetOffset(position.Value.Location);
+        var offset = EditorService.Editor.Document.GetOffset(position.Value.Location);
         var marker = _markerService.GetMarkersAtOffset(offset).FirstOrDefault();
 
         if (marker != null && !string.IsNullOrWhiteSpace((string)marker.ToolTip!))
-            _editor.ToolTip = new ToolTip
+            EditorService.Editor.ToolTip = new ToolTip
             {
                 Style = (Style)Application.Current.Resources["AxiomDiagnosticToolTipStyle"]!,
                 Tag = new SolidColorBrush(marker.MarkerColor),
@@ -148,15 +144,26 @@ public sealed class DiagnosticService : IDisposable
                     MaxWidth = 500,
                     FontFamily = new FontFamily(_settings.Editor.FontFamily)
                 },
-                PlacementTarget = _editor.TextArea,
+                PlacementTarget = textArea,
                 Placement = PlacementMode.Mouse,
-                StaysOpen = false,
                 IsOpen = true
             };
     }
 
-    private void OnTextViewMouseHoverStopped(object sender, MouseEventArgs e)
+    private static void OnTextViewMouseHoverStopped(object sender, MouseEventArgs e)
     {
-        _editor.ToolTip = null;
+        CloseDiagnosticTooltip();
+    }
+
+    private static void OnTextViewMouseMove(object sender, MouseEventArgs e)
+    {
+        CloseDiagnosticTooltip();
+    }
+
+    public static void CloseDiagnosticTooltip()
+    {
+        if (EditorService.Editor.ToolTip == null) return;
+        ((ToolTip)EditorService.Editor.ToolTip).IsOpen = false;
+        EditorService.Editor.ToolTip = null;
     }
 }
