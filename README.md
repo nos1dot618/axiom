@@ -42,6 +42,13 @@ dotnet publish -c Release -r win-x64 --self-contained true
 1. This is a **Windows-only** application due to WPF.
 2. Make sure you are using the **.NET SDK**, not only the runtime.
 
+## Configuration
+
+1. The configuration file is located at `%APPDATA%\Axiom\settings.toml`.
+2. To change the editor theme:
+    1. Copy the themes directory from `Resources\Themes\`.
+    2. Paste it into `%APPDATA%\Themes\`.
+
 ## Courtesy
 
 1. [AvalonEdit](http://avalonedit.net): WPF-based text editor component
