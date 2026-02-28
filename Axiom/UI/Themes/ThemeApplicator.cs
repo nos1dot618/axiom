@@ -34,6 +34,8 @@ public static class ThemeApplicator
 
         editor.ShowLineNumbers = true;
         editor.LineNumbersForeground = Brush(theme.Editor.LineNumbers);
+
+        ApplySyntaxHighlighting();
     }
 
     public static void ApplySyntaxHighlighting()

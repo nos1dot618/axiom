@@ -1,4 +1,5 @@
 ﻿using System.Windows.Controls;
+using Axiom.UI.Editor;
 using Axiom.UI.Themes;
 
 namespace Axiom.UI;
@@ -13,6 +14,7 @@ public static class UiControllersRegistry
 
     public static void Configure(MenuItem themesMenuItem, MenuItem languagesMenuItem)
     {
+        EditorUiController.Configure();
         _themeUiController = new ThemeUiController(themesMenuItem);
         _languageUiController = new LanguageUiController(languagesMenuItem);
 

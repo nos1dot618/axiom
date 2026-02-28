@@ -31,7 +31,6 @@ public sealed class ThemeUiController(MenuItem themesMenuItem)
 
         ServicesRegistry.ThemeService.SetTheme(theme);
         ThemeApplicator.Apply();
-        ThemeApplicator.ApplySyntaxHighlighting();
         UpdateThemeCheckmarks();
     }
 

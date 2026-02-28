@@ -36,6 +36,8 @@
                 <MenuItem Header="_Paste" />
                 <Separator />
                 <MenuItem Header="Select _All" />
+                <Separator />
+                <MenuItem Header="Reload Configuration" Command="{x:Static editor:EditorUiController.ReloadCommand}" />
             </MenuItem>
 
             <MenuItem Header="_View">

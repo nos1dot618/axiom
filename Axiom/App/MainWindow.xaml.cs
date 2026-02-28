@@ -13,7 +13,6 @@ public partial class MainWindow
         InitializeComponent();
 
         EditorService.Editor = Editor;
-        EditorConfigurator.Configure(Editor);
 
         Loaded += (_, _) => AsyncCommand.Execute(ServicesRegistry.EditorService.OnLoadCallback);
         Closed += (_, _) => AsyncCommand.Execute(ServicesRegistry.EditorService.OnCloseCallback);

@@ -11,6 +11,7 @@ public static class ServicesRegistry
     private static DocumentManager? _documentManager;
     private static IFileService? _fileService;
     private static IEditorService? _editorService;
+    private static ISettingsService? _settingsService;
     private static LspSession? _lspSession;
     private static IThemeService? _themeService;
     private static IRunService? _runService;
@@ -21,16 +22,20 @@ public static class ServicesRegistry
         set => _lspSession = value;
     }
 
-    public static DocumentManager DocumentManager => _documentManager ??= new DocumentManager();
-
     public static IFileService FileService
     {
         get => _fileService ??= new FileService();
         set => _fileService = value;
     }
 
+    public static ISettingsService SettingsService
+    {
+        get => _settingsService ??= new SettingsService();
+        set => _settingsService = value;
+    }
+
+    public static DocumentManager DocumentManager => _documentManager ??= new DocumentManager();
     public static IEditorService EditorService => _editorService ??= new EditorService();
-    public static ISettingsService SettingsService => new SettingsService();
     public static IThemeService ThemeService => _themeService ??= new ThemeService();
     public static IRunService RunService => _runService ??= new RunService();
 }
