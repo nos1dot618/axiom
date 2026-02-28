@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using Axiom.Editor.Documents;
 
 namespace Axiom.Editor.Build;
 
@@ -15,9 +14,9 @@ public class RunService : IRunService
             Arguments = $"/k {command}",
             UseShellExecute = true,
             CreateNoWindow = false,
-            // TODO: Remove working directory logic outside this function.
+            // TODO: Move working directory logic outside this function.
             //       User may want to change the working directory for some project.
-            WorkingDirectory = FileService.WorkingDirectory
+            WorkingDirectory = ServicesRegistry.FileService.ProjectRoot
         };
 
         Process.Start(programStartInfo);

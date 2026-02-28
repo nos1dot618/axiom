@@ -50,16 +50,12 @@
             </MenuItem>
 
             <MenuItem Header="_Run">
-                <MenuItem Header="_Run File (F5)" Command="{x:Static documents:FileUiController.RunFileCommand}" />
-                <Separator />
-                <MenuItem Header="Language">
-                    <MenuItem Header="Python" IsCheckable="True" IsChecked="True" />
-                    <MenuItem Header="C#" IsCheckable="True" />
-                    <MenuItem Header="JavaScript" IsCheckable="True" />
-                </MenuItem>
+                <MenuItem Header="_Run File" Command="{x:Static documents:FileUiController.RunFileCommand}" />
             </MenuItem>
 
-            <MenuItem Header="Tools">
+            <MenuItem Header="_Tools">
+                <MenuItem Header="_Language" x:Name="LanguageMenuItem" />
+                <Separator />
                 <MenuItem Header="Language Server">
                     <MenuItem x:Name="LanguageServerEnabledMenuItem"
                               Header="Enable Language Server"

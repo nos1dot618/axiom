@@ -2,6 +2,7 @@
 using Axiom.Editor.Documents;
 using Axiom.Editor.Lsp;
 using Axiom.Infrastructure.Lsp.Language;
+using Axiom.UI.Themes;
 using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.Document;
 
@@ -31,8 +32,6 @@ public class EditorService : IEditorService
 
     public async Task OnDocumentChangeCallback(DocumentChangeEventArgs e)
     {
-        var editor = Editor;
-
         // Close tooltip if exists.
         DiagnosticService.CloseDiagnosticTooltip();
 
@@ -45,6 +44,17 @@ public class EditorService : IEditorService
         await lspService.ChangeDocumentAsync(ServicesRegistry.FileService.DocumentMetadata, changeDto);
     }
 
+    public async Task SetLanguage(string languageId)
+    {
+        ServicesRegistry.FileService.DocumentMetadata = null;
+        var lspConfiguration = LspRegistry.Get(languageId);
+        if (lspConfiguration == null) return;
+
+        FileService.CurrentBuffer.LanguageId = languageId;
+        await LspSession.Reload(new LspService(lspConfiguration));
+        ThemeApplicator.ApplySyntaxHighlighting();
+    }
+
     public async Task ToggleLsp()
     {
         if (!ServicesRegistry.SettingsService.CurrentSettings.Lsp.EnableLsp)
@@ -53,9 +63,8 @@ public class EditorService : IEditorService
             return;
         }
 
-        var languageId = LspSession.EffectiveLanguageId;
-        if (languageId == null) return;
-        var lspConfiguration = LspRegistry.Get(languageId);
+        if (FileService.CurrentBuffer.LanguageId == null) return;
+        var lspConfiguration = LspRegistry.Get(FileService.CurrentBuffer.LanguageId);
         if (lspConfiguration == null) return;
 
         await LspSession.Reload(new LspService(lspConfiguration));

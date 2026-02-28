@@ -8,5 +8,6 @@ public interface IEditorService
     Task OnCloseCallback();
     Task OnDocumentChangeCallback(DocumentChangeEventArgs e);
 
+    Task SetLanguage(string languageId);
     Task ToggleLsp();
 }

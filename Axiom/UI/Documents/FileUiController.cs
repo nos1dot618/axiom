@@ -15,7 +15,7 @@ public static class FileUiController
     {
         // TODO: Assert that the file is non virtual.
         // TODO: User defined Run Configuration.
-        var command = $"python {FileService.CurrentDocumentAddress.Path}";
+        var command = $"python {FileService.CurrentBuffer.Path}";
         ServicesRegistry.RunService.Run(command);
     }
 

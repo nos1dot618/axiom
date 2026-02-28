@@ -11,20 +11,12 @@ public sealed class LspSession : IAsyncDisposable
     public LspSession(ILspService lspService)
     {
         LspService = lspService;
-        LanguageId = lspService.LanguageId;
-        EffectiveLanguageId = lspService.LanguageId ?? EffectiveLanguageId;
+        FileService.CurrentBuffer.LanguageId = lspService.LanguageId;
     }
 
     public ILspService LspService { get; }
     private CompletionService? CompletionService { get; set; }
     public DiagnosticService? DiagnosticService { get; private set; }
-
-    public static string? LanguageId { get; set; }
-
-    /// <summary>
-    ///     Last valid language ID. Used for acquiring the LSP configuration after re-enbling the LSP service.
-    /// </summary>
-    public static string? EffectiveLanguageId { get; private set; }
 
     public async ValueTask DisposeAsync()
     {
@@ -73,15 +65,15 @@ public sealed class LspSession : IAsyncDisposable
     public static async Task Reload(ILspService lspService)
     {
         await ServicesRegistry.LspSession.DisposeAsync();
-
         ServicesRegistry.LspSession = new LspSession(lspService);
         await ServicesRegistry.LspSession.InitializeAsync();
 
-        if (!FileService.CurrentDocumentAddress.IsVirtual)
+        // TODO: We must extract the LSP service inside this method using the language ID.
+        if (FileService.CurrentBuffer.LanguageId != null)
         {
             // Reloading the LspService, thus makes sense to reset DocumentMetadata inside FileService as well.
             ServicesRegistry.FileService = new FileService();
-            await ServicesRegistry.FileService.OpenDocumentAsync(FileService.CurrentDocumentAddress.Path,
+            await ServicesRegistry.FileService.OpenDocumentAsync(FileService.CurrentBuffer.Path,
                 EditorService.Editor.Text);
         }
     }

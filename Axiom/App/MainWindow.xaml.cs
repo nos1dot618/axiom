@@ -1,9 +1,8 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Windows.Input;
+﻿using System.Windows.Input;
 using Axiom.Common;
 using Axiom.Editor;
+using Axiom.UI;
 using Axiom.UI.Editor;
-using Axiom.UI.Themes;
 
 namespace Axiom.App;
 
@@ -22,7 +21,7 @@ public partial class MainWindow
 
         SetKeybindings();
         SetDefaultOptions();
-        SetUiControllers();
+        UiControllersRegistry.Configure(ThemesMenuItem, LanguageMenuItem);
     }
 
     private void SetKeybindings()
@@ -46,12 +45,6 @@ public partial class MainWindow
         LanguageServerEnabledMenuItem.IsChecked = settings.Lsp.EnableLsp;
         CodeCompletionMenuItem.IsChecked = settings.Lsp.EnableCodeCompletion;
         DiagnosticsMenuItem.IsChecked = settings.Lsp.EnableDiagnostics;
-    }
-
-    [SuppressMessage("Performance", "CA1822:Mark members as static")]
-    private void SetUiControllers()
-    {
-        new ThemeUiController(ThemesMenuItem).Populate();
     }
 
     private void EditorPreviewMouseWheel(object sender, MouseWheelEventArgs e)

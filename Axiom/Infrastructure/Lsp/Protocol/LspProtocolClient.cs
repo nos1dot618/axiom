@@ -3,7 +3,6 @@ using Axiom.Core.Completion;
 using Axiom.Core.Documents;
 using Axiom.Editor;
 using Axiom.Infrastructure.Lsp.Features.Mapping;
-using Axiom.Infrastructure.Lsp.Language;
 using Axiom.Infrastructure.Lsp.Transport;
 
 namespace Axiom.Infrastructure.Lsp.Protocol;
@@ -15,8 +14,7 @@ public sealed class LspProtocolClient(JsonRpcLspClient transport)
 
     public async Task<LspCapabilities> InitializeAsync()
     {
-        var rootUri = new Uri(ServicesRegistry.SettingsService.CurrentSettings.Lsp.DefaultRootMode.GetRootPath())
-            .AbsoluteUri;
+        var rootUri = new Uri(ServicesRegistry.FileService.ProjectRoot).AbsoluteUri;
 
         var result = await transport.SendRequestAsync(LspMethod.Request.Initialize, new
         {

@@ -1,0 +1,133 @@
+﻿<?xml version="1.0"?>
+<SyntaxDefinition name="Go" extensions=".go"
+                  xmlns="http://icsharpcode.net/sharpdevelop/syntaxdefinition/2008">
+
+    <!-- ===== Colors ===== -->
+    <Color name="Comment" foreground="#6A9955"/>
+    <Color name="String" foreground="#CE9178"/>
+    <Color name="Keywords" foreground="#569CD6" fontWeight="bold"/>
+    <Color name="Type" foreground="#4EC9B0"/>
+    <Color name="Builtin" foreground="#C586C0"/>
+    <Color name="NumberLiteral" foreground="#B5CEA8"/>
+
+    <!-- ===== Main Rules ===== -->
+    <RuleSet>
+
+        <!-- Single-line comments -->
+        <Span color="Comment" begin="//"/>
+
+        <!-- Multi-line comments -->
+        <Span color="Comment" multiline="true" begin="/\*" end="\*/"/>
+
+        <!-- Double-quoted string -->
+        <Span color="String">
+            <Begin>"</Begin>
+            <End>"</End>
+            <RuleSet>
+                <Span begin="\\" end="."/>
+            </RuleSet>
+        </Span>
+
+        <!-- Raw string (backticks) -->
+        <Span color="String" multiline="true">
+            <Begin>`</Begin>
+            <End>`</End>
+        </Span>
+
+        <!-- Rune literal -->
+        <Span color="String">
+            <Begin>'</Begin>
+            <End>'</End>
+            <RuleSet>
+                <Span begin="\\" end="."/>
+            </RuleSet>
+        </Span>
+
+        <!-- ===== Keywords ===== -->
+        <Keywords color="Keywords">
+            <Word>break</Word>
+            <Word>case</Word>
+            <Word>chan</Word>
+            <Word>const</Word>
+            <Word>continue</Word>
+            <Word>default</Word>
+            <Word>defer</Word>
+            <Word>else</Word>
+            <Word>fallthrough</Word>
+            <Word>for</Word>
+            <Word>func</Word>
+            <Word>go</Word>
+            <Word>goto</Word>
+            <Word>if</Word>
+            <Word>import</Word>
+            <Word>interface</Word>
+            <Word>map</Word>
+            <Word>package</Word>
+            <Word>range</Word>
+            <Word>return</Word>
+            <Word>select</Word>
+            <Word>struct</Word>
+            <Word>switch</Word>
+            <Word>type</Word>
+            <Word>var</Word>
+        </Keywords>
+
+        <!-- ===== Built-in Types ===== -->
+        <Keywords color="Type">
+            <Word>bool</Word>
+            <Word>byte</Word>
+            <Word>complex64</Word>
+            <Word>complex128</Word>
+            <Word>error</Word>
+            <Word>float32</Word>
+            <Word>float64</Word>
+            <Word>int</Word>
+            <Word>int8</Word>
+            <Word>int16</Word>
+            <Word>int32</Word>
+            <Word>int64</Word>
+            <Word>rune</Word>
+            <Word>string</Word>
+            <Word>uint</Word>
+            <Word>uint8</Word>
+            <Word>uint16</Word>
+            <Word>uint32</Word>
+            <Word>uint64</Word>
+            <Word>uintptr</Word>
+        </Keywords>
+
+        <!-- ===== Built-in Functions ===== -->
+        <Keywords color="Builtin">
+            <Word>append</Word>
+            <Word>cap</Word>
+            <Word>close</Word>
+            <Word>complex</Word>
+            <Word>copy</Word>
+            <Word>delete</Word>
+            <Word>imag</Word>
+            <Word>len</Word>
+            <Word>make</Word>
+            <Word>new</Word>
+            <Word>panic</Word>
+            <Word>print</Word>
+            <Word>println</Word>
+            <Word>real</Word>
+            <Word>recover</Word>
+        </Keywords>
+
+        <!-- ===== Constants ===== -->
+        <Keywords color="Builtin">
+            <Word>true</Word>
+            <Word>false</Word>
+            <Word>nil</Word>
+            <Word>iota</Word>
+        </Keywords>
+
+        <Rule color="NumberLiteral">
+            \b0[xX][0-9a-fA-F]+\b
+            |
+            \b\d+(\.\d+)?([eE][+-]?\d+)?\b
+        </Rule>
+
+    </RuleSet>
+</SyntaxDefinition>
