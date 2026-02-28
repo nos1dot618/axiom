@@ -8,7 +8,7 @@ public static class ErrorHandler
     {
         // TODO: Use logger to report error.
         Console.Write(ex.StackTrace);
-        MessageBox.Show($"{ex.Message}");
+        DisplayMessage(ex.Message);
     }
 
     public static void DisplayMessage(string message)

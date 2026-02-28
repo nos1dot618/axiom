@@ -29,6 +29,8 @@ public sealed class SettingsService : ISettingsService
                 configuration.Arguments));
     }
 
+    public static DirectoryInfo? ProjectPath => new FileInfo(_filePath).Directory;
+
     public EditorSettings CurrentSettings { get; }
 
     public void Update(Action<EditorSettings> action)
