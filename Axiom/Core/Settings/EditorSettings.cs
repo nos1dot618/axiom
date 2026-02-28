@@ -1,5 +1,8 @@
-﻿using Axiom.Core.Settings.Sections;
+﻿// ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
+
 using Axiom.Core.Settings.Sections.Editor;
+using Axiom.Core.Settings.Sections.Language;
+using Axiom.Core.Settings.Sections.Lsp;
 
 namespace Axiom.Core.Settings;
 
@@ -9,4 +12,5 @@ public class EditorSettings
 
     public EditorSection Editor { get; set; } = new();
     public LspSection Lsp { get; set; } = new();
+    public LanguagesSection Language { get; set; } = new();
 }

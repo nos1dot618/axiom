@@ -1,6 +1,9 @@
-﻿using Axiom.Infrastructure.Lsp.Language;
+﻿// ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
+// ReSharper disable CollectionNeverUpdated.Global
 
-namespace Axiom.Core.Settings.Sections;
+using Axiom.Infrastructure.Lsp.Language;
+
+namespace Axiom.Core.Settings.Sections.Lsp;
 
 public class LspSection
 {
@@ -8,8 +11,9 @@ public class LspSection
     public bool EnableCodeCompletion { get; set; } = true;
     public bool EnableDiagnostics { get; set; } = true;
 
+    // TODO: This can be different for each language.
     public LspRootMode DefaultRootMode { get; set; } = LspRootMode.Workspace;
-    public string? FixedRootPath { get; set; }
+    public string? FixedRootPath { get; set; } = "";
 
     public List<LspServerSection> Servers { get; set; } = [];
 }

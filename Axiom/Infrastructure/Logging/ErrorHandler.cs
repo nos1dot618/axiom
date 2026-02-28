@@ -10,4 +10,9 @@ public static class ErrorHandler
         Console.Write(ex.StackTrace);
         MessageBox.Show($"{ex.Message}");
     }
+
+    public static void DisplayMessage(string message)
+    {
+        MessageBox.Show($"{message}");
+    }
 }

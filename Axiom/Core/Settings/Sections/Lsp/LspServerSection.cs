@@ -1,4 +1,7 @@
-﻿namespace Axiom.Core.Settings.Sections;
+﻿// ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
+// ReSharper disable ClassNeverInstantiated.Global
+
+namespace Axiom.Core.Settings.Sections.Lsp;
 
 public class LspServerSection
 {

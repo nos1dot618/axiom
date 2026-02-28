@@ -2,6 +2,7 @@
 using Axiom.Common;
 using Axiom.Editor;
 using Axiom.Editor.Documents;
+using Axiom.Infrastructure.Logging;
 
 namespace Axiom.UI.Documents;
 
@@ -13,10 +14,26 @@ public static class FileUiController
 
     private static void Run()
     {
-        // TODO: Assert that the file is non virtual.
-        // TODO: User defined Run Configuration.
-        var command = $"python {FileService.CurrentBuffer.Path}";
-        ServicesRegistry.RunService.Run(command);
+        if (FileService.CurrentBuffer.IsVirtual)
+        {
+            ErrorHandler.DisplayMessage("Cannot run temporary buffers. Please save first.");
+            return;
+        }
+
+        var languageSection =
+            ServicesRegistry.SettingsService.CurrentSettings.Language.Languages.FirstOrDefault(section =>
+                string.Equals(section.LanguageId, FileService.CurrentBuffer.LanguageId,
+                    StringComparison.OrdinalIgnoreCase));
+
+
+        if (languageSection == null)
+        {
+            ErrorHandler.DisplayMessage("Run configuration not found for the current language. " +
+                                        "Please provide a run configuration inside the configuration file.");
+            return;
+        }
+
+        ServicesRegistry.RunService.Run(languageSection.RunFormat);
     }
 
     private static void Open()
