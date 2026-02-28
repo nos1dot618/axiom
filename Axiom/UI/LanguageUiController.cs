@@ -19,7 +19,8 @@ public sealed class LanguageUiController(MenuItem languageMenuItem)
         languageMenuItem.Items.Clear();
 
         // TODO: For now this is assumed that all supported languages have syntax highlighting.
-        foreach (var highlightingDefinition in HighlightingManager.Instance.HighlightingDefinitions)
+        foreach (var highlightingDefinition in
+                 HighlightingManager.Instance.HighlightingDefinitions.OrderBy(definition => definition.Name))
         {
             var menuItem = new MenuItem
             {
