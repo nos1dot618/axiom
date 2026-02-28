@@ -67,7 +67,7 @@ public static class EditorUiController
         Application.Current.Shutdown();
     }
 
-    private static void Reload()
+    public static void Reload()
     {
         ServicesRegistry.SettingsService = new SettingsService();
         Configure();

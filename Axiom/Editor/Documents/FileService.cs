@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using Axiom.Core.Documents;
 using Axiom.Infrastructure.Lsp.Language;
+using Axiom.UI.Editor;
 using Axiom.UI.Themes;
 using Microsoft.Win32;
 using Buffer = Axiom.Core.Documents.Buffer;
@@ -81,5 +82,6 @@ public class FileService : IFileService
     {
         if (CurrentBuffer.LanguageId != null)
             await ServicesRegistry.EditorService.SetLanguage(CurrentBuffer.LanguageId);
+        EditorUiController.Reload();
     }
 }

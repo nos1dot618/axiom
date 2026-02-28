@@ -10,6 +10,7 @@
 - FEATURE: Support more menu options.
 - FEATURE: Allow configuring keymaps.
 - FEATURE: Add menu option to open window to view all raw capabilities of the chosen LSP. (Mainly for debugging.) 
+- FEATURE: Add notifications.
 - APPEARANCE: Custom language-mode support.
 - APPEARANCE: Change look-n-feel of tooltips (complition window/diagnostics tooltip) based on the editor theme.
 - APPEARANCE: Better WPF theming: <https://github.com/AngryCarrot789/WPFDarkTheme>.
