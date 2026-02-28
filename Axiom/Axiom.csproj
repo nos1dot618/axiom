@@ -31,8 +31,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <None Remove="Infrastructure\SyntaxHighlighting\Go.xshd"/>
-        <EmbeddedResource Include="Infrastructure\SyntaxHighlighting\Go-Mode.xshd"/>
+        <None Remove="Resources\SyntaxHighlighting\Go.xshd"/>
+        <EmbeddedResource Include="Resources\SyntaxHighlighting\Go-Mode.xshd"/>
     </ItemGroup>
 
 </Project>

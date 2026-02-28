@@ -12,7 +12,7 @@ public static class ThemeApplicator
 {
     private static readonly (string Resource, string Name, string[] Extensions)[] CustomSyntaxHighlightings =
     [
-        ("Axiom.Infrastructure.SyntaxHighlighting.Go-Mode.xshd", "Go", [".go"])
+        ("Axiom.Resources.SyntaxHighlighting.Go-Mode.xshd", "Go", [".go"])
     ];
 
     static ThemeApplicator()
