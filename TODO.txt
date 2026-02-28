@@ -3,7 +3,6 @@
 - LSP: Verify LSP response is jsonrpc=2.0.
 - LSP: Add support for formatting the document.
 - LSP: More highlighting options: <https://github.com/Dirkster99/Edi/tree/master/Edi/Edi/AvalonEdit/Highlighting>.
-- FEATURE: Override configuration via project specific configuration.
 - FEATURE: Support both full and incremental text document sync.
 - FEATURE: Find/Replace inside current document.
 - FEATURE: Support configuring all settings supported by Avalon.

@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using Axiom.Core.Settings;
+using Axiom.Editor.Documents;
 using Axiom.Infrastructure.Lsp.Language;
 using Tomlyn;
 
@@ -7,18 +8,20 @@ namespace Axiom.Editor.Settings;
 
 public sealed class SettingsService : ISettingsService
 {
-    private static readonly string FilePath = InitializeFilePath();
+    private const string ConfigurationFile = "settings.toml";
+    private static string _filePath = InitializeFilePath();
 
     public SettingsService()
     {
-        if (!File.Exists(FilePath))
+        _filePath = InitializeFilePath();
+        if (!File.Exists(_filePath))
         {
             CurrentSettings = new EditorSettings();
             Save(); // Create default configuration file.
             return;
         }
 
-        var configText = File.ReadAllText(FilePath);
+        var configText = File.ReadAllText(_filePath);
         CurrentSettings = Toml.ToModel<EditorSettings>(configText);
 
         foreach (var configuration in CurrentSettings.Lsp.Servers)
@@ -36,17 +39,29 @@ public sealed class SettingsService : ISettingsService
 
     private static string InitializeFilePath()
     {
+        // If user has a file opened, then search for the first project specific configuration.
+        if (!FileService.CurrentBuffer.IsVirtual)
+        {
+            var directory = new FileInfo(FileService.CurrentBuffer.Path).Directory;
+            while (directory != null)
+            {
+                var settingsPath = Path.Combine(directory.FullName, ".axiom", ConfigurationFile);
+                if (File.Exists(settingsPath)) return settingsPath;
+                directory = directory.Parent;
+            }
+        }
+
         var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
         var appDirectory = Path.Combine(appDataPath, "Axiom");
 
         Directory.CreateDirectory(appDirectory);
 
-        return Path.Combine(appDirectory, "settings.toml");
+        return Path.Combine(appDirectory, ConfigurationFile);
     }
 
     private void Save()
     {
         var configText = Toml.FromModel(CurrentSettings);
-        File.WriteAllText(FilePath, configText);
+        File.WriteAllText(_filePath, configText);
     }
 }
