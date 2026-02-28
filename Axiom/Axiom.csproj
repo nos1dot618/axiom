@@ -18,12 +18,12 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Page Update="UI\Components\CompletionWindow.xaml">
+        <Page Update="Resources\Components\CompletionWindow.xaml">
             <Generator>MSBuild:Compile</Generator>
             <XamlRuntime>Wpf</XamlRuntime>
             <SubType>Designer</SubType>
         </Page>
-        <Page Update="UI\Components\DiagnosticTooltip.xaml">
+        <Page Update="Resources\Components\DiagnosticTooltip.xaml">
             <Generator>MSBuild:Compile</Generator>
             <XamlRuntime>Wpf</XamlRuntime>
             <SubType>Designer</SubType>
@@ -31,7 +31,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <None Remove="Resources\SyntaxHighlighting\Go.xshd"/>
+        <None Remove="Resources\SyntaxHighlighting\Go-Mode.xshd"/>
         <EmbeddedResource Include="Resources\SyntaxHighlighting\Go-Mode.xshd"/>
     </ItemGroup>
 
