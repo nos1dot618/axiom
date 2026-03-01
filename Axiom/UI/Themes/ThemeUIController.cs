@@ -22,7 +22,7 @@ public sealed class ThemeUiController(MenuItem themesMenuItem)
             themesMenuItem.Items.Add(menuItem);
         }
 
-        UpdateThemeCheckmarks();
+        Update();
     }
 
     private void OnClick(object sender, RoutedEventArgs e)
@@ -31,10 +31,10 @@ public sealed class ThemeUiController(MenuItem themesMenuItem)
 
         ServicesRegistry.ThemeService.SetTheme(theme);
         ThemeApplicator.Apply();
-        UpdateThemeCheckmarks();
+        Update();
     }
 
-    private void UpdateThemeCheckmarks()
+    public void Update()
     {
         foreach (MenuItem item in themesMenuItem.Items)
             if (item.Tag is EditorTheme theme)

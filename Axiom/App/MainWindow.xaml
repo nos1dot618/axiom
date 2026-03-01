@@ -9,10 +9,8 @@
         xmlns:editor="clr-namespace:Axiom.UI.Editor"
         xmlns:project="clr-namespace:Axiom.UI.Project"
         mc:Ignorable="d"
-        Width="1000"
-        Height="700"
         Title="Axiom"
-        Background="#2B2B2B"
+        Style="{DynamicResource CustomWindowStyle}"
         WindowStartupLocation="CenterScreen">
     <DockPanel>
 
@@ -97,15 +95,13 @@
         </Menu>
 
         <!-- Bottom Status Bar -->
-        <!-- TODO: Make the style configurable by the theme. -->
-        <StatusBar DockPanel.Dock="Bottom" Background="#1E1E1E" Foreground="White">
+        <StatusBar DockPanel.Dock="Bottom">
             <StatusBarItem>
-                <TextBlock x:Name="TimerText" Text="00:00" FontFamily="Consolas" />
+                <TextBlock x:Name="TimerText" Text="00:00" />
             </StatusBarItem>
             <StatusBarItem>
-                <TextBlock x:Name="StatusText" Text="Ready" FontFamily="Consolas" />
+                <TextBlock x:Name="StatusText" Text="Ready" />
             </StatusBarItem>
-
             <!-- Flexible Spacer -->
             <StatusBarItem HorizontalAlignment="Stretch">
                 <Grid />

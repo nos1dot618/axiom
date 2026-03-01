@@ -49,14 +49,29 @@ dotnet publish -c Release -r win-x64 --self-contained true
     1. Copy the themes directory from `Resources\Themes\`.
     2. Paste it into `%APPDATA%\Themes\`.
 
-## Courtesy
+Here’s a cleaner and more professional version of your section, with a clear structure and explicit MIT license
+attribution added to each courtesy item:
 
-1. [AvalonEdit](http://avalonedit.net): WPF-based text editor component
-   by [Daniel Grunwald](https://github.com/dgrunwald).
-2. [Advanced TextMarkers usage in AvalonEdit](https://github.com/siegfriedpammer/AvalonEditSamples/)
-   by [Siegfried Pammer](https://github.com/siegfriedpammer).
+## Acknowledgements & Courtesy
+
+This project makes use of the following open-source libraries and resources.
+We gratefully acknowledge their authors and contributors.
+
+1. **[AvalonEdit](http://avalonedit.net)**<br>
+   A WPF-based text editor component.<br>
+   Created by [Daniel Grunwald](https://github.com/dgrunwald).<br>
+   License: MIT License
+2. **[Advanced TextMarkers Usage in AvalonEdit](https://github.com/siegfriedpammer/AvalonEditSamples/)**<br>
+   Sample implementations demonstrating advanced text marker usage with AvalonEdit.<br>
+   Created by [Siegfried Pammer](https://github.com/siegfriedpammer).<br>
+   License: MIT License
+3. **[WPF Theme Library (WPFDarkTheme)](https://github.com/AngryCarrot789/WPFDarkTheme)**<br>
+   A small dark theme library for WPF and Avalonia applications.<br>
+   Created by [REghZy](https://github.com/AngryCarrot789).<br>
+   License: MIT License
 
 ## References
 
-1. GopherCon UK conference session on ["Understanding Language Server Protocol"](https://youtu.be/EkK8Jxjj95s)
-   by [Adrian Hesketh](https://github.com/a-h).
+1. **“Understanding Language Server Protocol”**<br>
+   GopherCon UK conference session by [Adrian Hesketh](https://github.com/a-h).<br>
+   Watch here: <https://youtu.be/EkK8Jxjj95s>

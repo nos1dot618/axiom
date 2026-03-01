@@ -1,0 +1,19 @@
+﻿using System.Windows;
+
+namespace Axiom.Resources.Themes.Attached;
+
+public static class CornerRadiusHelper
+{
+    public static readonly DependencyProperty ValueProperty = DependencyProperty.RegisterAttached("Value",
+        typeof(CornerRadius), typeof(CornerRadiusHelper), new PropertyMetadata(new CornerRadius(0)));
+
+    public static void SetValue(DependencyObject element, CornerRadius value)
+    {
+        element.SetValue(ValueProperty, value);
+    }
+
+    public static CornerRadius GetValue(DependencyObject element)
+    {
+        return (CornerRadius)element.GetValue(ValueProperty);
+    }
+}

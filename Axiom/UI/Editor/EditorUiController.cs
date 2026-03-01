@@ -30,7 +30,7 @@ public static class EditorUiController
         editor.Options.ShowSpaces = settings.Editor.ShowSpaces;
 
         // Font must be present inside Fonts.SystemFontFamilies
-        editor.FontFamily = new FontFamily(settings.Editor.FontFamily);
+        SetFontFamily(new FontFamily(settings.Editor.FontFamily));
         editor.FontSize = settings.Editor.FontSize;
 
         editor.VerticalScrollBarVisibility = ParseScrollBarVisibility(settings.Editor.VerticalScrollBarVisibility);
@@ -38,6 +38,7 @@ public static class EditorUiController
 
         ServicesRegistry.ThemeService.SetTheme(settings.Editor.Theme);
         ThemeApplicator.Apply();
+        UiControllersRegistry.Theme.Update();
 
         return;
 
@@ -91,5 +92,25 @@ public static class EditorUiController
         var newSize = Math.Max(EditorService.Editor.FontSize - zoomStep, minFontSize);
         EditorService.Editor.FontSize = newSize;
         ServicesRegistry.SettingsService.Update(settings => { settings.Editor.FontSize = newSize; });
+    }
+
+    private static void SetFontFamily(FontFamily fontFamily)
+    {
+        EditorService.Editor.FontFamily = fontFamily;
+        Application.Current.Resources[typeof(Control)] = new Style(typeof(Control))
+        {
+            BasedOn = (Style)Application.Current.TryFindResource(typeof(Control)),
+            Setters = { new Setter(Control.FontFamilyProperty, fontFamily) }
+        };
+        Application.Current.Resources[typeof(TextBlock)] = new Style(typeof(TextBlock))
+        {
+            BasedOn = (Style)Application.Current.TryFindResource(typeof(TextBlock)),
+            Setters = { new Setter(Control.FontFamilyProperty, fontFamily) }
+        };
+        Application.Current.Resources[typeof(MenuItem)] = new Style(typeof(MenuItem))
+        {
+            BasedOn = (Style)Application.Current.TryFindResource(typeof(MenuItem)),
+            Setters = { new Setter(Control.FontFamilyProperty, fontFamily) }
+        };
     }
 }

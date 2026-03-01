@@ -6,6 +6,10 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/Resources/Components/CompletionWindow.xaml" />
                 <ResourceDictionary Source="/Resources/Components/DiagnosticTooltip.xaml" />
+
+                <ResourceDictionary Source="/Resources/Themes/ColourDictionaries/DeepDark.xaml" />
+                <ResourceDictionary Source="/Resources/Themes/ControlColours.xaml" />
+                <ResourceDictionary Source="/Resources/Themes/Controls.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

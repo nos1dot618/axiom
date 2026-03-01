@@ -14,7 +14,7 @@ public class EditorSection
     public bool HighlightCurrentLine { get; set; } = true;
     public bool AllowScrollBelowDocument { get; set; } = false;
     public bool ShowSpaces { get; set; } = false;
-    public bool VerticalScrollBarVisibility { get; set; } = false;
+    public bool VerticalScrollBarVisibility { get; set; } = true;
     public bool HorizontalScrollBarVisibility { get; set; } = false;
 
     public AppearanceSection Appearance { get; set; } = new();

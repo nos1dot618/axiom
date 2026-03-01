@@ -9,7 +9,6 @@ public static class UiControllersRegistry
 {
     private static ThemeUiController? _themeUiController;
     private static LanguageUiController? _languageUiController;
-    private static ProjectUiController? _projectUiController;
 
     public static ThemeUiController Theme => _themeUiController ?? throw new NullReferenceException();
     public static LanguageUiController Language => _languageUiController ?? throw new NullReferenceException();
@@ -17,10 +16,10 @@ public static class UiControllersRegistry
     public static void Configure(MenuItem themesMenuItem, MenuItem languagesMenuItem, TextBlock timerText,
         TextBlock statusText)
     {
-        EditorUiController.Configure();
         _themeUiController = new ThemeUiController(themesMenuItem);
         _languageUiController = new LanguageUiController(languagesMenuItem);
-        _projectUiController = new ProjectUiController(timerText, statusText);
+        _ = new ProjectUiController(timerText, statusText);
+        EditorUiController.Configure();
 
         _themeUiController.Populate();
         _languageUiController.Populate();
