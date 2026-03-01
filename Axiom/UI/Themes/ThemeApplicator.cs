@@ -3,6 +3,7 @@ using System.Windows.Media;
 using System.Xml;
 using Axiom.Editor;
 using Axiom.Editor.Documents;
+using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.Highlighting;
 using ICSharpCode.AvalonEdit.Highlighting.Xshd;
 
@@ -20,9 +21,8 @@ public static class ThemeApplicator
         RegisterSyntaxHighlightings();
     }
 
-    public static void Apply()
+    public static void Apply(TextEditor editor, bool applySyntaxHighlighting)
     {
-        var editor = EditorService.Editor;
         var theme = ServicesRegistry.ThemeService.CurrentTheme;
 
         editor.Background = Brush(theme.Editor.Background);
@@ -35,7 +35,7 @@ public static class ThemeApplicator
         editor.ShowLineNumbers = true;
         editor.LineNumbersForeground = Brush(theme.Editor.LineNumbers);
 
-        ApplySyntaxHighlighting();
+        if (applySyntaxHighlighting) ApplySyntaxHighlighting();
     }
 
     public static void ApplySyntaxHighlighting()

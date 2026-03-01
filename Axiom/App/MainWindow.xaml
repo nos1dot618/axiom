@@ -14,7 +14,6 @@
         WindowStartupLocation="CenterScreen">
     <DockPanel>
 
-        <!-- Native WPF Menu -->
         <Menu DockPanel.Dock="Top">
 
             <MenuItem Header="_File">
@@ -58,6 +57,8 @@
                 <MenuItem Header="_Build Project" Command="{x:Static project:ProjectUiController.BuildProjectCommand}" />
                 <MenuItem Header="_Run Project" Command="{x:Static project:ProjectUiController.RunProjectCommand}" />
                 <MenuItem Header="_Stop Build" Command="{x:Static project:ProjectUiController.StopBuildCommand}" />
+                <MenuItem Header="Show Build _Logs"
+                          Command="{x:Static project:ProjectUiController.ShowBuildLogsCommand}" />
             </MenuItem>
 
             <MenuItem Header="_Tools">
@@ -94,7 +95,6 @@
 
         </Menu>
 
-        <!-- Bottom Status Bar -->
         <StatusBar DockPanel.Dock="Bottom">
             <StatusBarItem>
                 <TextBlock x:Name="TimerText" Text="00:00" />
@@ -102,21 +102,12 @@
             <StatusBarItem>
                 <TextBlock x:Name="StatusText" Text="Ready" />
             </StatusBarItem>
-            <!-- Flexible Spacer -->
             <StatusBarItem HorizontalAlignment="Stretch">
                 <Grid />
             </StatusBarItem>
         </StatusBar>
 
-        <!-- Avalon Editor -->
-        <avalonEdit:TextEditor
-            x:Name="Editor"
-            Background="#2B2B2B"
-            Foreground="White"
-            FontFamily="Consolas"
-            FontSize="14"
-            ShowLineNumbers="True"
-            PreviewMouseWheel="EditorPreviewMouseWheel" />
+        <avalonEdit:TextEditor x:Name="Editor" PreviewMouseWheel="EditorPreviewMouseWheel" />
 
     </DockPanel>
 

@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.IO;
+using System.Text;
 using Axiom.Editor.Documents;
 using Axiom.Infrastructure.Logging;
 
@@ -62,8 +63,18 @@ public class RunService : IRunService
 
             var output = await process.StandardOutput.ReadToEndAsync(cancellationToken);
             var error = await process.StandardError.ReadToEndAsync(cancellationToken);
-            if (!string.IsNullOrWhiteSpace(output)) await File.AppendAllTextAsync(logPath, output, cancellationToken);
-            if (!string.IsNullOrWhiteSpace(error)) await File.AppendAllTextAsync(logPath, error, cancellationToken);
+
+            if (string.IsNullOrWhiteSpace(output) && string.IsNullOrWhiteSpace(error))
+            {
+                await File.WriteAllTextAsync(logPath, "Nothing to show.", cancellationToken);
+            }
+            else
+            {
+                var builder = new StringBuilder();
+                if (!string.IsNullOrWhiteSpace(output)) builder.AppendLine(output);
+                if (!string.IsNullOrWhiteSpace(error)) builder.AppendLine(error);
+                await File.WriteAllTextAsync(logPath, builder.ToString(), cancellationToken);
+            }
 
             return process.ExitCode;
         }

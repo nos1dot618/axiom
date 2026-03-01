@@ -30,7 +30,7 @@ public sealed class ThemeUiController(MenuItem themesMenuItem)
         if (sender is not MenuItem { Tag: EditorTheme theme }) return;
 
         ServicesRegistry.ThemeService.SetTheme(theme);
-        ThemeApplicator.Apply();
+        ThemeApplicator.Apply(EditorService.Editor, true);
         Update();
     }
 

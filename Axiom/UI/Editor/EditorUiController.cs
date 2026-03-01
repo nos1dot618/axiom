@@ -17,9 +17,8 @@ public static class EditorUiController
     public static ICommand IncreaseFontSizeCommand { get; } = new RelayCommand(_ => IncreaseFontSize());
     public static ICommand DecreaseFontSizeCommand { get; } = new RelayCommand(_ => DecreaseFontSize());
 
-    public static void Configure()
+    public static void Configure(TextEditor editor, bool applySyntaxHighlighting)
     {
-        var editor = EditorService.Editor;
         var settings = ServicesRegistry.SettingsService.CurrentSettings;
 
         editor.Options.ConvertTabsToSpaces = settings.Editor.ConvertTabsToSpaces;
@@ -30,14 +29,14 @@ public static class EditorUiController
         editor.Options.ShowSpaces = settings.Editor.ShowSpaces;
 
         // Font must be present inside Fonts.SystemFontFamilies
-        SetFontFamily(new FontFamily(settings.Editor.FontFamily));
+        SetFontFamily(editor, new FontFamily(settings.Editor.FontFamily));
         editor.FontSize = settings.Editor.FontSize;
 
         editor.VerticalScrollBarVisibility = ParseScrollBarVisibility(settings.Editor.VerticalScrollBarVisibility);
         editor.HorizontalScrollBarVisibility = ParseScrollBarVisibility(settings.Editor.HorizontalScrollBarVisibility);
 
         ServicesRegistry.ThemeService.SetTheme(settings.Editor.Theme);
-        ThemeApplicator.Apply();
+        ThemeApplicator.Apply(editor, applySyntaxHighlighting);
         UiControllersRegistry.Theme.Update();
 
         return;
@@ -71,7 +70,7 @@ public static class EditorUiController
     public static void Reload()
     {
         ServicesRegistry.SettingsService = new SettingsService();
-        Configure();
+        Configure(EditorService.Editor, true);
     }
 
     private static void IncreaseFontSize()
@@ -94,9 +93,9 @@ public static class EditorUiController
         ServicesRegistry.SettingsService.Update(settings => { settings.Editor.FontSize = newSize; });
     }
 
-    private static void SetFontFamily(FontFamily fontFamily)
+    private static void SetFontFamily(TextEditor editor, FontFamily fontFamily)
     {
-        EditorService.Editor.FontFamily = fontFamily;
+        editor.FontFamily = fontFamily;
         Application.Current.Resources[typeof(Control)] = new Style(typeof(Control))
         {
             BasedOn = (Style)Application.Current.TryFindResource(typeof(Control)),
