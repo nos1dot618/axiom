@@ -7,6 +7,7 @@
         xmlns:documents="clr-namespace:Axiom.UI.Documents"
         xmlns:lsp="clr-namespace:Axiom.UI.Lsp"
         xmlns:editor="clr-namespace:Axiom.UI.Editor"
+        xmlns:project="clr-namespace:Axiom.UI.Project"
         mc:Ignorable="d"
         Width="1000"
         Height="700"
@@ -55,6 +56,11 @@
                 <MenuItem Header="_Run File" Command="{x:Static documents:FileUiController.RunFileCommand}" />
             </MenuItem>
 
+            <MenuItem Header="_Project">
+                <MenuItem Header="_Build Project" Command="{x:Static project:ProjectUiController.BuildProjectCommand}" />
+                <MenuItem Header="_Run Project" Command="{x:Static project:ProjectUiController.RunProjectCommand}" />
+            </MenuItem>
+
             <MenuItem Header="_Tools">
                 <MenuItem Header="_Language" x:Name="LanguageMenuItem" />
                 <Separator />
@@ -88,6 +94,22 @@
             </MenuItem>
 
         </Menu>
+
+        <!-- Bottom Status Bar -->
+        <!-- TODO: Make the style configurable by the theme. -->
+        <StatusBar DockPanel.Dock="Bottom" Background="#1E1E1E" Foreground="White">
+            <StatusBarItem>
+                <TextBlock x:Name="TimerText" Text="00:00" FontFamily="Consolas" />
+            </StatusBarItem>
+            <StatusBarItem>
+                <TextBlock x:Name="StatusText" Text="Ready" FontFamily="Consolas" />
+            </StatusBarItem>
+
+            <!-- Flexible Spacer -->
+            <StatusBarItem HorizontalAlignment="Stretch">
+                <Grid />
+            </StatusBarItem>
+        </StatusBar>
 
         <!-- Avalon Editor -->
         <avalonEdit:TextEditor

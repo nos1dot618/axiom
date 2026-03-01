@@ -20,7 +20,7 @@ public partial class MainWindow
 
         SetKeybindings();
         SetDefaultOptions();
-        UiControllersRegistry.Configure(ThemesMenuItem, LanguageMenuItem);
+        UiControllersRegistry.Configure(ThemesMenuItem, LanguageMenuItem, TimerText, StatusText);
     }
 
     private void SetKeybindings()

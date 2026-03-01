@@ -11,6 +11,7 @@ public interface IFileService
 
     string ProjectRoot { get; }
 
+    string GetAbsolutePath(string relativePath);
     Task OpenDocumentAsync(string filepath, string text);
     Task SaveAsync();
     Task OpenFileDialogAsync();

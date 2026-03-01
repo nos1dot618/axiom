@@ -21,15 +21,20 @@ public sealed class SettingsService : ISettingsService
             return;
         }
 
+        var options = new TomlModelOptions
+        {
+            IgnoreMissingProperties = true
+        };
+
         var configText = File.ReadAllText(_filePath);
-        CurrentSettings = Toml.ToModel<EditorSettings>(configText);
+        CurrentSettings = Toml.ToModel<EditorSettings>(configText, options: options);
 
         foreach (var configuration in CurrentSettings.Lsp.Servers)
             LspRegistry.Add(new LspServerConfiguration(configuration.LanguageId, configuration.Command,
                 configuration.Arguments));
     }
 
-    public static DirectoryInfo? ProjectPath => new FileInfo(_filePath).Directory;
+    public static DirectoryInfo? ProjectPath => new FileInfo(_filePath).Directory?.Parent;
 
     public EditorSettings CurrentSettings { get; }
 

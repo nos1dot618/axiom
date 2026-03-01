@@ -17,6 +17,13 @@ public class FileService : IFileService
 
     public DocumentMetadata? DocumentMetadata { get; set; }
 
+    public string GetAbsolutePath(string relativePath)
+    {
+        return Path.IsPathFullyQualified(relativePath)
+            ? relativePath
+            : Path.Combine(ServicesRegistry.FileService.ProjectRoot, relativePath);
+    }
+
     public async Task OpenDocumentAsync(string filepath, string text)
     {
         DocumentMetadata = await ServicesRegistry.LspSession.LspService.OpenDocumentAsync(filepath, text);
