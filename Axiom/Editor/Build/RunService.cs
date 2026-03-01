@@ -1,48 +1,76 @@
 ﻿using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using Axiom.Editor.Documents;
+using Axiom.Infrastructure.Logging;
 
 namespace Axiom.Editor.Build;
 
 public class RunService : IRunService
 {
-    [SuppressMessage("Performance", "CA1822:Mark members as static")]
-    public int Build(string command)
+    public async Task<int> BuildAsync(string command, CancellationToken cancellationToken)
     {
-        using var process = new Process();
-        process.StartInfo = new ProcessStartInfo
+        var process = new Process
         {
-            FileName = "cmd.exe",
-            Arguments = $"/c {command}", // /c executes and exits.
-            UseShellExecute = false,
-            CreateNoWindow = true, // No visible window.
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            WorkingDirectory = ServicesRegistry.FileService.ProjectRoot
+            StartInfo = new ProcessStartInfo
+            {
+                FileName = "cmd.exe",
+                Arguments = $"/c {command}",
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                WorkingDirectory = ServicesRegistry.FileService.ProjectRoot
+            },
+            EnableRaisingEvents = true
         };
 
         ConfigureEnvironment(process.StartInfo);
-        process.Start();
-        process.WaitForExit();
 
-        var projectSettings = ServicesRegistry.SettingsService.CurrentSettings.Project;
-        if (projectSettings.BuildLogPath == null) return process.ExitCode;
+        try
+        {
+            process.Start();
 
-        var logPath = ServicesRegistry.FileService.GetAbsolutePath(projectSettings.BuildLogPath);
-        if (!File.Exists(logPath))
-            // Create the file and immediately close it
-            using (File.Create(logPath))
+            var waitForExitTask = process.WaitForExitAsync(cancellationToken);
+            var cancellationTask = Task.Delay(Timeout.Infinite, cancellationToken);
+            var completedTask = await Task.WhenAny(waitForExitTask, cancellationTask);
+
+            if (completedTask == cancellationTask)
             {
-                ;
+                try
+                {
+                    if (!process.HasExited) process.Kill(true);
+                }
+                catch (InvalidOperationException)
+                {
+                    // Already exited
+                }
+                catch (Exception ex)
+                {
+                    ErrorHandler.DisplayMessage($"Failed to kill process: {ex}");
+                }
+
+                throw new OperationCanceledException(cancellationToken);
             }
 
-        var output = process.StandardOutput.ReadToEnd();
-        var error = process.StandardError.ReadToEnd();
-        if (!string.IsNullOrWhiteSpace(output)) File.AppendAllText(logPath, output);
-        if (!string.IsNullOrWhiteSpace(error)) File.AppendAllText(logPath, error);
+            await waitForExitTask;
 
-        return process.ExitCode;
+            var projectSettings = ServicesRegistry.SettingsService.CurrentSettings.Project;
+            if (projectSettings.BuildLogPath == null) return process.ExitCode;
+
+            var logPath = ServicesRegistry.FileService.GetAbsolutePath(projectSettings.BuildLogPath);
+            if (!File.Exists(logPath)) await File.Create(logPath).DisposeAsync();
+
+            var output = await process.StandardOutput.ReadToEndAsync(cancellationToken);
+            var error = await process.StandardError.ReadToEndAsync(cancellationToken);
+            if (!string.IsNullOrWhiteSpace(output)) await File.AppendAllTextAsync(logPath, output, cancellationToken);
+            if (!string.IsNullOrWhiteSpace(error)) await File.AppendAllTextAsync(logPath, error, cancellationToken);
+
+            return process.ExitCode;
+        }
+        finally
+        {
+            process.Dispose();
+        }
     }
 
     public void Run(string command)

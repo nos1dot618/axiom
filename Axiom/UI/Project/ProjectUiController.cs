@@ -12,6 +12,8 @@ public sealed class ProjectUiController
 {
     private static TextBlock? _timerText;
     private static TextBlock? _statusText;
+    private static CancellationTokenSource? _buildCts;
+    private static bool _isBuilding;
     private static readonly Stopwatch Stopwatch = new();
 
     private static readonly DispatcherTimer Timer = new()
@@ -26,42 +28,76 @@ public sealed class ProjectUiController
         Timer.Tick += (_, _) => { timerText.Text = Stopwatch.Elapsed.ToString(@"mm\:ss"); };
     }
 
-    public static ICommand BuildProjectCommand { get; } = new AsyncRelayCommand(_ => Build());
-    public static ICommand RunProjectCommand { get; } = new AsyncRelayCommand(_ => Run());
+    public static ICommand BuildProjectCommand { get; } = new AsyncRelayCommand(_ => BuildAsync());
+    public static ICommand RunProjectCommand { get; } = new AsyncRelayCommand(_ => RunAsync());
+    public static ICommand StopBuildCommand { get; } = new RelayCommand(_ => StopBuild());
 
-    private static async Task<int> Build()
+    private static async Task<int> BuildAsync()
     {
+        if (_isBuilding) return -1;
+
+        _isBuilding = true;
+        _buildCts = new CancellationTokenSource();
+
         if (_statusText != null) _statusText.Text = "Building...";
         if (_timerText != null) _timerText.Text = "00:00";
 
         Stopwatch.Restart();
         Timer.Start();
 
-        var code = await Task.Run(() =>
-            ServicesRegistry.RunService.Build(ServicesRegistry.SettingsService.CurrentSettings.Project.BuildFormat));
+        int code;
+
+        try
+        {
+            code = await ServicesRegistry.RunService.BuildAsync(
+                ServicesRegistry.SettingsService.CurrentSettings.Project.BuildFormat, _buildCts.Token);
+        }
+        catch (OperationCanceledException)
+        {
+            code = -1;
+        }
 
         Timer.Stop();
         Stopwatch.Stop();
 
-        if (_statusText != null)
-            _statusText.Text = code == 0 ? "Built Successfully" : $"Build Failed with exit code {code}.";
+        var cts = _buildCts; // snapshot
+        var wasCancelled = cts.IsCancellationRequested;
+        var statusMessage = wasCancelled ? "Build Cancelled" :
+            code == 0 ? "Built Successfully" : $"Build Failed (Exit {code})";
+
+        _statusText!.Text = statusMessage;
+        _isBuilding = false;
+        cts.Dispose();
+        _buildCts = null;
 
         return code;
     }
 
-    private static async Task Run()
+    private static async Task RunAsync()
     {
         var projectSettings = ServicesRegistry.SettingsService.CurrentSettings.Project;
         if (projectSettings.BuildBeforeRun)
         {
-            var code = await Build();
-            if (code != 0)
+            var code = await BuildAsync();
+            switch (code)
             {
-                ErrorHandler.DisplayMessage($"Build Failed with exit code {code}.");
-                return;
+                case -1:
+                    ErrorHandler.DisplayMessage("Build already going on.");
+                    return;
+                case 0:
+                    break;
+                default:
+                    ErrorHandler.DisplayMessage($"Build Failed with exit code {code}.");
+                    return;
             }
         }
 
         ServicesRegistry.RunService.Run(projectSettings.RunFormat);
+    }
+
+    private static void StopBuild()
+    {
+        if (!_isBuilding) return;
+        _buildCts?.Cancel();
     }
 }

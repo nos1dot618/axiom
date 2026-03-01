@@ -59,6 +59,7 @@
             <MenuItem Header="_Project">
                 <MenuItem Header="_Build Project" Command="{x:Static project:ProjectUiController.BuildProjectCommand}" />
                 <MenuItem Header="_Run Project" Command="{x:Static project:ProjectUiController.RunProjectCommand}" />
+                <MenuItem Header="_Stop Build" Command="{x:Static project:ProjectUiController.StopBuildCommand}" />
             </MenuItem>
 
             <MenuItem Header="_Tools">

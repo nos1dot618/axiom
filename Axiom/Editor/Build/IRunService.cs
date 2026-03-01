@@ -2,6 +2,6 @@
 
 public interface IRunService
 {
-    public int Build(string command);
+    public Task<int> BuildAsync(string command, CancellationToken cancellationToken);
     public void Run(string command);
 }
