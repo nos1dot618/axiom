@@ -11,6 +11,7 @@ public static class ErrorHandler
         DisplayMessage(ex.Message);
     }
 
+    // TODO: Style this window.
     public static void DisplayMessage(string message)
     {
         MessageBox.Show($"{message}");

@@ -110,6 +110,9 @@ public sealed class ProjectUiController
 
     private static async Task ShowBuildLogs()
     {
+        // TODO: Support polling for changes in the build log.
+        // TODO: Add notification to the editor window for build log update.
+        // TODO: Move focus to the log window if already exists.
         if (_buildLogWindow is not { IsVisible: true })
         {
             var projectSettings = ServicesRegistry.SettingsService.CurrentSettings.Project;

@@ -49,9 +49,6 @@ dotnet publish -c Release -r win-x64 --self-contained true
     1. Copy the themes directory from `Resources\Themes\`.
     2. Paste it into `%APPDATA%\Themes\`.
 
-Here’s a cleaner and more professional version of your section, with a clear structure and explicit MIT license
-attribution added to each courtesy item:
-
 ## Acknowledgements & Courtesy
 
 This project makes use of the following open-source libraries and resources.

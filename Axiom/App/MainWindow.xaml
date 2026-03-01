@@ -95,6 +95,10 @@
 
         </Menu>
 
+        <!-- TODO: Show diagnostic details (warning, error counts). -->
+        <!-- TODO: Show file name. -->
+        <!-- TODO: Show git details. -->
+        <!-- TODO: Indicate that the buffer is unsaved. -->
         <StatusBar DockPanel.Dock="Bottom">
             <StatusBarItem>
                 <TextBlock x:Name="TimerText" Text="00:00" />
