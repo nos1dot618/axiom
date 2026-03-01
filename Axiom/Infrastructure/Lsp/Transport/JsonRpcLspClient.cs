@@ -11,7 +11,7 @@ using Axiom.Infrastructure.Lsp.Protocol;
 
 namespace Axiom.Infrastructure.Lsp.Transport;
 
-public sealed class JsonRpcLspClient : IAsyncDisposable
+public sealed class JsonRpcLspClient(LspServerConfiguration configuration) : IAsyncDisposable
 {
     private readonly CancellationTokenSource _cancellationTokenSource = new();
 
@@ -24,37 +24,37 @@ public sealed class JsonRpcLspClient : IAsyncDisposable
     private readonly Logger _logger = new(ModuleType.Lsp, LogLevel.Debug);
     private readonly ConcurrentDictionary<string, List<Func<JsonElement, Task>>> _notificationHandlers = new();
     private readonly ConcurrentDictionary<int, TaskCompletionSource<JsonElement>> _pendingRequests = new();
+    private readonly SemaphoreSlim _writeLock = new(1, 1);
     private Process? _process;
 
     private int _requestId;
     private Stream? _stdin;
     private Stream? _stdout;
 
-    // ReSharper disable once ConvertToPrimaryConstructor
-    public JsonRpcLspClient(LspServerConfiguration configuration)
-    {
-        Configuration = configuration;
-    }
-
     private bool IsRunning => _process is { HasExited: false };
 
-    private LspServerConfiguration Configuration { get; }
+    private LspServerConfiguration Configuration { get; } = configuration;
 
     public async ValueTask DisposeAsync()
     {
-        await _cancellationTokenSource.CancelAsync();
+        if (!IsRunning) return;
 
-        if (IsRunning)
+        try
         {
             await SendNotificationAsync(LspMethod.Notification.Shutdown);
             await SendNotificationAsync(LspMethod.Notification.Exit);
-
-            if (_stdin is not null) await _stdin.DisposeAsync();
-            if (_stdout is not null) await _stdout.DisposeAsync();
-
-            _process!.Kill();
+        }
+        catch
+        {
+            // Ignore shutdown errors.
         }
 
+        await _cancellationTokenSource.CancelAsync();
+
+        if (_stdin is not null) await _stdin.DisposeAsync();
+        if (_stdout is not null) await _stdout.DisposeAsync();
+
+        if (IsRunning) _process!.Kill();
         _process?.Dispose();
     }
 
@@ -136,16 +136,35 @@ public sealed class JsonRpcLspClient : IAsyncDisposable
 
     private async Task SendAsync(object payload)
     {
-        var jsonString = JsonSerializer.Serialize(payload, _jsonSerializerOptions);
-        var bytes = Encoding.UTF8.GetBytes(jsonString);
-        var header = $"Content-Length: {bytes.Length}\r\n\r\n";
-        var headerBytes = Encoding.ASCII.GetBytes(header);
+        if (!IsRunning || _stdin == null) return;
 
-        _logger.Debug($"Client: {jsonString}");
+        await _writeLock.WaitAsync(_cancellationTokenSource.Token);
 
-        if (_stdin != null) await _stdin.WriteAsync(headerBytes);
-        if (_stdin != null) await _stdin.WriteAsync(bytes);
-        if (_stdin != null) await _stdin.FlushAsync();
+        try
+        {
+            var jsonString = JsonSerializer.Serialize(payload, _jsonSerializerOptions);
+            var bytes = Encoding.UTF8.GetBytes(jsonString);
+            var header = $"Content-Length: {bytes.Length}\r\n\r\n";
+            var headerBytes = Encoding.ASCII.GetBytes(header);
+
+            _logger.Debug($"Client: {jsonString}");
+
+            await _stdin.WriteAsync(headerBytes, _cancellationTokenSource.Token);
+            await _stdin.WriteAsync(bytes, _cancellationTokenSource.Token);
+            await _stdin.FlushAsync(_cancellationTokenSource.Token);
+        }
+        catch (IOException)
+        {
+            ErrorHandler.DisplayMessage("Attempted to write to closed LSP pipe.");
+        }
+        catch (ObjectDisposedException)
+        {
+            ErrorHandler.DisplayMessage("LSP stream already disposed.");
+        }
+        finally
+        {
+            _writeLock.Release();
+        }
     }
 
     private async Task ListenLoopAsync()
